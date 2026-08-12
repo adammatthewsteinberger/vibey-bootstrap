@@ -173,3 +173,31 @@ def test_records_settle_on_all_paths() -> None:
         ) as fake_settle:
             handle_message(receiver, msg, processor)
             fake_settle.assert_called_once()
+
+
+def test_keyboard_interrupt_is_not_swallowed() -> None:
+    receiver = MagicMock()
+    processor = MagicMock()
+    processor.process.side_effect = KeyboardInterrupt()
+    msg = _make_msg({"correlation_id": "x"})
+
+    with pytest.raises(KeyboardInterrupt):
+        handle_message(receiver, msg, processor)
+    receiver.abandon_message.assert_not_called()
+    receiver.dead_letter_message.assert_not_called()
+
+
+def test_lock_renewer_uses_register_and_does_not_close() -> None:
+    receiver = MagicMock()
+    processor = MagicMock()
+    msg = _make_msg({"correlation_id": "x"})
+
+    class _Renewer:
+        def __init__(self) -> None:
+            self.register = MagicMock()
+            self.close = MagicMock()
+
+    renewer = _Renewer()
+    handle_message(receiver, msg, processor, lock_renewer=renewer)
+    renewer.register.assert_called_once()
+    renewer.close.assert_not_called()

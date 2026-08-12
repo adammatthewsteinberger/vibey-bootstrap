@@ -111,8 +111,16 @@ def handle_message(
     failed = False
     try:
         if lock_renewer is not None:
+            # Prefer AutoLockRenewer.register(...); accept register_message as alias.
             try:
-                lock_renewer.register_message(receiver, msg, max_lock_renewal_duration=3600)
+                register = getattr(lock_renewer, "register", None) or getattr(
+                    lock_renewer, "register_message", None
+                )
+                if register is None:
+                    raise AttributeError(
+                        f"{type(lock_renewer).__name__} has no register/register_message"
+                    )
+                register(receiver, msg, max_lock_renewal_duration=3600)
             except Exception:
                 _logger.warning("lock_renewer registration failed", exc_info=True)
 
@@ -163,6 +171,10 @@ def handle_message(
             try:
                 processor.process(payload)
             except BaseException as exc:
+                # Never swallow process-control exceptions — abandon/dead-letter
+                # would hide SIGINT/SystemExit and prevent clean worker shutdown.
+                if isinstance(exc, (KeyboardInterrupt, SystemExit, GeneratorExit)):
+                    raise
                 if is_unrecoverable(exc):
                     bump_counter(f"{counter_namespace}.dead_lettered")
                     try:
@@ -219,11 +231,9 @@ def handle_message(
             processed = True
             return True, False
     finally:
-        if lock_renewer is not None:
-            try:
-                lock_renewer.close()
-            except Exception:
-                pass
+        # Do NOT close lock_renewer here — callers often pass a shared
+        # AutoLockRenewer across messages. Prefer lock_for_process() which
+        # owns renewer lifetime, or close the shared renewer at shutdown.
         record_message_settled()
     return processed, failed
 
