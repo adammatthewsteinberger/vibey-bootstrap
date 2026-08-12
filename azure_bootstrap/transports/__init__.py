@@ -217,11 +217,18 @@ def _reconcile() -> None:
 
     Defends against ``configure_logging()``'s ``basicConfig(force=True)`` wiping
     handlers out from under the registry — a subsequent enable then re-adds.
+
+    Orphaned handlers are closed so buffered shipper threads/atexit hooks do
+    not keep running after a wipe (which would duplicate/lost-ship and leak).
     """
     root_handlers = set(logging.getLogger().handlers)
     for name in list(_active):
         if _active[name] not in root_handlers:
-            del _active[name]
+            orphan = _active.pop(name)
+            try:
+                orphan.close()
+            except Exception:
+                pass
 
 
 def _reset_transports() -> None:

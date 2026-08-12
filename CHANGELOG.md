@@ -5,6 +5,27 @@ All notable changes to the Azure Bootstrap library.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/); the
 project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- **Security**: `verify_api_key_header` used as `Depends(...)` exposed
+  `env_var` and `fail_open_when_unset` as query parameters. An attacker could
+  pass `?env_var=<unset>&x_api_key=anything` and fail-open past API-key auth.
+  FastAPI now only sees the `X-API-Key` header; config kwargs stay programmatic.
+  Added `api_key_dependency(...)` for non-default config closed over safely.
+- **Service Bus**: `handle_message` caught `BaseException` and treated
+  `KeyboardInterrupt` / `SystemExit` as transient abandons, swallowing shutdown.
+  Process-control exceptions are re-raised. `lock_renewer` now calls
+  `register()` (AutoLockRenewer) and no longer `.close()`s a shared renewer
+  after every message.
+- **Health**: `check_app_config_health` closes the App Configuration client after
+  each probe (connection leak under frequent readiness checks) and redacts
+  secret-shaped fragments from error messages returned to callers.
+- **Transports**: `_reconcile()` closes orphaned handlers after
+  `configure_logging()` wipes root handlers, so buffered shipper threads do not
+  keep running and double-shipping.
+
 ## [3.0.1] — 2026-08-10
 
 One runtime fix to `azure_bootstrap.health`; everything else is infrastructure

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 from typing import Any
 
 from azure_bootstrap.tracing.decorators import traced
@@ -20,6 +21,27 @@ def _mock_enabled() -> bool:
         "yes",
         "on",
     }
+
+
+def _redact_health_error(message: str) -> str:
+    """Strip connection-string / secret-shaped fragments from probe errors.
+
+    Health endpoints are often public; Azure SDK messages sometimes echo
+    endpoints or credential material. Keep the status signal, drop the secret.
+    """
+    redacted = message
+    # Endpoint=...;Id=...;Secret=... (and common variants)
+    redacted = re.sub(
+        r"(?i)(secret|password|pwd|key|token|signature)\s*=\s*[^;\s]+",
+        r"\1=***",
+        redacted,
+    )
+    redacted = re.sub(
+        r"(?i)(Endpoint=https://[^;]+;Id=)[^;]+",
+        r"\1***",
+        redacted,
+    )
+    return redacted[:200]
 
 
 @traced(operation="health.check_app_config_health", alert_on_error="warn")
@@ -38,6 +60,7 @@ def check_app_config_health() -> dict[str, Any]:
         from azure.identity import DefaultAzureCredential  # type: ignore[import-not-found]
     except ImportError:
         return {"status": "error", "message": "azure-appconfiguration not installed"}
+    client: Any = None
     try:
         if conn:
             client = AzureAppConfigurationClient.from_connection_string(conn)
@@ -51,7 +74,15 @@ def check_app_config_health() -> dict[str, Any]:
         next(iter(client.list_configuration_settings()), None)
         return {"status": "ok"}
     except Exception as exc:  # noqa: BLE001
-        return {"status": "error", "message": str(exc)[:200]}
+        return {"status": "error", "message": _redact_health_error(str(exc))}
+    finally:
+        if client is not None:
+            close = getattr(client, "close", None)
+            if callable(close):
+                try:
+                    close()
+                except Exception:  # noqa: BLE001
+                    pass
 
 
 @traced(operation="health.check_app_insights_health", alert_on_error="warn")

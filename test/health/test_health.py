@@ -119,6 +119,38 @@ def test_app_config_error_is_reported_and_truncated(
     assert len(result["message"]) == 200
 
 
+def test_app_config_error_redacts_connection_string_secrets(
+    monkeypatch: pytest.MonkeyPatch, fake_client: type[_FakeClient]
+) -> None:
+    monkeypatch.setenv("AZURE_APP_CONFIGURATION_CONNECTION_STRING", "Endpoint=https://x")
+    fake_client.raises = RuntimeError(
+        "auth failed for Endpoint=https://x.azconfig.io;Id=abc;Secret=SUPERSECRETVALUE"
+    )
+    result = check_app_config_health()
+    assert result["status"] == "error"
+    assert "SUPERSECRETVALUE" not in result["message"]
+    assert "Secret=***" in result["message"]
+
+
+def test_app_config_client_is_closed(
+    monkeypatch: pytest.MonkeyPatch, fake_client: type[_FakeClient]
+) -> None:
+    monkeypatch.setenv("AZURE_APP_CONFIGURATION_CONNECTION_STRING", "Endpoint=https://x")
+    closed: list[bool] = []
+
+    original_from_cs = fake_client.from_connection_string
+
+    @classmethod  # type: ignore[misc]
+    def from_cs(cls: type[_FakeClient], conn: str) -> _FakeClient:
+        client = original_from_cs(conn)
+        client.close = lambda: closed.append(True)  # type: ignore[method-assign]
+        return client
+
+    monkeypatch.setattr(fake_client, "from_connection_string", from_cs)
+    check_app_config_health()
+    assert closed == [True]
+
+
 def test_app_insights_mock(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("USE_MOCK_BOOTSTRAP", "true")
     assert check_app_insights_health() == {"status": "ok", "mock": True}
