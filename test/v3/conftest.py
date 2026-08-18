@@ -54,7 +54,7 @@ def patch_session_post(handler: Any, recorder: PostRecorder) -> None:
 
 @pytest.fixture
 def isolated_counters():
-    from azure_bootstrap.counters import _reset_counters
+    from vibey_bootstrap.counters import _reset_counters
 
     _reset_counters()
     yield

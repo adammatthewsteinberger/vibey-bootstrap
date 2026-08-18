@@ -10,7 +10,7 @@ Key invariants:
 - Async detection via ``asyncio.iscoroutinefunction`` — no manual choice.
 - When DEBUG is off, ``inspect.signature`` is skipped entirely so the hot
   path stays cheap.
-- ``alert_on_error="error"`` lazy-imports ``azure_bootstrap.alerts`` so
+- ``alert_on_error="error"`` lazy-imports ``vibey_bootstrap.alerts`` so
   apps without the alerts extra still get tracing.
 """
 
@@ -23,13 +23,13 @@ import os
 os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
 os.environ.setdefault("AZURE_BOOTSTRAP_ALLOW_RESET", "1")
 
-from azure_bootstrap.alerts import (
+from vibey_bootstrap.alerts import (
     drain_pending_alerts,
     register_dispatcher,
 )
-from azure_bootstrap.alerts import reset_state as reset_alerts
-from azure_bootstrap.logging import configure_logging
-from azure_bootstrap.tracing import latency_snapshot, reset_latency_state, traced
+from vibey_bootstrap.alerts import reset_state as reset_alerts
+from vibey_bootstrap.logging import configure_logging
+from vibey_bootstrap.tracing import latency_snapshot, reset_latency_state, traced
 
 logger = logging.getLogger(__name__)
 

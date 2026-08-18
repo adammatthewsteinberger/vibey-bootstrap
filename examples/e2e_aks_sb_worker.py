@@ -33,21 +33,21 @@ if "--dry-run" in sys.argv:
     os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
     os.environ.setdefault("AZURE_BOOTSTRAP_ALLOW_RESET", "1")
 
-from azure_bootstrap.alerts import (
+from vibey_bootstrap.alerts import (
     install_global_exception_hooks,
     register_dispatcher,
 )
-from azure_bootstrap.bootstrap import ensure_bootstrap
-from azure_bootstrap.counters import counter_snapshot
-from azure_bootstrap.heartbeat import (
+from vibey_bootstrap.bootstrap import ensure_bootstrap
+from vibey_bootstrap.counters import counter_snapshot
+from vibey_bootstrap.heartbeat import (
     record_consumer_iteration,
     start_background_monitors,
 )
-from azure_bootstrap.identity import build_credential, credential_kind
-from azure_bootstrap.logging import configure_logging
-from azure_bootstrap.sb_lock import lock_for_process
-from azure_bootstrap.servicebus import handle_message
-from azure_bootstrap.validation import queue_message_schema
+from vibey_bootstrap.identity import build_credential, credential_kind
+from vibey_bootstrap.logging import configure_logging
+from vibey_bootstrap.sb_lock import lock_for_process
+from vibey_bootstrap.servicebus import handle_message
+from vibey_bootstrap.validation import queue_message_schema
 
 
 # ── Project's MessageProcessor ───────────────────────────────────────────

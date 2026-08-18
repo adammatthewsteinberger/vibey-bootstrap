@@ -12,7 +12,7 @@ The bootstrap handles:
 - Loading all configs to os.environ
 
 Installation:
-    pip install azure-bootstrap
+    pip install vibey-bootstrap
 
 Configuration:
     See local.settings.json.example for required environment variables
@@ -24,7 +24,7 @@ from datetime import UTC, datetime
 
 import azure.functions as func
 
-from azure_bootstrap import get_bootstrap_logger, initialize_application
+from vibey_bootstrap import get_bootstrap_logger, initialize_application
 
 # Global state for lazy initialization
 _bootstrap_initialized = False

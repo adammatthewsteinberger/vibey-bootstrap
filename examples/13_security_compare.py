@@ -16,7 +16,7 @@ import os
 
 os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
 
-from azure_bootstrap.security import compare_secrets, verify_api_key_header
+from vibey_bootstrap.security import compare_secrets, verify_api_key_header
 
 
 def main() -> None:

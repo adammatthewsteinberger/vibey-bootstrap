@@ -1,4 +1,4 @@
-"""Tests for ``azure_bootstrap.subscription``."""
+"""Tests for ``vibey_bootstrap.subscription``."""
 
 from __future__ import annotations
 
@@ -7,12 +7,12 @@ import time
 
 import pytest
 
-from azure_bootstrap.alerts import (
+from vibey_bootstrap.alerts import (
     register_dispatcher,
 )
-from azure_bootstrap.alerts import reset_state as reset_alerts
-from azure_bootstrap.counters import _reset_counters, counter_snapshot
-from azure_bootstrap.subscription import (
+from vibey_bootstrap.alerts import reset_state as reset_alerts
+from vibey_bootstrap.counters import _reset_counters, counter_snapshot
+from vibey_bootstrap.subscription import (
     RenewableResource,
     SubscriptionGone,
     ensure_resource,

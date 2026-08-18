@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from azure_bootstrap.repositories.secrets_repository import SecretsRepository
+from vibey_bootstrap.repositories.secrets_repository import SecretsRepository
 
 
 @pytest.mark.unit

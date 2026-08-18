@@ -16,7 +16,7 @@ Key invariants:
 - Every counter + alert in the path is best-effort — never breaks the
   scheduler tick.
 
-Requires ``pip install azure-bootstrap[scheduler]`` only if you wire the
+Requires ``pip install vibey-bootstrap[scheduler]`` only if you wire the
 APScheduler driver; ``refresh_log_flags`` itself is stdlib-only.
 """
 
@@ -29,9 +29,9 @@ import os
 os.environ.setdefault("AZURE_BOOTSTRAP_ALLOW_RESET", "1")
 os.environ.pop("USE_MOCK_BOOTSTRAP", None)
 
-from azure_bootstrap.config_refresh import refresh_log_flags
-from azure_bootstrap.counters import _reset_counters, counter_snapshot
-from azure_bootstrap.logging import configure_logging, effective_log_level
+from vibey_bootstrap.config_refresh import refresh_log_flags
+from vibey_bootstrap.counters import _reset_counters, counter_snapshot
+from vibey_bootstrap.logging import configure_logging, effective_log_level
 
 
 def main() -> None:

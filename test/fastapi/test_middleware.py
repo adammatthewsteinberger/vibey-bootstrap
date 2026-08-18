@@ -1,4 +1,4 @@
-"""Tests for ``azure_bootstrap.fastapi_middleware``."""
+"""Tests for ``vibey_bootstrap.fastapi_middleware``."""
 
 from __future__ import annotations
 
@@ -10,12 +10,12 @@ httpx = pytest.importorskip("httpx")
 from fastapi import FastAPI, HTTPException
 from fastapi.testclient import TestClient
 
-from azure_bootstrap.alerts import (
+from vibey_bootstrap.alerts import (
     drain_pending_alerts,
     register_dispatcher,
     reset_state,
 )
-from azure_bootstrap.fastapi_middleware import install_middleware
+from vibey_bootstrap.fastapi_middleware import install_middleware
 
 
 @pytest.fixture
@@ -60,7 +60,7 @@ def test_middleware_skips_probes(
 ) -> None:
     app = _make_app()
     client = TestClient(app)
-    with caplog.at_level("DEBUG", logger="azure_bootstrap.fastapi_middleware"):
+    with caplog.at_level("DEBUG", logger="vibey_bootstrap.fastapi_middleware"):
         r = client.get("/health/live")
     assert r.status_code == 200
     assert not any("→ HTTP" in record.message for record in caplog.records)

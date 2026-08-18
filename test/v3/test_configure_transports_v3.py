@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
-import azure_bootstrap.transports as transports
-from azure_bootstrap.transports import configure_transports, list_transports
+import vibey_bootstrap.transports as transports
+from vibey_bootstrap.transports import configure_transports, list_transports
 
 
 def _reset() -> None:
@@ -57,7 +57,7 @@ def test_configure_adx_env(monkeypatch) -> None:
     monkeypatch.setenv("ADX_CLUSTER_URI", "https://cluster")
     monkeypatch.setenv("ADX_DATABASE", "db")
     monkeypatch.setenv("ADX_LOGGING_ENABLED", "1")
-    with patch("azure_bootstrap.transports.adx.StreamingIngestClient", create=True):
+    with patch("vibey_bootstrap.transports.adx.StreamingIngestClient", create=True):
         configure_transports()
     try:
         assert list_transports()["adx"]["enabled"] is True

@@ -18,13 +18,13 @@ import time
 os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
 os.environ.setdefault("AZURE_BOOTSTRAP_ALLOW_RESET", "1")
 
-from azure_bootstrap.alerts import (
+from vibey_bootstrap.alerts import (
     register_dispatcher,
 )
-from azure_bootstrap.alerts import reset_state as reset_alerts
-from azure_bootstrap.counters import _reset_counters, counter_snapshot
-from azure_bootstrap.logging import configure_logging
-from azure_bootstrap.tracing import (
+from vibey_bootstrap.alerts import reset_state as reset_alerts
+from vibey_bootstrap.counters import _reset_counters, counter_snapshot
+from vibey_bootstrap.logging import configure_logging
+from vibey_bootstrap.tracing import (
     default_slow_threshold,
     latency_snapshot,
     register_slow_threshold,

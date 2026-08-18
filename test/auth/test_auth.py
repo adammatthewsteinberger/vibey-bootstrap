@@ -1,4 +1,4 @@
-"""Tests for ``azure_bootstrap.auth``."""
+"""Tests for ``vibey_bootstrap.auth``."""
 
 from __future__ import annotations
 
@@ -11,15 +11,15 @@ fastapi = pytest.importorskip("fastapi")
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from azure_bootstrap.auth import (
+from vibey_bootstrap.auth import (
     WebhookDedup,
     install_graph_webhook_route,
     validation_token_handshake,
     verify_webhook_client_state,
 )
-from azure_bootstrap.counters import _reset_counters, counter_snapshot
-from azure_bootstrap.failclose import ConfigurationError
-from azure_bootstrap.ratelimit import TokenBucket
+from vibey_bootstrap.counters import _reset_counters, counter_snapshot
+from vibey_bootstrap.failclose import ConfigurationError
+from vibey_bootstrap.ratelimit import TokenBucket
 
 
 @pytest.fixture(autouse=True)

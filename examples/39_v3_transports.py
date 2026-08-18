@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import os
 
-from azure_bootstrap import configure_transports
+from vibey_bootstrap import configure_transports
 
 # Enable transports via env flags or explicit kwargs.
 # Each transport soft no-ops when unconfigured or missing its pip extra.

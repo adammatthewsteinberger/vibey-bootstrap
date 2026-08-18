@@ -13,8 +13,8 @@ from collections.abc import Iterator
 
 import pytest
 
-import azure_bootstrap.transports as transports
-from azure_bootstrap.counters import _reset_counters
+import vibey_bootstrap.transports as transports
+from vibey_bootstrap.counters import _reset_counters
 
 _TRANSPORT_ENV = (
     "CONSOLE_LOGGING_ENABLED",

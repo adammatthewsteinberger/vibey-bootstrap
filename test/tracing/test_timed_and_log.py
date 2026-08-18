@@ -6,8 +6,8 @@ import logging
 
 import pytest
 
-from azure_bootstrap.tracing.log_exception_context import log_exception_context
-from azure_bootstrap.tracing.timed_operation import timed_operation
+from vibey_bootstrap.tracing.log_exception_context import log_exception_context
+from vibey_bootstrap.tracing.timed_operation import timed_operation
 
 
 def test_timed_operation_emits_on_debug(caplog: pytest.LogCaptureFixture) -> None:

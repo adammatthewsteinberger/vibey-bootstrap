@@ -1,4 +1,4 @@
-"""Tests for ``azure_bootstrap.tokens``."""
+"""Tests for ``vibey_bootstrap.tokens``."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from azure_bootstrap.tokens import (
+from vibey_bootstrap.tokens import (
     InvalidActionToken,
     issue_action_token,
     verify_action_token,
@@ -65,7 +65,7 @@ def test_malformed_token() -> None:
 
 def test_uses_constant_time_compare() -> None:
     """The signature comparison must use ``hmac.compare_digest``."""
-    from azure_bootstrap.tokens import __file__ as tokens_path
+    from vibey_bootstrap.tokens import __file__ as tokens_path
 
     source = Path(tokens_path).read_text()
     assert (

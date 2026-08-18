@@ -6,7 +6,7 @@ import pytest
 
 pytest.importorskip("sqlalchemy")
 
-from azure_bootstrap.db import create_engine_from_env, db_health, postgres_rls_statements
+from vibey_bootstrap.db import create_engine_from_env, db_health, postgres_rls_statements
 
 
 def test_postgres_rls_statements() -> None:

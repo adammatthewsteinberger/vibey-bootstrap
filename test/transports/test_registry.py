@@ -6,8 +6,8 @@ import logging
 
 import pytest
 
-import azure_bootstrap.transports as transports
-from azure_bootstrap.transports import (
+import vibey_bootstrap.transports as transports
+from vibey_bootstrap.transports import (
     disable_transport,
     enable_transport,
     list_transports,

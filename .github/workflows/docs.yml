@@ -16,7 +16,7 @@ on:
       - "**.md"
       - "mkdocs.yml"
       - "docs/**"
-      - "azure_bootstrap/**"
+      - "vibey_bootstrap/**"
       - "pyproject.toml"
       - ".github/workflows/docs.yml"
   pull_request:
@@ -25,7 +25,7 @@ on:
       - "**.md"
       - "mkdocs.yml"
       - "docs/**"
-      - "azure_bootstrap/**"
+      - "vibey_bootstrap/**"
       - "pyproject.toml"
       - ".github/workflows/docs.yml"
   workflow_dispatch:

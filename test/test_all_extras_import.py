@@ -14,25 +14,25 @@ def _import(module: str) -> None:
 @pytest.mark.parametrize(
     "module",
     [
-        "azure_bootstrap.transports.adx",
-        "azure_bootstrap.transports.event_hubs",
-        "azure_bootstrap.transports.panther",
-        "azure_bootstrap.transports.blob",
-        "azure_bootstrap.transports.sql",
-        "azure_bootstrap.transports.nosql",
-        "azure_bootstrap.db",
-        "azure_bootstrap.db.migrations",
-        "azure_bootstrap.db.outbox",
-        "azure_bootstrap.email",
-        "azure_bootstrap.http",
-        "azure_bootstrap.http.async_client",
-        "azure_bootstrap.documentdb",
-        "azure_bootstrap.aks",
-        "azure_bootstrap.aks.leader_election",
-        "azure_bootstrap.governance",
-        "azure_bootstrap.auth.hmac",
-        "azure_bootstrap.servicebus.async_ext",
-        "azure_bootstrap.contrib.scaffold",
+        "vibey_bootstrap.transports.adx",
+        "vibey_bootstrap.transports.event_hubs",
+        "vibey_bootstrap.transports.panther",
+        "vibey_bootstrap.transports.blob",
+        "vibey_bootstrap.transports.sql",
+        "vibey_bootstrap.transports.nosql",
+        "vibey_bootstrap.db",
+        "vibey_bootstrap.db.migrations",
+        "vibey_bootstrap.db.outbox",
+        "vibey_bootstrap.email",
+        "vibey_bootstrap.http",
+        "vibey_bootstrap.http.async_client",
+        "vibey_bootstrap.documentdb",
+        "vibey_bootstrap.aks",
+        "vibey_bootstrap.aks.leader_election",
+        "vibey_bootstrap.governance",
+        "vibey_bootstrap.auth.hmac",
+        "vibey_bootstrap.servicebus.async_ext",
+        "vibey_bootstrap.contrib.scaffold",
     ],
 )
 def test_v3_modules_import(module: str) -> None:
@@ -40,13 +40,13 @@ def test_v3_modules_import(module: str) -> None:
 
 
 def test_all_transport_factories_soft_noop() -> None:
-    from azure_bootstrap.transports.adx import make_adx_handler
-    from azure_bootstrap.transports.blob import make_blob_handler
-    from azure_bootstrap.transports.event_hubs import make_event_hubs_handler
-    from azure_bootstrap.transports.nosql import make_nosql_handler
-    from azure_bootstrap.transports.panther import make_panther_handler
-    from azure_bootstrap.transports.sql import make_sql_handler
-    from azure_bootstrap.transports.sumologic import make_sumo_logic_handler
+    from vibey_bootstrap.transports.adx import make_adx_handler
+    from vibey_bootstrap.transports.blob import make_blob_handler
+    from vibey_bootstrap.transports.event_hubs import make_event_hubs_handler
+    from vibey_bootstrap.transports.nosql import make_nosql_handler
+    from vibey_bootstrap.transports.panther import make_panther_handler
+    from vibey_bootstrap.transports.sql import make_sql_handler
+    from vibey_bootstrap.transports.sumologic import make_sumo_logic_handler
 
     assert make_adx_handler() is None
     assert make_event_hubs_handler() is None
@@ -68,7 +68,7 @@ def test_version_matches_pyproject() -> None:
     import tomllib
     from pathlib import Path
 
-    import azure_bootstrap as ab
+    import vibey_bootstrap as ab
 
     pyproject = Path(__file__).resolve().parent.parent / "pyproject.toml"
     with pyproject.open("rb") as fh:
@@ -78,7 +78,7 @@ def test_version_matches_pyproject() -> None:
 
 
 def test_top_level_v3_exports() -> None:
-    import azure_bootstrap as ab
+    import vibey_bootstrap as ab
 
     for name in (
         "configure_transports",
@@ -89,8 +89,8 @@ def test_top_level_v3_exports() -> None:
     ):
         assert hasattr(ab, name), f"missing top-level export: {name}"
 
-    from azure_bootstrap.aks.leader_election import LeaderElection
-    from azure_bootstrap.servicebus.async_ext import ReplayGuard
+    from vibey_bootstrap.aks.leader_election import LeaderElection
+    from vibey_bootstrap.servicebus.async_ext import ReplayGuard
 
     assert LeaderElection is not None
     assert ReplayGuard is not None

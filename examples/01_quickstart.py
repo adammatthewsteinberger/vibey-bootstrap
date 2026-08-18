@@ -18,12 +18,12 @@ import os
 # Run without contacting Azure
 os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
 
-from azure_bootstrap.alerts import (
+from vibey_bootstrap.alerts import (
     install_global_exception_hooks,
     register_dispatcher,
 )
-from azure_bootstrap.bootstrap import ensure_bootstrap
-from azure_bootstrap.logging import configure_logging
+from vibey_bootstrap.bootstrap import ensure_bootstrap
+from vibey_bootstrap.logging import configure_logging
 
 # ── 1. Define your email sender (any callable matching this signature) ──
 sent_alerts: list[tuple[list[str], str, int]] = []
@@ -49,7 +49,7 @@ def main() -> None:
     )
 
     # ── 3. Demonstrate a CRITICAL alert flowing through the dispatcher ─
-    from azure_bootstrap.alerts import AlertSeverity, alert_dev_team
+    from vibey_bootstrap.alerts import AlertSeverity, alert_dev_team
 
     alert_dev_team(
         AlertSeverity.CRITICAL,

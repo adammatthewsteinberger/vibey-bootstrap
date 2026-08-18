@@ -8,7 +8,7 @@ Supports both:
 - 5-field standard cron: ``minute hour day month day_of_week``
 - 6-field NCRONTAB (with seconds): ``second minute hour day month day_of_week``
 
-Requires ``pip install azure-bootstrap[scheduler]``.
+Requires ``pip install vibey-bootstrap[scheduler]``.
 """
 
 from __future__ import annotations
@@ -21,12 +21,12 @@ os.environ.setdefault("AZURE_BOOTSTRAP_ALLOW_RESET", "1")
 try:
     from apscheduler.triggers.cron import CronTrigger  # type: ignore[import-not-found]
 except ImportError:
-    print("apscheduler not installed — run `pip install azure-bootstrap[scheduler]`")
+    print("apscheduler not installed — run `pip install vibey-bootstrap[scheduler]`")
     raise SystemExit(0)
 
-from azure_bootstrap.alerts import register_dispatcher
-from azure_bootstrap.alerts import reset_state as reset_alerts
-from azure_bootstrap.scheduler import parse_cron_trigger
+from vibey_bootstrap.alerts import register_dispatcher
+from vibey_bootstrap.alerts import reset_state as reset_alerts
+from vibey_bootstrap.scheduler import parse_cron_trigger
 
 
 def main() -> None:

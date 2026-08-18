@@ -16,7 +16,7 @@ factory you can turn on or off from your own code (or via an env flag).
 - ``register_transport`` lets you add your own named sink.
 
 The registry, console, and App Insights transports need no extra; the Sumo Logic
-transport needs ``pip install 'azure-bootstrap[sumologic]'``.
+transport needs ``pip install 'vibey-bootstrap[sumologic]'``.
 """
 
 from __future__ import annotations
@@ -27,12 +27,12 @@ import os
 os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
 os.environ.setdefault("AZURE_BOOTSTRAP_ALLOW_RESET", "1")
 
-from azure_bootstrap import (
+from vibey_bootstrap import (
     configure_transports,
     list_transports,
     register_transport,
 )
-from azure_bootstrap.logging import JsonLogFormatter, correlation_scope
+from vibey_bootstrap.logging import JsonLogFormatter, correlation_scope
 
 
 def main() -> None:
@@ -55,7 +55,7 @@ def main() -> None:
             captured.append(self.format(record))
 
     register_transport("capture", _CaptureHandler, replace=True)
-    from azure_bootstrap import enable_transport
+    from vibey_bootstrap import enable_transport
 
     enable_transport("capture")
     logger.warning("shipped as JSON", extra={"api_key": "supersecret", "order_id": 7})
@@ -71,7 +71,7 @@ def main() -> None:
     print(f"  custom captured lines: {len(captured)}")
     print(f"  api_key masked in JSON: {masked}")
 
-    from azure_bootstrap.transports import _reset_transports
+    from vibey_bootstrap.transports import _reset_transports
 
     _reset_transports()  # closes handlers / joins Sumo thread
 

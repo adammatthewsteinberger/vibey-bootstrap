@@ -20,7 +20,7 @@ import threading
 os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
 os.environ.setdefault("AZURE_BOOTSTRAP_ALLOW_RESET", "1")
 
-from azure_bootstrap.counters import (
+from vibey_bootstrap.counters import (
     _reset_counters,
     bump_counter,
     counter_snapshot,

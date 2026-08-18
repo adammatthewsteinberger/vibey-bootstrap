@@ -1,4 +1,4 @@
-"""Tests for ``azure_bootstrap.servicebus.dlq_alarm`` and ``.dlq_digest``."""
+"""Tests for ``vibey_bootstrap.servicebus.dlq_alarm`` and ``.dlq_digest``."""
 
 from __future__ import annotations
 
@@ -6,17 +6,17 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from azure_bootstrap.alerts import (
+from vibey_bootstrap.alerts import (
     AlertSeverity,
     alert_dev_team,
     register_dispatcher,
 )
-from azure_bootstrap.alerts import reset_state as reset_alerts
-from azure_bootstrap.servicebus.dlq_alarm import (
+from vibey_bootstrap.alerts import reset_state as reset_alerts
+from vibey_bootstrap.servicebus.dlq_alarm import (
     check_dlq_growth_rate,
 )
-from azure_bootstrap.servicebus.dlq_alarm import reset_state as reset_alarm
-from azure_bootstrap.servicebus.dlq_digest import run_dlq_digest
+from vibey_bootstrap.servicebus.dlq_alarm import reset_state as reset_alarm
+from vibey_bootstrap.servicebus.dlq_digest import run_dlq_digest
 
 
 @pytest.fixture

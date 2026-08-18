@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from azure_bootstrap.http import build_session, request_with_retry
+from vibey_bootstrap.http import build_session, request_with_retry
 
 session = build_session()
 resp = request_with_retry("GET", "https://httpbin.org/get", session=session)

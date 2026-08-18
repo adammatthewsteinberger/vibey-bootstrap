@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 
-from azure_bootstrap.auth import verify_hmac_signature
+from vibey_bootstrap.auth import verify_hmac_signature
 
 
 def test_verify_hmac_valid() -> None:

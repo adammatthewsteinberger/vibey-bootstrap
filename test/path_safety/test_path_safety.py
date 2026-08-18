@@ -1,4 +1,4 @@
-"""Tests for ``azure_bootstrap.path_safety``."""
+"""Tests for ``vibey_bootstrap.path_safety``."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from azure_bootstrap.path_safety import (
+from vibey_bootstrap.path_safety import (
     MAX_SEGMENT_LEN,
     confine_to_root,
     sanitize_path_segment,

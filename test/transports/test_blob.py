@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from unittest.mock import MagicMock
 
-from azure_bootstrap.transports.blob import BlobHandler, make_blob_handler
+from vibey_bootstrap.transports.blob import BlobHandler, make_blob_handler
 
 
 def _record(msg: str = "hi") -> logging.LogRecord:

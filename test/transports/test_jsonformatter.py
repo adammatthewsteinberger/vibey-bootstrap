@@ -5,8 +5,8 @@ from __future__ import annotations
 import json
 import logging
 
-from azure_bootstrap.logging import JsonLogFormatter, correlation_scope
-from azure_bootstrap.logging.correlation import CorrelationFilter
+from vibey_bootstrap.logging import JsonLogFormatter, correlation_scope
+from vibey_bootstrap.logging.correlation import CorrelationFilter
 
 
 def _record(msg: str = "hello", **extra: object) -> logging.LogRecord:

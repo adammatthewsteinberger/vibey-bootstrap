@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Pre-push hook for azure-bootstrap
+# Pre-push hook for vibey-bootstrap
 # Runs comprehensive checks before allowing push
 #
 # This hook runs:
@@ -43,7 +43,7 @@ fi
 
 # 2. Run full test suite with verbose output
 echo -e "${YELLOW}⏳ Running full test suite (verbose)...${NC}"
-if $PYTHON -m pytest test/ -v --cov=azure_bootstrap --cov-report=term-missing --cov-report=html --cov-fail-under=80; then
+if $PYTHON -m pytest test/ -v --cov=vibey_bootstrap --cov-report=term-missing --cov-report=html --cov-fail-under=80; then
     echo -e "${GREEN}✅ Full test suite passed${NC}"
     echo ""
 else

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from azure_bootstrap.http._common import check_ssrf, inject_traceparent
+from vibey_bootstrap.http._common import check_ssrf, inject_traceparent
 
 
 def test_inject_traceparent_adds_header() -> None:

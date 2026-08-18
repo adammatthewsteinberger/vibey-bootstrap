@@ -1,12 +1,12 @@
-"""Tests for ``azure_bootstrap.validation``."""
+"""Tests for ``vibey_bootstrap.validation``."""
 
 from __future__ import annotations
 
 import pytest
 
-from azure_bootstrap.counters import _reset_counters, counter_snapshot
-from azure_bootstrap.exceptions import InvalidMessageError
-from azure_bootstrap.validation import (
+from vibey_bootstrap.counters import _reset_counters, counter_snapshot
+from vibey_bootstrap.exceptions import InvalidMessageError
+from vibey_bootstrap.validation import (
     FieldRule,
     MessageSchema,
     queue_message_schema,

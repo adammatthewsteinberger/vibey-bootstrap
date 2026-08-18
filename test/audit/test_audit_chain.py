@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from azure_bootstrap.audit import AuditChain, ChainedAuditRecord, verify_chain
+from vibey_bootstrap.audit import AuditChain, ChainedAuditRecord, verify_chain
 
 
 def test_verify_chain_detects_tamper() -> None:

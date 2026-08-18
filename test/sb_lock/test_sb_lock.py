@@ -1,4 +1,4 @@
-"""Tests for ``azure_bootstrap.sb_lock``."""
+"""Tests for ``vibey_bootstrap.sb_lock``."""
 
 from __future__ import annotations
 
@@ -7,8 +7,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from azure_bootstrap.counters import _reset_counters, counter_snapshot
-from azure_bootstrap.sb_lock import ManagedLock, lock_for_process
+from vibey_bootstrap.counters import _reset_counters, counter_snapshot
+from vibey_bootstrap.sb_lock import ManagedLock, lock_for_process
 
 
 @pytest.fixture(autouse=True)
@@ -19,7 +19,7 @@ def _reset() -> None:
 def test_lock_for_process_registers_and_closes() -> None:
     renewer = MagicMock()
     with patch(
-        "azure_bootstrap.sb_lock._new_auto_lock_renewer",
+        "vibey_bootstrap.sb_lock._new_auto_lock_renewer",
         return_value=renewer,
     ):
         with lock_for_process(MagicMock(), MagicMock()):
@@ -32,7 +32,7 @@ def test_lock_for_process_registers_and_closes() -> None:
 def test_lock_for_process_closes_on_exception() -> None:
     renewer = MagicMock()
     with patch(
-        "azure_bootstrap.sb_lock._new_auto_lock_renewer",
+        "vibey_bootstrap.sb_lock._new_auto_lock_renewer",
         return_value=renewer,
     ):
         with pytest.raises(RuntimeError):
@@ -46,7 +46,7 @@ def test_lock_for_process_swallows_construction_failure() -> None:
         raise RuntimeError("no AutoLockRenewer available")
 
     with patch(
-        "azure_bootstrap.sb_lock._new_auto_lock_renewer",
+        "vibey_bootstrap.sb_lock._new_auto_lock_renewer",
         side_effect=_bad,
     ):
         # Must not raise — renewer is defensive, not a correctness gate
@@ -59,7 +59,7 @@ def test_lock_for_process_close_failure_bumps_counter() -> None:
     renewer = MagicMock()
     renewer.close.side_effect = RuntimeError("close failed")
     with patch(
-        "azure_bootstrap.sb_lock._new_auto_lock_renewer",
+        "vibey_bootstrap.sb_lock._new_auto_lock_renewer",
         return_value=renewer,
     ):
         with lock_for_process(MagicMock(), MagicMock()):
@@ -70,7 +70,7 @@ def test_lock_for_process_close_failure_bumps_counter() -> None:
 def test_managed_lock_context_manager() -> None:
     renewer = MagicMock()
     with patch(
-        "azure_bootstrap.sb_lock._new_auto_lock_renewer",
+        "vibey_bootstrap.sb_lock._new_auto_lock_renewer",
         return_value=renewer,
     ):
         with ManagedLock(MagicMock(), MagicMock()) as lock:
@@ -82,7 +82,7 @@ def test_managed_lock_context_manager() -> None:
 def test_managed_lock_start_idempotent() -> None:
     renewer = MagicMock()
     with patch(
-        "azure_bootstrap.sb_lock._new_auto_lock_renewer",
+        "vibey_bootstrap.sb_lock._new_auto_lock_renewer",
         return_value=renewer,
     ):
         lock = ManagedLock(MagicMock(), MagicMock())

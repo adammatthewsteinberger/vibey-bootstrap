@@ -20,7 +20,7 @@ from markdown.extensions.toc import slugify as md_slugify
 log = logging.getLogger(f"mkdocs.plugins.{__name__}")
 
 REPO = Path(__file__).resolve().parent.parent
-GITHUB = "https://github.com/TheViziusGroup/azure-bootstrap"
+GITHUB = "https://github.com/adammatthewsteinberger/vibey-bootstrap"
 BLOB = f"{GITHUB}/blob/main/"
 TREE = f"{GITHUB}/tree/main/"
 
@@ -29,13 +29,15 @@ PAGES: dict[str, str] = {
     "docs/USAGE.md": "usage.md",
     "MIGRATING-FROM-V1.md": "MIGRATING-FROM-V1.md",
     "MIGRATING-TO-V3.md": "MIGRATING-TO-V3.md",
+    "MIGRATING-TO-V4.md": "MIGRATING-TO-V4.md",
     "CHANGELOG.md": "CHANGELOG.md",
     "CONTRIBUTING.md": "CONTRIBUTING.md",
     "CLAUDE.md": "CLAUDE.md",
+    "NOTICE.md": "NOTICE.md",
 }
 
 # Alembic scaffolding — no reference value.
-REFERENCE_SKIP = {"azure_bootstrap.db.migrations"}
+REFERENCE_SKIP = {"vibey_bootstrap.db.migrations"}
 
 FENCE_RE = re.compile(r"^(\s{0,3})(`{3,}|~{3,})")
 HEADING_RE = re.compile(r"^(#{1,6})\s+(.*?)\s*#*\s*$")

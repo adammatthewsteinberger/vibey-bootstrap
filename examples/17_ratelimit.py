@@ -11,7 +11,7 @@ Key invariants:
 - Two presets: ``webhook_bucket()`` (240 burst, 4/s) for Graph-shaped
   webhooks; ``admin_bucket()`` (30 burst, 0.5/s) for manual triggers.
 
-Requires ``pip install azure-bootstrap[fastapi]`` for the FastAPI demo.
+Requires ``pip install vibey-bootstrap[fastapi]`` for the FastAPI demo.
 """
 
 from __future__ import annotations
@@ -23,8 +23,8 @@ import time
 os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
 os.environ.setdefault("AZURE_BOOTSTRAP_ALLOW_RESET", "1")
 
-from azure_bootstrap.counters import _reset_counters, counter_snapshot
-from azure_bootstrap.ratelimit import (
+from vibey_bootstrap.counters import _reset_counters, counter_snapshot
+from vibey_bootstrap.ratelimit import (
     TokenBucket,
     admin_bucket,
     fastapi_rate_limit,

@@ -34,16 +34,16 @@ if "--dry-run" in sys.argv:
     os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
     os.environ.setdefault("AZURE_BOOTSTRAP_ALLOW_RESET", "1")
 
-from azure_bootstrap.alerts import (
+from vibey_bootstrap.alerts import (
     install_global_exception_hooks,
     register_dispatcher,
 )
-from azure_bootstrap.audit import build_audit_extra
-from azure_bootstrap.bootstrap import ensure_bootstrap
-from azure_bootstrap.counters import bump_counter, counter_snapshot
-from azure_bootstrap.health import check_app_config_health, check_app_insights_health
-from azure_bootstrap.logging import configure_logging, correlation_scope
-from azure_bootstrap.tracing import traced
+from vibey_bootstrap.audit import build_audit_extra
+from vibey_bootstrap.bootstrap import ensure_bootstrap
+from vibey_bootstrap.counters import bump_counter, counter_snapshot
+from vibey_bootstrap.health import check_app_config_health, check_app_insights_health
+from vibey_bootstrap.logging import configure_logging, correlation_scope
+from vibey_bootstrap.tracing import traced
 
 logger = logging.getLogger(__name__)
 

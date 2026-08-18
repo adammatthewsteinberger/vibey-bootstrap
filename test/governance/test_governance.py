@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from azure_bootstrap.governance import BudgetGuard, UsageTracker, track_usage
+from vibey_bootstrap.governance import BudgetGuard, UsageTracker, track_usage
 
 
 def test_budget_guard_denies_over_budget() -> None:

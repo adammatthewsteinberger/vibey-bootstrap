@@ -18,7 +18,7 @@ def test_sql_handler_sqlite_roundtrip(sqlite_dsn: str) -> None:
     pytest.importorskip("sqlalchemy")
     from sqlalchemy import create_engine, text
 
-    from azure_bootstrap.transports.sql import SqlHandler
+    from vibey_bootstrap.transports.sql import SqlHandler
 
     h = SqlHandler(
         dsn=sqlite_dsn,
@@ -46,12 +46,12 @@ def test_nosql_handler_mongomock_roundtrip() -> None:
 
     import mongomock
 
-    from azure_bootstrap.transports.nosql import NoSqlHandler
+    from vibey_bootstrap.transports.nosql import NoSqlHandler
 
     client = mongomock.MongoClient()
     collection = client["testdb"]["app_logs"]
     with patch(
-        "azure_bootstrap.transports.nosql._connect",
+        "vibey_bootstrap.transports.nosql._connect",
         return_value=(client, collection),
     ):
         h = NoSqlHandler(
@@ -74,7 +74,7 @@ def test_nosql_handler_mongomock_roundtrip() -> None:
 
 
 def test_blob_handler_azurite_append(azurite_container) -> None:
-    from azure_bootstrap.transports.blob import BlobHandler
+    from vibey_bootstrap.transports.blob import BlobHandler
 
     h = BlobHandler(
         container_client=azurite_container,

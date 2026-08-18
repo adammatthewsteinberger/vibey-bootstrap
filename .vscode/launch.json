@@ -37,7 +37,7 @@
       "args": [
         "test",
         "-v",
-        "--cov=ips_azure_bootstrap",
+        "--cov=vibey_bootstrap",
         "--cov-report=term-missing",
         "--cov-report=html"
       ],

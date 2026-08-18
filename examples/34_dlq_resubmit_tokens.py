@@ -24,12 +24,12 @@ import os
 
 os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
 
-from azure_bootstrap.servicebus import (
+from vibey_bootstrap.servicebus import (
     InvalidResubmitToken,
     issue_resubmit_token,
     verify_resubmit_token,
 )
-from azure_bootstrap.tokens import (
+from vibey_bootstrap.tokens import (
     InvalidActionToken,
     issue_action_token,
     verify_action_token,

@@ -23,7 +23,7 @@ from pathlib import Path
 
 os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
 
-from azure_bootstrap.bootstrap import (
+from vibey_bootstrap.bootstrap import (
     bootstrap_initialized,
     ensure_bootstrap,
     load_local_settings,

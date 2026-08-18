@@ -8,11 +8,11 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from azure_bootstrap.contrib.scaffold import main
-from azure_bootstrap.transports.adx import AdxHandler
-from azure_bootstrap.transports.event_hubs import EventHubsHandler
-from azure_bootstrap.transports.file import make_file_handler
-from azure_bootstrap.transports.panther import PantherSearchClient, make_panther_search_client
+from vibey_bootstrap.contrib.scaffold import main
+from vibey_bootstrap.transports.adx import AdxHandler
+from vibey_bootstrap.transports.event_hubs import EventHubsHandler
+from vibey_bootstrap.transports.file import make_file_handler
+from vibey_bootstrap.transports.panther import PantherSearchClient, make_panther_search_client
 
 
 def test_file_handler_time_rotation(tmp_path, monkeypatch) -> None:
@@ -41,8 +41,8 @@ def test_adx_ship_with_kusto_mock() -> None:
     h = AdxHandler(cluster_uri="https://c", database="db", flush_interval=3600.0)
     mock_client = MagicMock()
     with patch.object(h, "_get_client", return_value=mock_client):
-        with patch("azure_bootstrap.transports.adx.DataFormat", create=True):
-            with patch("azure_bootstrap.transports.adx.IngestionProperties", create=True):
+        with patch("vibey_bootstrap.transports.adx.DataFormat", create=True):
+            with patch("vibey_bootstrap.transports.adx.IngestionProperties", create=True):
                 rec = logging.LogRecord("s", logging.INFO, __file__, 1, "m", None, None)
                 h.setFormatter(logging.Formatter("%(message)s"))
                 h.emit(rec)

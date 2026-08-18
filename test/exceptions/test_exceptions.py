@@ -1,9 +1,9 @@
-"""Tests for ``azure_bootstrap.exceptions``."""
+"""Tests for ``vibey_bootstrap.exceptions``."""
 
 from __future__ import annotations
 
-import azure_bootstrap.exceptions as exc_mod
-from azure_bootstrap.exceptions import (
+import vibey_bootstrap.exceptions as exc_mod
+from vibey_bootstrap.exceptions import (
     InvalidMessageError,
     NetworkError,
     OversizedAttachmentError,

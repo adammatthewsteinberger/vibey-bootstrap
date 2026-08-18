@@ -25,25 +25,25 @@ if "--dry-run" in sys.argv:
     os.environ.setdefault("API_KEY", "demo-api-key")
     os.environ.setdefault("GRAPH_WEBHOOK_CLIENT_STATE", "demo-client-state")
 
-from azure_bootstrap.alerts import (
+from vibey_bootstrap.alerts import (
     install_global_exception_hooks,
     register_dispatcher,
 )
-from azure_bootstrap.auth import (
+from vibey_bootstrap.auth import (
     WebhookDedup,
     install_graph_webhook_route,
     verify_api_key_header,
 )
-from azure_bootstrap.bootstrap import ensure_bootstrap
-from azure_bootstrap.fastapi_middleware import install_middleware
-from azure_bootstrap.health import (
+from vibey_bootstrap.bootstrap import ensure_bootstrap
+from vibey_bootstrap.fastapi_middleware import install_middleware
+from vibey_bootstrap.health import (
     check_app_config_health,
     check_app_insights_health,
     check_app_insights_logging,
 )
-from azure_bootstrap.logging import configure_logging
-from azure_bootstrap.metrics import build_metrics_snapshot
-from azure_bootstrap.ratelimit import admin_bucket, fastapi_rate_limit, webhook_bucket
+from vibey_bootstrap.logging import configure_logging
+from vibey_bootstrap.metrics import build_metrics_snapshot
+from vibey_bootstrap.ratelimit import admin_bucket, fastapi_rate_limit, webhook_bucket
 
 
 def build_app():  # type: ignore[no-untyped-def]
@@ -63,7 +63,7 @@ def build_app():  # type: ignore[no-untyped-def]
     register_dispatcher(email_sender, recipients=["dev-alerts@example.com"])
 
     # ── 2. FastAPI app + middleware ────────────────────────────────────
-    app = FastAPI(title="azure-bootstrap v2 e2e")
+    app = FastAPI(title="vibey-bootstrap v2 e2e")
     install_middleware(
         app,
         probe_paths=("/health/live", "/health/ready", "/api/health/live", "/api/health/ready"),
@@ -124,7 +124,7 @@ def main_dry_run() -> None:
     try:
         from fastapi.testclient import TestClient
     except ImportError:
-        print("fastapi not installed — run `pip install azure-bootstrap[fastapi]`")
+        print("fastapi not installed — run `pip install vibey-bootstrap[fastapi]`")
         return
 
     app, delivered, sent_alerts = build_app()

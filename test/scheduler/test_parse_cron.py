@@ -1,11 +1,11 @@
-"""Tests for ``azure_bootstrap.scheduler``."""
+"""Tests for ``vibey_bootstrap.scheduler``."""
 
 from __future__ import annotations
 
 import pytest
 
 apscheduler = pytest.importorskip("apscheduler")
-from azure_bootstrap.scheduler import parse_cron_trigger
+from vibey_bootstrap.scheduler import parse_cron_trigger
 
 
 def test_5_field_crontab() -> None:

@@ -1,4 +1,4 @@
-"""Tests for ``azure_bootstrap.retry``."""
+"""Tests for ``vibey_bootstrap.retry``."""
 
 from __future__ import annotations
 
@@ -6,9 +6,9 @@ import pytest
 
 tenacity = pytest.importorskip("tenacity")
 
-from azure_bootstrap.counters import _reset_counters, counter_snapshot
-from azure_bootstrap.exceptions import NetworkError, RateLimitError
-from azure_bootstrap.retry import build_retry, retry_ai_transient, retry_azure_transient
+from vibey_bootstrap.counters import _reset_counters, counter_snapshot
+from vibey_bootstrap.exceptions import NetworkError, RateLimitError
+from vibey_bootstrap.retry import build_retry, retry_ai_transient, retry_azure_transient
 
 
 @pytest.fixture(autouse=True)

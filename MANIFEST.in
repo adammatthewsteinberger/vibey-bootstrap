@@ -1,9 +1,10 @@
 # Include documentation
 include README.md
 include LICENSE
+include NOTICE.md
 
 # Include package data
-include azure_bootstrap/py.typed
+include vibey_bootstrap/py.typed
 
 # Exclude development files
 exclude .gitignore

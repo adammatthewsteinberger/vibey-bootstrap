@@ -1,8 +1,8 @@
-"""Tests for ``azure_bootstrap.logging.masking``."""
+"""Tests for ``vibey_bootstrap.logging.masking``."""
 
 from __future__ import annotations
 
-from azure_bootstrap.logging.masking import (
+from vibey_bootstrap.logging.masking import (
     _looks_sensitive,
     _safe_repr,
     content_preview,

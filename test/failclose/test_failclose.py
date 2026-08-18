@@ -1,10 +1,10 @@
-"""Tests for ``azure_bootstrap.failclose``."""
+"""Tests for ``vibey_bootstrap.failclose``."""
 
 from __future__ import annotations
 
 import pytest
 
-from azure_bootstrap.failclose import (
+from vibey_bootstrap.failclose import (
     ConfigurationError,
     fail_open_env,
     optional_env,
@@ -13,7 +13,7 @@ from azure_bootstrap.failclose import (
 
 
 def test_configuration_error_is_v1_alias() -> None:
-    from azure_bootstrap.models.exceptions import ConfigurationError as V1Class
+    from vibey_bootstrap.models.exceptions import ConfigurationError as V1Class
 
     assert ConfigurationError is V1Class
 

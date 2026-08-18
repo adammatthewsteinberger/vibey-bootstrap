@@ -55,7 +55,7 @@ def azurite_container(azurite_connection_string: str):
         # Azurite lags the latest azure-storage-blob service version.
         api_version="2023-11-03",
     )
-    name = "azure-bootstrap-test-logs"
+    name = "vibey-bootstrap-test-logs"
     try:
         service.create_container(name)
     except ResourceExistsError:

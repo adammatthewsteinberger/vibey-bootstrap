@@ -28,20 +28,20 @@ os.environ["WATCHDOG_INTERVAL_SECONDS"] = "0.1"
 os.environ["WATCHDOG_SB_SILENCE_SECONDS"] = "0.05"
 os.environ["WATCHDOG_RESILENCE_SECONDS"] = "10"
 
-from azure_bootstrap.alerts import (
+from vibey_bootstrap.alerts import (
     drain_pending_alerts,
     register_dispatcher,
 )
-from azure_bootstrap.alerts import reset_state as reset_alerts
-from azure_bootstrap.counters import _reset_counters, bump_counter
-from azure_bootstrap.heartbeat import (
+from vibey_bootstrap.alerts import reset_state as reset_alerts
+from vibey_bootstrap.counters import _reset_counters, bump_counter
+from vibey_bootstrap.heartbeat import (
     metrics_snapshot,
     record_consumer_iteration,
     record_message_settled,
     start_background_monitors,
 )
-from azure_bootstrap.heartbeat import reset_state as reset_heartbeat
-from azure_bootstrap.logging import configure_logging
+from vibey_bootstrap.heartbeat import reset_state as reset_heartbeat
+from vibey_bootstrap.logging import configure_logging
 
 
 def main() -> None:
@@ -97,7 +97,7 @@ if __name__ == "__main__":
 
 
 # ── Expected output ──
-# spawned monitor threads: ['azure-bootstrap-heartbeat', 'azure-bootstrap-watchdog']
+# spawned monitor threads: ['vibey-bootstrap-heartbeat', 'vibey-bootstrap-watchdog']
 # <INFO heartbeat ticks with top_slow_p95 + counters>
 #
 # after 3 healthy iterations:

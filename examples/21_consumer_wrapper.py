@@ -27,13 +27,13 @@ from unittest.mock import MagicMock
 os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
 os.environ.setdefault("AZURE_BOOTSTRAP_ALLOW_RESET", "1")
 
-from azure_bootstrap.alerts import register_dispatcher
-from azure_bootstrap.alerts import reset_state as reset_alerts
-from azure_bootstrap.counters import _reset_counters, counter_snapshot
-from azure_bootstrap.exceptions import InvalidMessageError, NetworkError
-from azure_bootstrap.logging import configure_logging
-from azure_bootstrap.servicebus import handle_message
-from azure_bootstrap.validation import queue_message_schema
+from vibey_bootstrap.alerts import register_dispatcher
+from vibey_bootstrap.alerts import reset_state as reset_alerts
+from vibey_bootstrap.counters import _reset_counters, counter_snapshot
+from vibey_bootstrap.exceptions import InvalidMessageError, NetworkError
+from vibey_bootstrap.logging import configure_logging
+from vibey_bootstrap.servicebus import handle_message
+from vibey_bootstrap.validation import queue_message_schema
 
 
 # ── A bare-minimum processor matching MessageProcessor Protocol ───────

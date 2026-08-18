@@ -1,10 +1,10 @@
-"""Tests for ``azure_bootstrap.tracing.slow_thresholds``."""
+"""Tests for ``vibey_bootstrap.tracing.slow_thresholds``."""
 
 from __future__ import annotations
 
 import pytest
 
-from azure_bootstrap.tracing.slow_thresholds import (
+from vibey_bootstrap.tracing.slow_thresholds import (
     default_slow_threshold,
     register_slow_threshold,
     reset_slow_thresholds,

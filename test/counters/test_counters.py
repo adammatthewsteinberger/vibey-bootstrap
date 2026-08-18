@@ -1,4 +1,4 @@
-"""Tests for ``azure_bootstrap.counters``."""
+"""Tests for ``vibey_bootstrap.counters``."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import threading
 
 import pytest
 
-from azure_bootstrap.counters import _reset_counters, bump_counter, counter_snapshot
+from vibey_bootstrap.counters import _reset_counters, bump_counter, counter_snapshot
 
 
 @pytest.fixture(autouse=True)
