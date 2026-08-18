@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from azure_bootstrap.contrib.scaffold import list_templates, main, scaffold
+from vibey_bootstrap.contrib.scaffold import list_templates, main, scaffold
 
 
 def test_list_templates_includes_helm() -> None:
@@ -23,3 +23,17 @@ def test_scaffold_substitutes_vars(tmp_path: Path) -> None:
 
 def test_main_version() -> None:
     assert main(["version"]) == 0
+
+
+def test_main_azbootstrap_alias_warns_once_and_delegates(capsys) -> None:
+    from vibey_bootstrap.contrib import scaffold as mod
+
+    mod._ALIAS_WARNED = False
+    try:
+        assert mod.main_azbootstrap(["version"]) == 0
+        assert mod.main_azbootstrap(["version"]) == 0
+    finally:
+        mod._ALIAS_WARNED = False
+    captured = capsys.readouterr()
+    assert captured.err.count("deprecated alias") == 1
+    assert "vibey-bootstrap" in captured.err

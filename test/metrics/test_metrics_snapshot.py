@@ -1,8 +1,8 @@
-"""Tests for ``azure_bootstrap.metrics.build_metrics_snapshot``."""
+"""Tests for ``vibey_bootstrap.metrics.build_metrics_snapshot``."""
 
 from __future__ import annotations
 
-from azure_bootstrap.metrics import build_metrics_snapshot
+from vibey_bootstrap.metrics import build_metrics_snapshot
 
 
 def test_always_includes_latency_and_counters() -> None:

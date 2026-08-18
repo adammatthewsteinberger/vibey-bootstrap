@@ -1,4 +1,4 @@
-"""Tests for ``azure_bootstrap.servicebus.consumer_wrapper.handle_message``."""
+"""Tests for ``vibey_bootstrap.servicebus.consumer_wrapper.handle_message``."""
 
 from __future__ import annotations
 
@@ -9,17 +9,17 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from azure_bootstrap.alerts import (
+from vibey_bootstrap.alerts import (
     register_dispatcher,
 )
-from azure_bootstrap.alerts import reset_state as reset_alerts
-from azure_bootstrap.counters import _reset_counters, counter_snapshot
-from azure_bootstrap.exceptions import (
+from vibey_bootstrap.alerts import reset_state as reset_alerts
+from vibey_bootstrap.counters import _reset_counters, counter_snapshot
+from vibey_bootstrap.exceptions import (
     InvalidMessageError,
     NetworkError,
 )
-from azure_bootstrap.servicebus.consumer_wrapper import handle_message
-from azure_bootstrap.validation import queue_message_schema
+from vibey_bootstrap.servicebus.consumer_wrapper import handle_message
+from vibey_bootstrap.validation import queue_message_schema
 
 
 def _make_msg(body: Any) -> Any:
@@ -132,7 +132,7 @@ def test_validates_schema_before_processing() -> None:
 
 
 def test_opens_correlation_scope_around_process(caplog: pytest.LogCaptureFixture) -> None:
-    from azure_bootstrap.logging.correlation import CorrelationFilter
+    from vibey_bootstrap.logging.correlation import CorrelationFilter
 
     receiver = MagicMock()
     processor = MagicMock()
@@ -169,7 +169,7 @@ def test_records_settle_on_all_paths() -> None:
         msg = _make_msg({"correlation_id": "x"})
 
         with patch(
-            "azure_bootstrap.servicebus.consumer_wrapper.record_message_settled"
+            "vibey_bootstrap.servicebus.consumer_wrapper.record_message_settled"
         ) as fake_settle:
             handle_message(receiver, msg, processor)
             fake_settle.assert_called_once()

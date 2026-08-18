@@ -10,15 +10,15 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from azure_bootstrap.aks.leader_election import LeaderElection, leader_election
-from azure_bootstrap.servicebus.async_ext import (
+from vibey_bootstrap.aks.leader_election import LeaderElection, leader_election
+from vibey_bootstrap.servicebus.async_ext import (
     MultiQueueRouter,
     ReplayGuard,
     run_async_consumer,
     service_bus_transport_type,
 )
-from azure_bootstrap.transports.adx import AdxHandler, make_adx_handler
-from azure_bootstrap.transports.event_hubs import EventHubsHandler, make_event_hubs_handler
+from vibey_bootstrap.transports.adx import AdxHandler, make_adx_handler
+from vibey_bootstrap.transports.event_hubs import EventHubsHandler, make_event_hubs_handler
 
 # --- Event Hubs factory + lifecycle ---
 
@@ -77,7 +77,7 @@ def test_acs_email_send_with_plain_text(monkeypatch) -> None:
     pytest.importorskip("azure.communication.email")
     monkeypatch.setenv("ACS_CONNECTION_STRING", "endpoint=https://x/;accesskey=y")
     monkeypatch.setenv("ACS_SENDER_ADDRESS", "sender@test.com")
-    from azure_bootstrap.email import AcsEmailSender
+    from vibey_bootstrap.email import AcsEmailSender
 
     poller = MagicMock()
     poller.result.return_value = MagicMock(id="msg-42")
@@ -104,7 +104,7 @@ def test_migrations_stamp_and_current(tmp_path: Path) -> None:
     ini = tmp_path / "alembic.ini"
     ini.write_text("[alembic]\nscript_location = .\n", encoding="utf-8")
     with patch("alembic.command.stamp") as stamp_cmd, patch("alembic.command.current"):
-        from azure_bootstrap.db.migrations import current, stamp
+        from vibey_bootstrap.db.migrations import current, stamp
 
         stamp("head", alembic_ini=ini)
         stamp_cmd.assert_called_once()
@@ -113,7 +113,7 @@ def test_migrations_stamp_and_current(tmp_path: Path) -> None:
 
 
 def test_migrations_write_env_py(tmp_path: Path) -> None:
-    from azure_bootstrap.db.migrations import write_env_py
+    from vibey_bootstrap.db.migrations import write_env_py
 
     path = write_env_py(tmp_path)
     assert path.exists()

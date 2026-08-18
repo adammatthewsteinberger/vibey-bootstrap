@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from azure_bootstrap.documentdb import documentdb_health
+from vibey_bootstrap.documentdb import documentdb_health
 
 
 def test_documentdb_health_error_without_uri(monkeypatch) -> None:
@@ -20,7 +20,7 @@ def test_documentdb_health_ok(monkeypatch) -> None:
     monkeypatch.setenv("NOSQL_URI", "mongodb://localhost:27017")
     monkeypatch.setenv("NOSQL_DATABASE", "admin")
     client = MagicMock()
-    with patch("azure_bootstrap.documentdb.mongo_client_from_env", return_value=client):
+    with patch("vibey_bootstrap.documentdb.mongo_client_from_env", return_value=client):
         result = documentdb_health()
     assert result["status"] == "ok"
     client.close.assert_called_once()

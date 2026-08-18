@@ -1,4 +1,4 @@
-"""Tests for ``azure_bootstrap.bootstrap``."""
+"""Tests for ``vibey_bootstrap.bootstrap``."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 import pytest
 
-from azure_bootstrap.bootstrap import (
+from vibey_bootstrap.bootstrap import (
     _reset_bootstrap_state,
     bootstrap_initialized,
     ensure_bootstrap,
@@ -35,7 +35,7 @@ def test_ensure_bootstrap_idempotent_with_mock(monkeypatch: pytest.MonkeyPatch) 
 def test_ensure_bootstrap_mock_short_circuits_initialize(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("USE_MOCK_BOOTSTRAP", "true")
     with patch(
-        "azure_bootstrap.services.application_bootstrap.initialize_application"
+        "vibey_bootstrap.services.application_bootstrap.initialize_application"
     ) as fake_init:
         ensure_bootstrap()
     fake_init.assert_not_called()

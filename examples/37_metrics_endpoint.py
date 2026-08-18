@@ -7,12 +7,12 @@ without an extra installed just don't get that section (no error).
 Sections (when their module is installed):
 - ``latency``: per-operation latency histogram (p50/p95/p99/max)
 - ``alert_counters``: every ``bump_counter`` registered name
-- ``ai_usage``: ``azure_bootstrap.openai.usage_snapshot()``
+- ``ai_usage``: ``vibey_bootstrap.openai.usage_snapshot()``
 - ``bootstrap_initialized``: process-local readiness flag
 - ``last_sb_settle_age_seconds``: heartbeat age (seconds since last
   Service Bus message settle)
 
-Requires ``pip install azure-bootstrap[fastapi]`` for the FastAPI demo;
+Requires ``pip install vibey-bootstrap[fastapi]`` for the FastAPI demo;
 ``build_metrics_snapshot`` itself is stdlib-only.
 """
 
@@ -23,16 +23,16 @@ import os
 os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
 os.environ.setdefault("AZURE_BOOTSTRAP_ALLOW_RESET", "1")
 
-from azure_bootstrap.counters import _reset_counters, bump_counter
-from azure_bootstrap.heartbeat import (
+from vibey_bootstrap.counters import _reset_counters, bump_counter
+from vibey_bootstrap.heartbeat import (
     record_message_settled,
 )
-from azure_bootstrap.heartbeat import reset_state as reset_heartbeat
-from azure_bootstrap.metrics import build_metrics_snapshot
-from azure_bootstrap.openai import record_usage
-from azure_bootstrap.openai import reset_state as reset_tracker
-from azure_bootstrap.tracing import traced
-from azure_bootstrap.tracing.latency import reset_latency_state
+from vibey_bootstrap.heartbeat import reset_state as reset_heartbeat
+from vibey_bootstrap.metrics import build_metrics_snapshot
+from vibey_bootstrap.openai import record_usage
+from vibey_bootstrap.openai import reset_state as reset_tracker
+from vibey_bootstrap.tracing import traced
+from vibey_bootstrap.tracing.latency import reset_latency_state
 
 
 def main() -> None:

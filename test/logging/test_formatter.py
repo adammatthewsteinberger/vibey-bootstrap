@@ -1,4 +1,4 @@
-"""Tests for ``azure_bootstrap.logging.formatter``."""
+"""Tests for ``vibey_bootstrap.logging.formatter``."""
 
 from __future__ import annotations
 
@@ -7,8 +7,8 @@ import os
 
 import pytest
 
-from azure_bootstrap.logging.config import configure_logging
-from azure_bootstrap.logging.formatter import (
+from vibey_bootstrap.logging.config import configure_logging
+from vibey_bootstrap.logging.formatter import (
     ExtraFieldsFormatter,
     LoggingExtraConflictError,
 )

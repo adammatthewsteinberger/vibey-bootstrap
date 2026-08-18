@@ -1,8 +1,8 @@
-"""Tests for ``azure_bootstrap.audit``."""
+"""Tests for ``vibey_bootstrap.audit``."""
 
 from __future__ import annotations
 
-from azure_bootstrap.audit import (
+from vibey_bootstrap.audit import (
     AUDIT_MASKED_FIELDS,
     AUDIT_TRUNCATED_FIELDS,
     build_audit_extra,

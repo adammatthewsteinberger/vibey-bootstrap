@@ -12,7 +12,7 @@ Key invariants:
 - 401 + 429 responses have empty bodies (no info leak).
 - Dedup TTL of 600 s covers Graph's documented retry window.
 
-Requires ``pip install azure-bootstrap[fastapi]``.
+Requires ``pip install vibey-bootstrap[fastapi]``.
 """
 
 from __future__ import annotations
@@ -23,12 +23,12 @@ os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
 os.environ.setdefault("AZURE_BOOTSTRAP_ALLOW_RESET", "1")
 os.environ.setdefault("GRAPH_WEBHOOK_CLIENT_STATE", "demo-client-state-secret")
 
-from azure_bootstrap.auth import (
+from vibey_bootstrap.auth import (
     WebhookDedup,
     install_graph_webhook_route,
 )
-from azure_bootstrap.counters import _reset_counters, counter_snapshot
-from azure_bootstrap.ratelimit import webhook_bucket
+from vibey_bootstrap.counters import _reset_counters, counter_snapshot
+from vibey_bootstrap.ratelimit import webhook_bucket
 
 
 def main() -> None:
@@ -38,7 +38,7 @@ def main() -> None:
         from fastapi import FastAPI
         from fastapi.testclient import TestClient
     except ImportError:
-        print("fastapi not installed — run `pip install azure-bootstrap[fastapi]`")
+        print("fastapi not installed — run `pip install vibey-bootstrap[fastapi]`")
         return
 
     delivered: list[str] = []

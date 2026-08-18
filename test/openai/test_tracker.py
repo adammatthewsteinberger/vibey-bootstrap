@@ -1,4 +1,4 @@
-"""Tests for ``azure_bootstrap.openai``."""
+"""Tests for ``vibey_bootstrap.openai``."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import time
 
 import pytest
 
-from azure_bootstrap.openai import (
+from vibey_bootstrap.openai import (
     _pricing_for,
     acquire,
     check_thresholds_and_alert,

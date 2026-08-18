@@ -11,7 +11,7 @@ def test_acs_email_sender_send(monkeypatch) -> None:
     pytest.importorskip("azure.communication.email")
     monkeypatch.setenv("ACS_CONNECTION_STRING", "endpoint=https://x/;accesskey=y")
     monkeypatch.setenv("ACS_SENDER_ADDRESS", "sender@example.com")
-    from azure_bootstrap.email import AcsEmailSender
+    from vibey_bootstrap.email import AcsEmailSender
 
     poller = MagicMock()
     poller.result.return_value = MagicMock(id="msg-1")

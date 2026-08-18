@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from unittest.mock import MagicMock, patch
 
-from azure_bootstrap.transports.nosql import NoSqlHandler, make_nosql_handler
+from vibey_bootstrap.transports.nosql import NoSqlHandler, make_nosql_handler
 
 
 def _record(msg: str = "hi") -> logging.LogRecord:
@@ -15,7 +15,7 @@ def _record(msg: str = "hi") -> logging.LogRecord:
 def test_flush_insert_many() -> None:
     collection = MagicMock()
     client = MagicMock()
-    with patch("azure_bootstrap.transports.nosql._connect", return_value=(client, collection)):
+    with patch("vibey_bootstrap.transports.nosql._connect", return_value=(client, collection)):
         h = NoSqlHandler(
             uri="mongodb://localhost",
             database="logs",

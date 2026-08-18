@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import time
 
-from azure_bootstrap.identity import TokenCache
+from vibey_bootstrap.identity import TokenCache
 
 
 def test_token_cache_stores_and_returns() -> None:

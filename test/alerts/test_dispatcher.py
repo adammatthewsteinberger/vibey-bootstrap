@@ -1,4 +1,4 @@
-"""Tests for ``azure_bootstrap.alerts.dispatcher``."""
+"""Tests for ``vibey_bootstrap.alerts.dispatcher``."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from typing import Any
 
 import pytest
 
-from azure_bootstrap.alerts import (
+from vibey_bootstrap.alerts import (
     AlertSeverity,
     alert_dev_team,
     drain_pending_alerts,

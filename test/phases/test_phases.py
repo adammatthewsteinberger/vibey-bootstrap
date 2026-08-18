@@ -1,16 +1,16 @@
-"""Tests for ``azure_bootstrap.phases``."""
+"""Tests for ``vibey_bootstrap.phases``."""
 
 from __future__ import annotations
 
 import pytest
 
-from azure_bootstrap.alerts import (
+from vibey_bootstrap.alerts import (
     drain_pending_alerts,
     register_dispatcher,
 )
-from azure_bootstrap.alerts import reset_state as reset_alerts
-from azure_bootstrap.counters import _reset_counters, counter_snapshot
-from azure_bootstrap.phases import run_phase, run_phases
+from vibey_bootstrap.alerts import reset_state as reset_alerts
+from vibey_bootstrap.counters import _reset_counters, counter_snapshot
+from vibey_bootstrap.phases import run_phase, run_phases
 
 
 @pytest.fixture(autouse=True)

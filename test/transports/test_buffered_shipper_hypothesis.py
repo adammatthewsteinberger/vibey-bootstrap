@@ -9,8 +9,8 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from azure_bootstrap.counters import _reset_counters, counter_snapshot
-from azure_bootstrap.transports._base import ShipResult, _BufferedShipper
+from vibey_bootstrap.counters import _reset_counters, counter_snapshot
+from vibey_bootstrap.transports._base import ShipResult, _BufferedShipper
 
 pytestmark = pytest.mark.usefixtures("allow_counter_reset")
 

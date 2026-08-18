@@ -1,11 +1,11 @@
-"""Tests for ``azure_bootstrap.alerts.render``."""
+"""Tests for ``vibey_bootstrap.alerts.render``."""
 
 from __future__ import annotations
 
 import time
 
-from azure_bootstrap.alerts.dispatcher import AlertRecord, AlertSeverity
-from azure_bootstrap.alerts.render import (
+from vibey_bootstrap.alerts.dispatcher import AlertRecord, AlertSeverity
+from vibey_bootstrap.alerts.render import (
     _redact,
     _render_alert_html,
     render_pending_alerts_html,

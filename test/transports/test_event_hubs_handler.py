@@ -5,8 +5,8 @@ from __future__ import annotations
 import logging
 from unittest.mock import MagicMock, patch
 
-from azure_bootstrap.transports._base import ShipResult
-from azure_bootstrap.transports.event_hubs import EventHubsHandler
+from vibey_bootstrap.transports._base import ShipResult
+from vibey_bootstrap.transports.event_hubs import EventHubsHandler
 
 
 def _record(msg: str = "hi") -> logging.LogRecord:

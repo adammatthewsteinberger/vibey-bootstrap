@@ -20,12 +20,12 @@ import os
 
 os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
 
-from azure_bootstrap.health import (
+from vibey_bootstrap.health import (
     check_app_config_health,
     check_app_insights_health,
     check_app_insights_logging,
 )
-from azure_bootstrap.logging import configure_logging
+from vibey_bootstrap.logging import configure_logging
 
 
 def main() -> None:

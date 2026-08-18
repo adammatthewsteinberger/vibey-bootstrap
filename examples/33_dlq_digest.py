@@ -23,19 +23,19 @@ import os
 os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
 os.environ.setdefault("AZURE_BOOTSTRAP_ALLOW_RESET", "1")
 
-from azure_bootstrap.alerts import (
+from vibey_bootstrap.alerts import (
     AlertSeverity,
     alert_dev_team,
     register_dispatcher,
 )
-from azure_bootstrap.alerts import reset_state as reset_alerts
-from azure_bootstrap.counters import _reset_counters
-from azure_bootstrap.logging import configure_logging
-from azure_bootstrap.servicebus import (
+from vibey_bootstrap.alerts import reset_state as reset_alerts
+from vibey_bootstrap.counters import _reset_counters
+from vibey_bootstrap.logging import configure_logging
+from vibey_bootstrap.servicebus import (
     check_dlq_growth_rate,
     run_dlq_digest,
 )
-from azure_bootstrap.servicebus.dlq_alarm import reset_state as reset_alarm
+from vibey_bootstrap.servicebus.dlq_alarm import reset_state as reset_alarm
 
 
 # ── Mock Service Bus repo — only needs peek_dead_letter_messages ──────

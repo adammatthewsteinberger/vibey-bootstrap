@@ -5,11 +5,11 @@ from __future__ import annotations
 import logging
 import os
 
-from azure_bootstrap.transports import configure_transports, list_transports
+from vibey_bootstrap.transports import configure_transports, list_transports
 
 
 def _console_handlers() -> int:
-    from azure_bootstrap.transports import _active
+    from vibey_bootstrap.transports import _active
 
     return 1 if "console" in _active else 0
 

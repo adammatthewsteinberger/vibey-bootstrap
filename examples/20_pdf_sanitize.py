@@ -14,7 +14,7 @@ Key invariants:
 - Counter ``pdf.sanitized.actions_stripped`` bumps only when at least
   one entry was actually removed.
 
-Requires ``pip install azure-bootstrap[pdf-safety]`` (pulls ``pypdf``).
+Requires ``pip install vibey-bootstrap[pdf-safety]`` (pulls ``pypdf``).
 """
 
 from __future__ import annotations
@@ -24,8 +24,8 @@ import os
 os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
 os.environ.setdefault("AZURE_BOOTSTRAP_ALLOW_RESET", "1")
 
-from azure_bootstrap.counters import _reset_counters, counter_snapshot
-from azure_bootstrap.pdf_safety import sanitize_pdf_for_passthrough
+from vibey_bootstrap.counters import _reset_counters, counter_snapshot
+from vibey_bootstrap.pdf_safety import sanitize_pdf_for_passthrough
 
 
 # ── Minimal mock PdfReader shape (mirrors the pypdf interface enough

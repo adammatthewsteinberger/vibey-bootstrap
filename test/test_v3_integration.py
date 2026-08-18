@@ -8,10 +8,10 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from azure_bootstrap.http import build_session
-from azure_bootstrap.transports.adx import AdxHandler
-from azure_bootstrap.transports.blob import BlobHandler
-from azure_bootstrap.transports.nosql import NoSqlHandler
+from vibey_bootstrap.http import build_session
+from vibey_bootstrap.transports.adx import AdxHandler
+from vibey_bootstrap.transports.blob import BlobHandler
+from vibey_bootstrap.transports.nosql import NoSqlHandler
 
 
 def test_build_session_returns_requests_session() -> None:
@@ -37,7 +37,7 @@ def test_nosql_with_ttl_index() -> None:
     pytest.importorskip("pymongo")
     collection = MagicMock()
     client = MagicMock()
-    with patch("azure_bootstrap.transports.nosql._connect", return_value=(client, collection)):
+    with patch("vibey_bootstrap.transports.nosql._connect", return_value=(client, collection)):
         h = NoSqlHandler(
             uri="mongodb://localhost",
             database="db",

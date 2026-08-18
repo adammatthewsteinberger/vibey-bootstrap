@@ -21,14 +21,14 @@ import os
 os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
 os.environ.setdefault("AZURE_BOOTSTRAP_ALLOW_RESET", "1")
 
-from azure_bootstrap.audit import (
+from vibey_bootstrap.audit import (
     AUDIT_LINE_NAMES,
     AUDIT_MASKED_FIELDS,
     AUDIT_TRUNCATED_FIELDS,
     build_audit_extra,
 )
-from azure_bootstrap.counters import _reset_counters, counter_snapshot
-from azure_bootstrap.logging import configure_logging
+from vibey_bootstrap.counters import _reset_counters, counter_snapshot
+from vibey_bootstrap.logging import configure_logging
 
 
 def main() -> None:

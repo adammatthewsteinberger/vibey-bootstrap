@@ -1,4 +1,4 @@
-"""Tests for ``azure_bootstrap.ingress``."""
+"""Tests for ``vibey_bootstrap.ingress``."""
 
 from __future__ import annotations
 
@@ -7,9 +7,9 @@ import zipfile
 
 import pytest
 
-from azure_bootstrap.counters import _reset_counters, counter_snapshot
-from azure_bootstrap.exceptions import OversizedAttachmentError, ZipBombError
-from azure_bootstrap.ingress import (
+from vibey_bootstrap.counters import _reset_counters, counter_snapshot
+from vibey_bootstrap.exceptions import OversizedAttachmentError, ZipBombError
+from vibey_bootstrap.ingress import (
     AttachmentClassifier,
     ExtensionAllowlist,
     MimeAllowlist,

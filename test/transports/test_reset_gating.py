@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-import azure_bootstrap.transports as transports
+import vibey_bootstrap.transports as transports
 
 
 def test_reset_requires_allow_flag(monkeypatch) -> None:

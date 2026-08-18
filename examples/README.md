@@ -1,4 +1,4 @@
-# azure-bootstrap examples (v2 + v3)
+# vibey-bootstrap examples (v2 + v3)
 
 A flat, numbered, copy-paste-friendly library of usage examples. Each numbered
 file demonstrates one concept and runs in isolation; every file is self-contained
@@ -11,9 +11,9 @@ ten logging transports).
 ## 30-second quick start
 
 ```python
-from azure_bootstrap.alerts import install_global_exception_hooks, register_dispatcher
-from azure_bootstrap.bootstrap import ensure_bootstrap
-from azure_bootstrap.logging import configure_logging
+from vibey_bootstrap.alerts import install_global_exception_hooks, register_dispatcher
+from vibey_bootstrap.bootstrap import ensure_bootstrap
+from vibey_bootstrap.logging import configure_logging
 
 
 def my_email_sender(recipients, subject, html_body):
@@ -89,7 +89,7 @@ until you stop seeing relevant patterns.
 | **39** | **[39_v3_transports.py](39_v3_transports.py)** | **v3:** enable all ten logging transports (panther, file, blob, sql, nosql, adx, event_hubs) |
 | **44** | **[44_db_outbox_email.py](44_db_outbox_email.py)** | **v3:** SQLAlchemy session + transactional outbox + ACS email drain |
 | **45** | **[45_http_client.py](45_http_client.py)** | **v3:** hardened `requests` session with retry + correlation headers |
-| **46** | **[46_scaffold_cli.py](46_scaffold_cli.py)** | **v3:** `azbootstrap` CLI + Python API for Terraform/Bicep/Helm/GitOps templates |
+| **46** | **[46_scaffold_cli.py](46_scaffold_cli.py)** | **v3:** `vibey-bootstrap` CLI + Python API for Terraform/Bicep/Helm/GitOps templates |
 
 > Examples 40–43 were reserved during planning; v3 content uses 39, 44–46.
 
@@ -97,10 +97,10 @@ until you stop seeing relevant patterns.
 
 | Example | Install |
 | --- | --- |
-| 39 | `pip install azure-bootstrap[logging-all]` (or individual `[panther]`, `[bloblog]`, `[sqllog]`, `[nosqllog]`, `[adxlog]`, `[eventhubslog]`) |
-| 44 | `pip install azure-bootstrap[db,email]` + `DATABASE_URL`, `ACS_*` env |
-| 45 | `pip install azure-bootstrap[http]` |
-| 46 | base install (`azbootstrap` console script included) |
+| 39 | `pip install vibey-bootstrap[logging-all]` (or individual `[panther]`, `[bloblog]`, `[sqllog]`, `[nosqllog]`, `[adxlog]`, `[eventhubslog]`) |
+| 44 | `pip install vibey-bootstrap[db,email]` + `DATABASE_URL`, `ACS_*` env |
+| 45 | `pip install vibey-bootstrap[http]` |
+| 46 | base install (`vibey-bootstrap` console script included) |
 
 ## By tier
 
@@ -135,5 +135,5 @@ For v3 AKS helpers (`build_info`, `install_sigterm_handler`, leader election), s
 
 ## Contributing
 
-When you add a module to `azure_bootstrap/`, add a numbered example and a row in
+When you add a module to `vibey_bootstrap/`, add a numbered example and a row in
 the **Reading order** table above.

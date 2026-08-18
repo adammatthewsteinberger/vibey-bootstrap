@@ -10,15 +10,15 @@ body:
         unreproducible.
 
         Please search existing issues first. Usage questions belong in
-        [Discussions](https://github.com/adammatthewsteinberger/azure-bootstrap/discussions),
+        [Discussions](https://github.com/adammatthewsteinberger/vibey-bootstrap/discussions),
         not here. Security vulnerabilities go through
-        [private reporting](https://github.com/adammatthewsteinberger/azure-bootstrap/security/advisories/new).
+        [private reporting](https://github.com/adammatthewsteinberger/vibey-bootstrap/security/advisories/new).
 
   - type: input
     id: version
     attributes:
-      label: azure-bootstrap version
-      description: Output of `python -c "import azure_bootstrap; print(azure_bootstrap.__version__)"`
+      label: vibey-bootstrap version
+      description: Output of `python -c "import vibey_bootstrap; print(vibey_bootstrap.__version__)"`
       placeholder: "3.0.1"
     validations:
       required: true

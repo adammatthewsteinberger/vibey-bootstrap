@@ -1,6 +1,6 @@
 # Security policy
 
-`azure-bootstrap` handles App Configuration connection strings, Key Vault
+`vibey-bootstrap` handles App Configuration connection strings, Key Vault
 secrets, and Application Insights credentials at process startup, and its
 optional extras touch webhooks, HMAC tokens, attachment ingress, and Service
 Bus. Treat any report in those areas as high priority.
@@ -17,7 +17,7 @@ receive none — upgrade (the v2 → v3 path is additive; see
 
 Report privately via one of:
 
-1. [GitHub Security Advisories](https://github.com/adammatthewsteinberger/azure-bootstrap/security/advisories/new)
+1. [GitHub Security Advisories](https://github.com/adammatthewsteinberger/vibey-bootstrap/security/advisories/new)
    for this repository (preferred — supports coordinated disclosure).
 2. Email **adam@matthewsteinberger.com** with a description, steps to
    reproduce, and the affected version.

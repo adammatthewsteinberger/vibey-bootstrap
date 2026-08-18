@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from unittest.mock import MagicMock, patch
 
-from azure_bootstrap.transports.sql import SqlHandler, make_sql_handler
+from vibey_bootstrap.transports.sql import SqlHandler, make_sql_handler
 
 
 def _record(msg: str = "hi") -> logging.LogRecord:
@@ -20,7 +20,7 @@ def test_flush_inserts_rows() -> None:
     insert_stmt = MagicMock()
 
     with patch(
-        "azure_bootstrap.transports.sql._build_engine", return_value=(engine, insert_stmt, "DDL")
+        "vibey_bootstrap.transports.sql._build_engine", return_value=(engine, insert_stmt, "DDL")
     ):
         h = SqlHandler(dsn="sqlite:///:memory:", flush_interval=3600.0, batch_size=1000)
         try:

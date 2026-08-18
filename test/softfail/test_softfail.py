@@ -1,17 +1,17 @@
-"""Tests for ``azure_bootstrap.softfail``."""
+"""Tests for ``vibey_bootstrap.softfail``."""
 
 from __future__ import annotations
 
 import pytest
 
-from azure_bootstrap.alerts import (
+from vibey_bootstrap.alerts import (
     drain_pending_alerts,
     register_dispatcher,
 )
-from azure_bootstrap.alerts import reset_state as reset_alerts
-from azure_bootstrap.counters import _reset_counters, counter_snapshot
-from azure_bootstrap.exceptions import InvalidMessageError
-from azure_bootstrap.softfail import soft_fail, soft_fail_with
+from vibey_bootstrap.alerts import reset_state as reset_alerts
+from vibey_bootstrap.counters import _reset_counters, counter_snapshot
+from vibey_bootstrap.exceptions import InvalidMessageError
+from vibey_bootstrap.softfail import soft_fail, soft_fail_with
 
 
 @pytest.fixture(autouse=True)

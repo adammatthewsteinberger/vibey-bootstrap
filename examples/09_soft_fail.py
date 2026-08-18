@@ -19,15 +19,15 @@ import os
 os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
 os.environ.setdefault("AZURE_BOOTSTRAP_ALLOW_RESET", "1")
 
-from azure_bootstrap.alerts import (
+from vibey_bootstrap.alerts import (
     drain_pending_alerts,
     register_dispatcher,
 )
-from azure_bootstrap.alerts import reset_state as reset_alerts
-from azure_bootstrap.counters import _reset_counters, counter_snapshot
-from azure_bootstrap.exceptions import InvalidMessageError
-from azure_bootstrap.logging import configure_logging
-from azure_bootstrap.softfail import soft_fail, soft_fail_with
+from vibey_bootstrap.alerts import reset_state as reset_alerts
+from vibey_bootstrap.counters import _reset_counters, counter_snapshot
+from vibey_bootstrap.exceptions import InvalidMessageError
+from vibey_bootstrap.logging import configure_logging
+from vibey_bootstrap.softfail import soft_fail, soft_fail_with
 
 
 def summarize(text: str) -> str:

@@ -1,4 +1,4 @@
-"""Tests for ``azure_bootstrap.security``."""
+"""Tests for ``vibey_bootstrap.security``."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from azure_bootstrap.security import compare_secrets, verify_api_key_header
+from vibey_bootstrap.security import compare_secrets, verify_api_key_header
 
 
 class TestCompareSecrets:
@@ -36,7 +36,7 @@ class TestCompareSecrets:
 
     def test_uses_compare_digest(self) -> None:
         source = (
-            Path(__file__).parent.parent.parent / "azure_bootstrap" / "security" / "__init__.py"
+            Path(__file__).parent.parent.parent / "vibey_bootstrap" / "security" / "__init__.py"
         )
         text = source.read_text()
         assert "hmac.compare_digest" in text, "compare_secrets must use hmac.compare_digest, not =="

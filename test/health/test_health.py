@@ -1,4 +1,4 @@
-"""Tests for ``azure_bootstrap.health``."""
+"""Tests for ``vibey_bootstrap.health``."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from typing import Any
 
 import pytest
 
-from azure_bootstrap.health import (
+from vibey_bootstrap.health import (
     check_app_config_health,
     check_app_insights_health,
     check_app_insights_logging,

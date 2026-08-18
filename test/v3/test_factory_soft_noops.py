@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import pytest
 
-from azure_bootstrap.transports.adx import make_adx_handler
-from azure_bootstrap.transports.blob import make_blob_handler
-from azure_bootstrap.transports.event_hubs import make_event_hubs_handler
-from azure_bootstrap.transports.file import make_file_handler
-from azure_bootstrap.transports.nosql import make_nosql_handler
-from azure_bootstrap.transports.panther import make_panther_handler, make_panther_search_client
-from azure_bootstrap.transports.sql import make_sql_handler
+from vibey_bootstrap.transports.adx import make_adx_handler
+from vibey_bootstrap.transports.blob import make_blob_handler
+from vibey_bootstrap.transports.event_hubs import make_event_hubs_handler
+from vibey_bootstrap.transports.file import make_file_handler
+from vibey_bootstrap.transports.nosql import make_nosql_handler
+from vibey_bootstrap.transports.panther import make_panther_handler, make_panther_search_client
+from vibey_bootstrap.transports.sql import make_sql_handler
 
 
 @pytest.mark.parametrize(
@@ -64,7 +64,7 @@ def test_panther_factory_returns_none_without_requests(monkeypatch) -> None:
     def _boom() -> object:
         raise ImportError("no requests")
 
-    monkeypatch.setattr("azure_bootstrap.transports.panther._build_session", _boom)
+    monkeypatch.setattr("vibey_bootstrap.transports.panther._build_session", _boom)
     assert make_panther_handler() is None
 
 
@@ -74,7 +74,7 @@ def test_sql_factory_returns_none_without_sqlalchemy(monkeypatch) -> None:
     def _boom(*a, **k) -> object:
         raise ImportError("no sqlalchemy")
 
-    monkeypatch.setattr("azure_bootstrap.transports.sql._build_engine", _boom)
+    monkeypatch.setattr("vibey_bootstrap.transports.sql._build_engine", _boom)
     assert make_sql_handler() is None
 
 
@@ -85,5 +85,5 @@ def test_blob_factory_returns_none_without_sdk(monkeypatch) -> None:
     def _boom(**k) -> object:
         raise ImportError("no azure.storage.blob")
 
-    monkeypatch.setattr("azure_bootstrap.transports.blob._build_container_client", _boom)
+    monkeypatch.setattr("vibey_bootstrap.transports.blob._build_container_client", _boom)
     assert make_blob_handler() is None

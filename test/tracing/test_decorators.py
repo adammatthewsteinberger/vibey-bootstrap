@@ -1,4 +1,4 @@
-"""Tests for ``azure_bootstrap.tracing.decorators``."""
+"""Tests for ``vibey_bootstrap.tracing.decorators``."""
 
 from __future__ import annotations
 
@@ -8,13 +8,13 @@ import time
 
 import pytest
 
-from azure_bootstrap.alerts import (
+from vibey_bootstrap.alerts import (
     register_dispatcher,
     reset_state,
 )
-from azure_bootstrap.counters import _reset_counters, counter_snapshot
-from azure_bootstrap.tracing.decorators import traced
-from azure_bootstrap.tracing.latency import latency_snapshot, reset_latency_state
+from vibey_bootstrap.counters import _reset_counters, counter_snapshot
+from vibey_bootstrap.tracing.decorators import traced
+from vibey_bootstrap.tracing.latency import latency_snapshot, reset_latency_state
 
 
 @pytest.fixture(autouse=True)
@@ -113,7 +113,7 @@ def test_slow_threshold_fires_warn(caplog: pytest.LogCaptureFixture) -> None:
     def f() -> None:
         time.sleep(0.02)
 
-    with caplog.at_level(logging.WARNING, logger="azure_bootstrap.alerts.dispatcher"):
+    with caplog.at_level(logging.WARNING, logger="vibey_bootstrap.alerts.dispatcher"):
         f()
     # Latency was still recorded with slow=True
     snap = latency_snapshot()

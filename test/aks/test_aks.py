@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import threading
 
-from azure_bootstrap.aks import build_info, install_sigterm_handler
-from azure_bootstrap.aks.leader_election import LeaderElection
+from vibey_bootstrap.aks import build_info, install_sigterm_handler
+from vibey_bootstrap.aks.leader_election import LeaderElection
 
 
 def test_build_info_reads_env(monkeypatch) -> None:

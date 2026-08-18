@@ -27,7 +27,7 @@ import os
 
 os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
 
-from azure_bootstrap.exceptions import (
+from vibey_bootstrap.exceptions import (
     InvalidMessageError,
     NetworkError,
     OversizedAttachmentError,

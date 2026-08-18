@@ -21,8 +21,8 @@ from unittest.mock import MagicMock, patch
 os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
 os.environ.setdefault("AZURE_BOOTSTRAP_ALLOW_RESET", "1")
 
-from azure_bootstrap.counters import _reset_counters, counter_snapshot
-from azure_bootstrap.sb_lock import (
+from vibey_bootstrap.counters import _reset_counters, counter_snapshot
+from vibey_bootstrap.sb_lock import (
     DEFAULT_MAX_LOCK_RENEWAL_SECONDS,
     ManagedLock,
     lock_for_process,
@@ -45,7 +45,7 @@ def main() -> None:
 
     # ── 1. Context-manager form ────────────────────────────────────────
     with patch(
-        "azure_bootstrap.sb_lock._new_auto_lock_renewer",
+        "vibey_bootstrap.sb_lock._new_auto_lock_renewer",
         return_value=FakeRenewer(),
     ):
         with lock_for_process(MagicMock(name="receiver"), MagicMock(name="msg")):
@@ -56,7 +56,7 @@ def main() -> None:
     # ── 2. Closes on exception too ─────────────────────────────────────
     renewer_calls.clear()
     with patch(
-        "azure_bootstrap.sb_lock._new_auto_lock_renewer",
+        "vibey_bootstrap.sb_lock._new_auto_lock_renewer",
         return_value=FakeRenewer(),
     ):
         try:
@@ -68,7 +68,7 @@ def main() -> None:
 
     # ── 3. Construction failure swallowed ──────────────────────────────
     with patch(
-        "azure_bootstrap.sb_lock._new_auto_lock_renewer",
+        "vibey_bootstrap.sb_lock._new_auto_lock_renewer",
         side_effect=RuntimeError("AutoLockRenewer init failed"),
     ):
         # Block must still run even though renewer setup failed
@@ -80,7 +80,7 @@ def main() -> None:
     # ── 4. ManagedLock OO variant ──────────────────────────────────────
     renewer_calls.clear()
     with patch(
-        "azure_bootstrap.sb_lock._new_auto_lock_renewer",
+        "vibey_bootstrap.sb_lock._new_auto_lock_renewer",
         return_value=FakeRenewer(),
     ):
         lock = ManagedLock(

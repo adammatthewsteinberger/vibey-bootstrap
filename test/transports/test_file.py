@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-from azure_bootstrap.transports.file import make_file_handler
+from vibey_bootstrap.transports.file import make_file_handler
 
 
 def test_make_file_handler_writes_json(tmp_path: Path, monkeypatch) -> None:

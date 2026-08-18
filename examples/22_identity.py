@@ -20,12 +20,12 @@ import os
 
 os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
 
-from azure_bootstrap.identity import (
+from vibey_bootstrap.identity import (
     AZURE_TOKEN_AUDIENCE,
     build_credential,
     credential_kind,
 )
-from azure_bootstrap.logging import configure_logging
+from vibey_bootstrap.logging import configure_logging
 
 
 def main() -> None:
@@ -63,11 +63,11 @@ def main() -> None:
                 log_capture.append(record.getMessage() + " " + str(record.__dict__))
 
         h = _Capture()
-        logging.getLogger("azure_bootstrap.identity").addHandler(h)
+        logging.getLogger("vibey_bootstrap.identity").addHandler(h)
         try:
             cred = build_credential()
         finally:
-            logging.getLogger("azure_bootstrap.identity").removeHandler(h)
+            logging.getLogger("vibey_bootstrap.identity").removeHandler(h)
 
         print(f"tenant + client + secret     → kind={kind.value:20} type={type(cred).__name__}")
         leaked = any("DEMO-SECRET-VALUE-MUST-NOT-APPEAR-IN-LOGS" in line for line in log_capture)

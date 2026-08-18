@@ -1,10 +1,10 @@
-"""Tests for ``azure_bootstrap.logging.correlation``."""
+"""Tests for ``vibey_bootstrap.logging.correlation``."""
 
 from __future__ import annotations
 
 import logging
 
-from azure_bootstrap.logging.correlation import (
+from vibey_bootstrap.logging.correlation import (
     CorrelationFilter,
     correlation_scope,
     get_correlation_id,

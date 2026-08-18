@@ -9,7 +9,7 @@ The v2 retry decorators bake in:
 - ``reraise=True`` by default — apps that want tenacity's ``RetryError``
   wrapping opt in explicitly.
 
-Requires ``pip install azure-bootstrap[retry]``.
+Requires ``pip install vibey-bootstrap[retry]``.
 """
 
 from __future__ import annotations
@@ -19,10 +19,10 @@ import os
 os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
 os.environ.setdefault("AZURE_BOOTSTRAP_ALLOW_RESET", "1")
 
-from azure_bootstrap.counters import _reset_counters, counter_snapshot
-from azure_bootstrap.exceptions import NetworkError, RateLimitError
-from azure_bootstrap.logging import configure_logging
-from azure_bootstrap.retry import (
+from vibey_bootstrap.counters import _reset_counters, counter_snapshot
+from vibey_bootstrap.exceptions import NetworkError, RateLimitError
+from vibey_bootstrap.logging import configure_logging
+from vibey_bootstrap.retry import (
     build_retry,
     retry_ai_transient,
     retry_azure_transient,
