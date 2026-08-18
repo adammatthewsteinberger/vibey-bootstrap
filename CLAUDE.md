@@ -128,7 +128,7 @@ azure-bootstrap/
 ├── .vscode/                          # VS Code workspace config
 ├── pyproject.toml                    # Package metadata + 40+ optional extras
 ├── MANIFEST.in                       # Distribution file control
-├── README.md                         # Library overview + extras matrix
+├── README.md                         # Landing page (pitch, quick start, links); PyPI long description
 ├── CHANGELOG.md                      # Release-by-release surface (v1.0.0, v2.0.0, v2.1.0)
 ├── MIGRATING-FROM-V1.md              # v1 → v2 adoption guide
 ├── CLAUDE.md                         # AI assistant & developer context (this file)
@@ -641,8 +641,8 @@ Optional-extra CVE pins (v2.1.2): `pypdf>=6.13.3` (`[pdf-safety]`) and
 
 ### Optional Dependencies (40+ extras)
 
-See [pyproject.toml](pyproject.toml) and the **Installation** table in
-[README.md](README.md) for the full extras matrix. Highlights:
+See [pyproject.toml](pyproject.toml) and the **Optional extras matrix** in
+[docs/USAGE.md](docs/USAGE.md) for the full extras matrix. Highlights:
 
 ```toml
 # Tier 2 (opt-in primitives)
@@ -685,14 +685,16 @@ pytest-mock >= 3.11.1
 | **.github/workflows/docs.yml** | Docs build + GitHub Pages deploy |
 | **mkdocs.yml** | Docs-site config (theme, nav, mkdocstrings options) |
 | **docs/gen_pages.py** | Assembles the site from root markdown + docstrings |
-| **README.md** | Library documentation, API reference, migration guide |
+| **README.md** | Landing page: pitch, quick start, worked example, links (also the PyPI long description) |
+| **docs/USAGE.md** | Complete usage guide: extras matrix, every subpackage, recipes, TypeScript integration |
 | **CONTRIBUTING.md** | Git workflow, quality standards, tooling setup |
 
 ## Documentation for Users
 
 When users install this library, they should read:
 
-1. **[README.md](README.md)** — Library overview + extras matrix
+1. **[README.md](README.md)** — Library overview + quick start
+1. **[docs/USAGE.md](docs/USAGE.md)** — Extras matrix and the complete usage guide
 2. **[examples/README.md](examples/README.md)** — Reading order through
    the ~40 example files (start at 01_quickstart.py)
 3. **[MIGRATING-FROM-V1.md](MIGRATING-FROM-V1.md)** — v1 → v2 upgrade

@@ -92,33 +92,54 @@ markers (`[]`): the code is **stdlib-only** and already importable without the
 extra — the extra exists for discoverability / intent, and only pulls real
 dependencies where a third-party package is genuinely required.
 
-| Extra | Installs | What it unlocks |
-|---|---|---|
-| `fastapi` | `fastapi>=0.110` | `fastapi_middleware`, webhook route, API-key dep, `fastapi_rate_limit` |
-| `servicebus` | `azure-servicebus>=7.11` | `servicebus.*` consumer/DLQ helpers |
-| `sb-lock` | — (uses `servicebus`) | `sb_lock` message-lock renewal |
-| `scheduler` | `apscheduler>=3.10` | `scheduler.parse_cron_trigger` |
-| `retry` | `tenacity>=8.0` | `retry.build_retry` + Azure/AI presets |
-| `pdf-safety` | `pypdf>=4.0` | `pdf_safety.sanitize_pdf_for_passthrough` |
-| `sumologic` | `requests>=2.32.0` | `SumoLogicHandler` transport |
-| `transports` | — (stdlib) | transport registry + console/app-insights |
-| `alerts` | — (stdlib) | tiered alert dispatcher |
-| `health` | — (stdlib) | readiness probes |
-| `heartbeat` | — (stdlib) | heartbeat + consumer watchdog |
-| `config-refresh` | — (stdlib) | `refresh_log_flags` |
-| `ingress` | — (stdlib) | 4-gate attachment classifier |
-| `ratelimit` | — (stdlib) | `TokenBucket` + presets |
-| `notify` | — (stdlib) | two-tier notification builders |
-| `subscription` | — (stdlib) | resource renewal loop |
-| `auth` | — (uses `fastapi`) | webhook + API-key guards |
-| `identity` | — (`azure-identity` in core) | `build_credential` |
-| `audit` | — (stdlib) | `build_audit_extra` |
-| `failclose` | — (stdlib) | `require_env` / `optional_env` / `fail_open_env` |
-| `openai` | — (stdlib) | AI usage tracker |
-| `tokens` | — (stdlib) | HMAC action tokens |
-| `metrics` | — (stdlib) | `build_metrics_snapshot` |
-| `all` | `fastapi`, `azure-servicebus`, `apscheduler`, `requests` | the four real third-party deps |
-| `dev` / `test` | tooling / test deps | development & CI |
+| Extra | Pulls | When you need |
+| --- | --- | --- |
+| `[alerts]` | stdlib only | Tiered alert dispatcher + global excepthooks |
+| `[health]` | core deps | App Config + App Insights health probes |
+| `[fastapi]` | `fastapi` | Request middleware, webhook route, rate-limit dep |
+| `[heartbeat]` | stdlib only | Background heartbeat + consumer watchdog |
+| `[config-refresh]` | stdlib only | Dynamic `LOG_LEVEL` refresh via App Config |
+| `[servicebus]` | `azure-servicebus` | DLQ digest, growth alarm, consumer wrapper, sb_lock |
+| `[openai]` | stdlib only | AI usage tracker (SDK-agnostic) |
+| `[tokens]` | stdlib only | HMAC action tokens |
+| `[scheduler]` | `apscheduler` | NCRONTAB parser |
+| `[metrics]` | stdlib only | `/api/metrics` aggregator |
+| `[retry]` | `tenacity` | Pre-configured retry wrappers |
+| `[ingress]` | stdlib only | 4-gate attachment classifier |
+| `[pdf-safety]` | `pypdf` | PDF action stripping |
+| `[ratelimit]` | stdlib only | TokenBucket |
+| `[notify]` | stdlib only | Two-tier notification builders + throttle |
+| `[subscription]` | stdlib only | Renewal loop pattern |
+| `[identity]` | core deps | `build_credential` (Workload Identity preferred) |
+| `[auth]` | (pair with `[fastapi]`) | Graph webhook + API-key helpers |
+| `[sb-lock]` | (pair with `[servicebus]`) | Message lock auto-renewer |
+| `[audit]` | stdlib only | Audit-log conventions |
+| `[failclose]` | stdlib only | Env-var fail-closed-vs-open helpers |
+| `[transports]` | stdlib only | Logging transport registry (console / App Insights / Sumo Logic) |
+| `[sumologic]` | `requests` | Buffered POST to a Sumo Logic HTTP Source (urllib3 Retry, gzip, Retry-After) |
+| `[panther]` | `requests` | Panther log ingest transport |
+| `[bloblog]` | `azure-storage-blob` | NDJSON append/block blob logging |
+| `[sqllog]` | `sqlalchemy` | Relational DB log shipper |
+| `[nosqllog]` | `pymongo` | MongoDB / Cosmos (Mongo API) document shipper |
+| `[adxlog]` | `azure-kusto-*` | Azure Data Explorer streaming ingest |
+| `[eventhubslog]` | `azure-eventhub` | Event Hubs live-tail producer |
+| `[logging-all]` | all transport deps | Every logging sink at once |
+| `[db]` | `sqlalchemy`, `alembic` | Session factory + migrations + outbox |
+| `[email]` | `azure-communication-email` | ACS transactional email |
+| `[http]` | `requests` | Sync HTTP client with retry |
+| `[http-async]` | `httpx` | Async HTTP client |
+| `[documentdb]` | `pymongo` | DocumentDB client factory |
+| `[governance]` | stdlib only | Budget guard + usage tracking |
+| `[aks]` | stdlib only | AKS runtime helpers + leader election |
+| `[all]` | everything above | All extras at once |
+| `[dev]` / `[test]` / `[docs]` | tooling | Development, CI, and the documentation-site toolchain |
+
+```bash
+# Common combinations
+pip install 'azure-bootstrap[alerts,fastapi,health]'
+pip install 'azure-bootstrap[servicebus,sb-lock,retry,heartbeat]'
+pip install 'azure-bootstrap[all]'
+```
 
 ---
 
@@ -161,6 +182,39 @@ set by `local.settings.json` (or your shell) survives, and only *new* remote key
 added. App Config can store Key Vault *references* (a JSON `{"uri": "...vault.../secrets/..."}`);
 the provider resolves them transparently, so `os.getenv("DATABASE_PASSWORD")` returns
 the actual secret, not the URI.
+
+### Configuration sources: two ways to run
+
+**Enterprise** — App Configuration + Key Vault (`local.settings.json` for a Function app):
+
+```json
+{
+  "Values": {
+    "AZURE_APP_CONFIGURATION_CONNECTION_STRING": "Endpoint=https://...;Id=...;Secret=...",
+    "AZURE_KEY_VAULT_URL": "https://myvault.vault.azure.net/",
+    "AZURE_APP_CONFIG_LABEL": "dev"
+  }
+}
+```
+
+**Simple** — environment variables only. The library falls back gracefully when
+App Configuration is not configured, so the same code runs locally and in Azure:
+
+```json
+{
+  "Values": {
+    "DATABASE_HOST": "localhost",
+    "DATABASE_NAME": "mydb",
+    "API_KEY": "your-api-key"
+  }
+}
+```
+
+```python
+# local.settings.json sets: USE_MOCK_DB = "true"
+# App Config has:          USE_MOCK_DB = "false"
+# After bootstrap:         os.getenv("USE_MOCK_DB") → "true"   (local wins)
+```
 
 ### API reference — entry points
 
@@ -236,6 +290,38 @@ from azure_bootstrap import (
 | `AZURE_KEY_VAULT_URL` | `SecretsRepository` | Key Vault endpoint |
 | `LOG_LEVEL` | bootstrap + telemetry logging | `DEBUG`/`INFO`/`WARNING`/`ERROR` (default `INFO`) |
 | `FUNCTIONS_WORKER_RUNTIME` | bootstrap logging | presence triggers Azure-Functions log setup |
+
+### v2 top-level re-exports (additive)
+
+The v1 surface (`initialize_application`, `get_bootstrap_logger`,
+`create_enhanced_config_repository`, `telemetry_manager`, and the rest of the
+original `__all__`) is preserved byte-identical. The most common v2 primitives
+are also re-exported from the top-level namespace:
+
+```python
+from azure_bootstrap import (
+    # Logging
+    configure_logging, correlation_scope, get_correlation_id, set_correlation_id,
+    mask_api_key, mask_email_address, mask_secrets_in_dict, sanitize_for_log,
+    # Tracing + counters
+    traced, latency_snapshot, bump_counter, counter_snapshot,
+    # Bootstrap
+    ensure_bootstrap, bootstrap_initialized, load_local_settings, refresh_setting,
+    # Exception hierarchy
+    PipelineError, UnrecoverableError, TransientError,
+    InvalidMessageError, RateLimitError, NetworkError, is_unrecoverable,
+    # Soft-fail + phases + validation
+    soft_fail, soft_fail_with, SoftFailResult,
+    run_phase, run_phases, PhaseResult,
+    validate_message, MessageSchema, queue_message_schema,
+    # Path / security
+    sanitize_path_segment, confine_to_root, compare_secrets,
+)
+```
+
+Everything else is reachable via its subpackage (e.g.
+`from azure_bootstrap.alerts import alert_dev_team`). The authoritative list is
+[`azure_bootstrap/__init__.py`](../azure_bootstrap/__init__.py).
 
 ---
 
