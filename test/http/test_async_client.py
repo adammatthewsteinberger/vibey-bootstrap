@@ -8,14 +8,14 @@ import pytest
 
 pytest.importorskip("httpx")
 
-from azure_bootstrap.http.async_client import async_request_with_retry, build_async_client
+from vibey_bootstrap.http.async_client import async_request_with_retry, build_async_client
 
 
 @pytest.mark.asyncio
 async def test_async_request_with_retry() -> None:
     client = MagicMock()
     client.request = AsyncMock(return_value=MagicMock(status_code=200))
-    with patch("azure_bootstrap.http.async_client.check_ssrf"):
+    with patch("vibey_bootstrap.http.async_client.check_ssrf"):
         resp = await async_request_with_retry("GET", "https://example.com", client=client)
     assert resp.status_code == 200
 

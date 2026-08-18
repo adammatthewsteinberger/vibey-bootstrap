@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Pre-commit hook for azure-bootstrap
+# Pre-commit hook for vibey-bootstrap
 # Runs code quality checks before allowing commit
 #
 # This hook runs:
@@ -55,35 +55,35 @@ run_check() {
 FAILED=0
 
 # 1. Black - Code formatting
-if ! run_check "Black (formatting)" "$PYTHON -m black --check azure_bootstrap/ test/"; then
-    echo -e "${YELLOW}💡 Fix with: black azure_bootstrap/ test/${NC}"
+if ! run_check "Black (formatting)" "$PYTHON -m black --check vibey_bootstrap/ test/"; then
+    echo -e "${YELLOW}💡 Fix with: black vibey_bootstrap/ test/${NC}"
     echo ""
     FAILED=1
 fi
 
 # 2. isort - Import sorting
-if ! run_check "isort (import sorting)" "$PYTHON -m isort --check-only azure_bootstrap/ test/"; then
-    echo -e "${YELLOW}💡 Fix with: isort azure_bootstrap/ test/${NC}"
+if ! run_check "isort (import sorting)" "$PYTHON -m isort --check-only vibey_bootstrap/ test/"; then
+    echo -e "${YELLOW}💡 Fix with: isort vibey_bootstrap/ test/${NC}"
     echo ""
     FAILED=1
 fi
 
 # 3. Ruff - Linting
-if ! run_check "Ruff (linting)" "$PYTHON -m ruff check azure_bootstrap/ test/"; then
-    echo -e "${YELLOW}💡 Fix with: ruff check --fix azure_bootstrap/ test/${NC}"
+if ! run_check "Ruff (linting)" "$PYTHON -m ruff check vibey_bootstrap/ test/"; then
+    echo -e "${YELLOW}💡 Fix with: ruff check --fix vibey_bootstrap/ test/${NC}"
     echo ""
     FAILED=1
 fi
 
 # 4. MyPy - Type checking
-if ! run_check "MyPy (type checking)" "$PYTHON -m mypy azure_bootstrap/"; then
+if ! run_check "MyPy (type checking)" "$PYTHON -m mypy vibey_bootstrap/"; then
     echo -e "${YELLOW}💡 Review type errors above${NC}"
     echo ""
     FAILED=1
 fi
 
 # 5. Bandit - Security checks
-if ! run_check "Bandit (security)" "$PYTHON -m bandit -r azure_bootstrap/ -ll -q"; then
+if ! run_check "Bandit (security)" "$PYTHON -m bandit -r vibey_bootstrap/ -ll -q"; then
     echo -e "${YELLOW}💡 Review security issues above${NC}"
     echo ""
     FAILED=1
@@ -99,7 +99,7 @@ fi
 
 # 7. pytest - Tests with coverage
 echo -e "${YELLOW}⏳ Running pytest (80%+ coverage required)...${NC}"
-if $PYTHON -m pytest test/ --cov=azure_bootstrap --cov-report=term-missing --cov-fail-under=80 -q; then
+if $PYTHON -m pytest test/ --cov=vibey_bootstrap --cov-report=term-missing --cov-fail-under=80 -q; then
     echo -e "${GREEN}✅ pytest passed (80%+ coverage)${NC}"
     echo ""
 else
@@ -122,9 +122,9 @@ else
     echo "  git commit --no-verify"
     echo ""
     echo "To fix automatically:"
-    echo "  black azure_bootstrap/ test/"
-    echo "  isort azure_bootstrap/ test/"
-    echo "  ruff check --fix azure_bootstrap/ test/"
+    echo "  black vibey_bootstrap/ test/"
+    echo "  isort vibey_bootstrap/ test/"
+    echo "  ruff check --fix vibey_bootstrap/ test/"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     exit 1
 fi

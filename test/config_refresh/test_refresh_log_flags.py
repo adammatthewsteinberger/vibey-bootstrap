@@ -1,4 +1,4 @@
-"""Tests for ``azure_bootstrap.config_refresh.refresh_log_flags``."""
+"""Tests for ``vibey_bootstrap.config_refresh.refresh_log_flags``."""
 
 from __future__ import annotations
 
@@ -6,8 +6,8 @@ import logging
 
 import pytest
 
-from azure_bootstrap.config_refresh import refresh_log_flags
-from azure_bootstrap.counters import _reset_counters, counter_snapshot
+from vibey_bootstrap.config_refresh import refresh_log_flags
+from vibey_bootstrap.counters import _reset_counters, counter_snapshot
 
 
 @pytest.fixture(autouse=True)
@@ -26,23 +26,23 @@ def test_mock_short_circuits(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_missing_refresh_setting_is_ok(monkeypatch: pytest.MonkeyPatch) -> None:
     """When refresh_setting isn't registered, the flow logs DEBUG and continues."""
-    import azure_bootstrap
+    import vibey_bootstrap
 
-    saved = getattr(azure_bootstrap, "refresh_setting", None)
+    saved = getattr(vibey_bootstrap, "refresh_setting", None)
     try:
         # Remove the attribute temporarily
-        if hasattr(azure_bootstrap, "refresh_setting"):
-            delattr(azure_bootstrap, "refresh_setting")
+        if hasattr(vibey_bootstrap, "refresh_setting"):
+            delattr(vibey_bootstrap, "refresh_setting")
         refresh_log_flags()
     finally:
         if saved is not None:
-            azure_bootstrap.refresh_setting = saved  # type: ignore[attr-defined]
+            vibey_bootstrap.refresh_setting = saved  # type: ignore[attr-defined]
 
 
 def test_level_change_triggers_reconfigure(monkeypatch: pytest.MonkeyPatch) -> None:
     # Start at INFO
     monkeypatch.setenv("LOG_LEVEL", "INFO")
-    from azure_bootstrap.logging.config import configure_logging
+    from vibey_bootstrap.logging.config import configure_logging
 
     configure_logging()
     assert logging.getLogger().getEffectiveLevel() == logging.INFO
@@ -54,16 +54,16 @@ def test_level_change_triggers_reconfigure(monkeypatch: pytest.MonkeyPatch) -> N
 
 
 def test_remote_read_exception_bumps_counter(monkeypatch: pytest.MonkeyPatch) -> None:
-    import azure_bootstrap
+    import vibey_bootstrap
 
     def raising_refresh(*names: str) -> None:
         raise RuntimeError("network down")
 
-    saved = getattr(azure_bootstrap, "refresh_setting", None)
+    saved = getattr(vibey_bootstrap, "refresh_setting", None)
     try:
-        azure_bootstrap.refresh_setting = raising_refresh  # type: ignore[attr-defined]
+        vibey_bootstrap.refresh_setting = raising_refresh  # type: ignore[attr-defined]
         refresh_log_flags()
         assert counter_snapshot().get("log_flag_refresh.remote_read_failed", 0) >= 1
     finally:
         if saved is not None:
-            azure_bootstrap.refresh_setting = saved  # type: ignore[attr-defined]
+            vibey_bootstrap.refresh_setting = saved  # type: ignore[attr-defined]

@@ -1,4 +1,4 @@
-"""Tests for ``azure_bootstrap.ratelimit``."""
+"""Tests for ``vibey_bootstrap.ratelimit``."""
 
 from __future__ import annotations
 
@@ -7,8 +7,8 @@ import time
 
 import pytest
 
-from azure_bootstrap.counters import _reset_counters, counter_snapshot
-from azure_bootstrap.ratelimit import TokenBucket, fastapi_rate_limit
+from vibey_bootstrap.counters import _reset_counters, counter_snapshot
+from vibey_bootstrap.ratelimit import TokenBucket, fastapi_rate_limit
 
 
 @pytest.fixture(autouse=True)

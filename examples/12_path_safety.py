@@ -24,7 +24,7 @@ from pathlib import Path
 
 os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
 
-from azure_bootstrap.path_safety import (
+from vibey_bootstrap.path_safety import (
     MAX_SEGMENT_LEN,
     confine_to_root,
     sanitize_path_segment,

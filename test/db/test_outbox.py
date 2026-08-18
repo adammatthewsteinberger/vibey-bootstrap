@@ -8,7 +8,7 @@ pytest.importorskip("sqlalchemy")
 
 from unittest.mock import MagicMock
 
-from azure_bootstrap.db.outbox import Outbox, drain_outbox
+from vibey_bootstrap.db.outbox import Outbox, drain_outbox
 
 
 def test_drain_outbox_sends_and_marks_sent() -> None:

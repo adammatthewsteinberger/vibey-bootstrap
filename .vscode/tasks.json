@@ -25,7 +25,7 @@
         "pytest",
         "test",
         "-v",
-        "--cov=ips_azure_bootstrap",
+        "--cov=vibey_bootstrap",
         "--cov-report=term-missing",
         "--cov-report=html"
       ],
@@ -40,7 +40,7 @@
       "label": "Format Code (Black)",
       "type": "shell",
       "command": "${workspaceFolder}/.venv/Scripts/python.exe",
-      "args": ["-m", "black", "ips_azure_bootstrap/", "test/"],
+      "args": ["-m", "black", "vibey_bootstrap/", "test/"],
       "group": "build",
       "presentation": {
         "reveal": "always",
@@ -52,7 +52,7 @@
       "label": "Lint Code (Ruff)",
       "type": "shell",
       "command": "${workspaceFolder}/.venv/Scripts/python.exe",
-      "args": ["-m", "ruff", "check", "ips_azure_bootstrap/", "test/"],
+      "args": ["-m", "ruff", "check", "vibey_bootstrap/", "test/"],
       "group": "build",
       "presentation": {
         "reveal": "always",
@@ -64,7 +64,7 @@
       "label": "Type Check (MyPy)",
       "type": "shell",
       "command": "${workspaceFolder}/.venv/Scripts/python.exe",
-      "args": ["-m", "mypy", "ips_azure_bootstrap/"],
+      "args": ["-m", "mypy", "vibey_bootstrap/"],
       "group": "build",
       "presentation": {
         "reveal": "always",

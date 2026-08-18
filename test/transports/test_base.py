@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import logging
 
-from azure_bootstrap.counters import counter_snapshot
-from azure_bootstrap.transports._base import ShipResult, _BufferedShipper
+from vibey_bootstrap.counters import counter_snapshot
+from vibey_bootstrap.transports._base import ShipResult, _BufferedShipper
 
 
 class _StubShipper(_BufferedShipper):

@@ -19,8 +19,8 @@ import os
 os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
 os.environ.setdefault("AZURE_BOOTSTRAP_ALLOW_RESET", "1")
 
-from azure_bootstrap.counters import _reset_counters, counter_snapshot
-from azure_bootstrap.notify import (
+from vibey_bootstrap.counters import _reset_counters, counter_snapshot
+from vibey_bootstrap.notify import (
     UnprocessableReason,
     build_failure_alert_body,
     build_unprocessable_notification,

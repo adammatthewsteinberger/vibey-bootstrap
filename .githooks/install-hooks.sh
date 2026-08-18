@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Install git hooks for azure-bootstrap
+# Install git hooks for vibey-bootstrap
 #
 # This script configures git to use the hooks in .githooks/
 

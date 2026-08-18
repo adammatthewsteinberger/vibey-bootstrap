@@ -9,7 +9,7 @@ import os
 
 import pytest
 
-from azure_bootstrap.services.bootstrap_logging import (
+from vibey_bootstrap.services.bootstrap_logging import (
     BootstrapLogger,
     ExtraFieldsFormatter,
     get_bootstrap_logger,

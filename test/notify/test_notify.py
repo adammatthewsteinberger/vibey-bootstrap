@@ -1,4 +1,4 @@
-"""Tests for ``azure_bootstrap.notify``."""
+"""Tests for ``vibey_bootstrap.notify``."""
 
 from __future__ import annotations
 
@@ -7,8 +7,8 @@ from dataclasses import dataclass
 
 import pytest
 
-from azure_bootstrap.counters import _reset_counters, counter_snapshot
-from azure_bootstrap.notify import (
+from vibey_bootstrap.counters import _reset_counters, counter_snapshot
+from vibey_bootstrap.notify import (
     UnprocessableReason,
     build_failure_alert_body,
     build_unprocessable_notification,

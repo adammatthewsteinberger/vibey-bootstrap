@@ -10,15 +10,15 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from azure_bootstrap.counters import counter_snapshot
-from azure_bootstrap.transports._base import ShipResult, _BufferedShipper
-from azure_bootstrap.transports.adx import AdxHandler
-from azure_bootstrap.transports.blob import BlobHandler
-from azure_bootstrap.transports.event_hubs import EventHubsHandler
-from azure_bootstrap.transports.nosql import NoSqlHandler
-from azure_bootstrap.transports.panther import PantherHandler
-from azure_bootstrap.transports.sql import SqlHandler
-from azure_bootstrap.transports.sumologic import SumoLogicHandler
+from vibey_bootstrap.counters import counter_snapshot
+from vibey_bootstrap.transports._base import ShipResult, _BufferedShipper
+from vibey_bootstrap.transports.adx import AdxHandler
+from vibey_bootstrap.transports.blob import BlobHandler
+from vibey_bootstrap.transports.event_hubs import EventHubsHandler
+from vibey_bootstrap.transports.nosql import NoSqlHandler
+from vibey_bootstrap.transports.panther import PantherHandler
+from vibey_bootstrap.transports.sql import SqlHandler
+from vibey_bootstrap.transports.sumologic import SumoLogicHandler
 
 # ---------------------------------------------------------------------------
 # HTTP-based handlers (Sumo + Panther)
@@ -113,7 +113,7 @@ def test_http_overflow_drops(http_handler) -> None:
 
 def test_panther_injects_correlation_id(monkeypatch) -> None:
     monkeypatch.setenv("CORRELATION_ID", "corr-123")
-    from azure_bootstrap.logging.correlation import set_correlation_id
+    from vibey_bootstrap.logging.correlation import set_correlation_id
 
     set_correlation_id("corr-123")
     h = PantherHandler(
@@ -212,7 +212,7 @@ def test_sql_ship_failure_bumps_error(sql_handler) -> None:
         sql_handler,
         "_ship",
         return_value=__import__(
-            "azure_bootstrap.transports._base", fromlist=["ShipResult"]
+            "vibey_bootstrap.transports._base", fromlist=["ShipResult"]
         ).ShipResult(ok=False, count=0),
     ):
         sql_handler.emit(log_record())
@@ -234,7 +234,7 @@ def nosql_handler():
     pytest.importorskip("pymongo")
     collection = MagicMock()
     client = MagicMock()
-    with patch("azure_bootstrap.transports.nosql._connect", return_value=(client, collection)):
+    with patch("vibey_bootstrap.transports.nosql._connect", return_value=(client, collection)):
         h = NoSqlHandler(
             uri="mongodb://localhost",
             database="db",

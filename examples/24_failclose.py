@@ -12,7 +12,7 @@ Codifies the contract every Vizius app should follow:
   accessible — comment the threat consequence at every call site).
 
 The ``ConfigurationError`` raised by ``require_env`` is identity-equal
-to the v1 ``azure_bootstrap.models.exceptions.ConfigurationError`` —
+to the v1 ``vibey_bootstrap.models.exceptions.ConfigurationError`` —
 both import paths resolve to the same class object.
 """
 
@@ -22,13 +22,13 @@ import os
 
 os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
 
-from azure_bootstrap.failclose import (
+from vibey_bootstrap.failclose import (
     ConfigurationError,
     fail_open_env,
     optional_env,
     require_env,
 )
-from azure_bootstrap.models.exceptions import ConfigurationError as V1ConfigError
+from vibey_bootstrap.models.exceptions import ConfigurationError as V1ConfigError
 
 
 def main() -> None:

@@ -16,8 +16,8 @@ from collections.abc import Iterator
 
 import pytest
 
-from azure_bootstrap.counters import counter_snapshot
-from azure_bootstrap.transports.sumologic import SumoLogicHandler, make_sumo_logic_handler
+from vibey_bootstrap.counters import counter_snapshot
+from vibey_bootstrap.transports.sumologic import SumoLogicHandler, make_sumo_logic_handler
 
 
 class _FakeResp:
@@ -88,7 +88,7 @@ def test_flush_posts_newline_delimited_json_with_headers() -> None:
     call = rec.calls[0]
     assert call["headers"]["X-Sumo-Category"] == "prod/app"
     assert call["headers"]["X-Sumo-Host"] == "host-1"
-    assert call["headers"]["X-Sumo-Name"] == "azure-bootstrap"
+    assert call["headers"]["X-Sumo-Name"] == "vibey-bootstrap"
     lines = call["data"].decode().split("\n")
     assert len(lines) == 2
     assert json.loads(lines[0])["message"] == "one"
@@ -275,5 +275,5 @@ def test_make_factory_returns_none_when_requests_missing(monkeypatch) -> None:
     def _no_requests() -> object:
         raise ImportError("No module named 'requests'")
 
-    monkeypatch.setattr("azure_bootstrap.transports.sumologic._build_session", _no_requests)
+    monkeypatch.setattr("vibey_bootstrap.transports.sumologic._build_session", _no_requests)
     assert make_sumo_logic_handler() is None

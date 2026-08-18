@@ -1,4 +1,4 @@
-# PowerShell script to install git hooks for azure-bootstrap
+# PowerShell script to install git hooks for vibey-bootstrap
 # Run this with: powershell -ExecutionPolicy Bypass -File .githooks\install-hooks.ps1
 
 Write-Host "🔧 Installing git hooks..." -ForegroundColor Yellow

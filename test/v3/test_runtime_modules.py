@@ -11,23 +11,23 @@ import pytest
 
 pytest.importorskip("sqlalchemy")
 
-from azure_bootstrap.aks import build_info, setup_async_sigterm_handler
-from azure_bootstrap.aks.leader_election import LeaderElection
-from azure_bootstrap.audit import AuditChain, verify_chain
-from azure_bootstrap.auth.hmac import verify_hmac_signature
-from azure_bootstrap.db import _reset_db, get_db, get_engine
-from azure_bootstrap.db.outbox import Outbox, drain_outbox
-from azure_bootstrap.governance import BudgetGuard
-from azure_bootstrap.http import normalize_pem, request_with_retry, write_temp_pem
-from azure_bootstrap.http._common import inject_traceparent
-from azure_bootstrap.identity import (
+from vibey_bootstrap.aks import build_info, setup_async_sigterm_handler
+from vibey_bootstrap.aks.leader_election import LeaderElection
+from vibey_bootstrap.audit import AuditChain, verify_chain
+from vibey_bootstrap.auth.hmac import verify_hmac_signature
+from vibey_bootstrap.db import _reset_db, get_db, get_engine
+from vibey_bootstrap.db.outbox import Outbox, drain_outbox
+from vibey_bootstrap.governance import BudgetGuard
+from vibey_bootstrap.http import normalize_pem, request_with_retry, write_temp_pem
+from vibey_bootstrap.http._common import inject_traceparent
+from vibey_bootstrap.identity import (
     TokenCache,
     _reset_token_cache,
     build_tenant_credential,
     build_tenant_credential_cached,
 )
-from azure_bootstrap.ratelimit import MultiUnitLimiter as RLMU
-from azure_bootstrap.servicebus.async_ext import (
+from vibey_bootstrap.ratelimit import MultiUnitLimiter as RLMU
+from vibey_bootstrap.servicebus.async_ext import (
     MultiQueueRouter,
     ReplayGuard,
     service_bus_transport_type,
@@ -62,7 +62,7 @@ def test_build_tenant_credential_cached_miss(monkeypatch) -> None:
     monkeypatch.setenv("AZURE_CLIENT_ID", "app-id")
     mock_cred = MagicMock()
     mock_cred.get_token.return_value = MagicMock(token="fresh", expires_on=time.time() + 3600)
-    with patch("azure_bootstrap.identity.build_tenant_credential", return_value=mock_cred):
+    with patch("vibey_bootstrap.identity.build_tenant_credential", return_value=mock_cred):
         result = build_tenant_credential_cached("t2", "scope")
     assert result == "fresh"
 
@@ -197,7 +197,7 @@ def test_request_with_retry_ssrf_blocked() -> None:
 
 
 def test_inject_traceparent_with_correlation(monkeypatch) -> None:
-    from azure_bootstrap.logging.correlation import set_correlation_id
+    from vibey_bootstrap.logging.correlation import set_correlation_id
 
     set_correlation_id("abc-def-ghi")
     hdrs = inject_traceparent({})
@@ -249,6 +249,6 @@ def test_multi_queue_router_send() -> None:
     sender = MagicMock()
     client.get_queue_sender.return_value = sender
     router = MultiQueueRouter(client)
-    with patch("azure_bootstrap.servicebus.async_ext.ServiceBusMessage", create=True):
+    with patch("vibey_bootstrap.servicebus.async_ext.ServiceBusMessage", create=True):
         router.send("q1", b"hello")
     sender.send_messages.assert_called_once()

@@ -22,12 +22,12 @@ import sys
 os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
 os.environ.setdefault("AZURE_BOOTSTRAP_ALLOW_RESET", "1")
 
-from azure_bootstrap.alerts import (
+from vibey_bootstrap.alerts import (
     install_global_exception_hooks,
     register_dispatcher,
     reset_state,
 )
-from azure_bootstrap.logging import configure_logging
+from vibey_bootstrap.logging import configure_logging
 
 
 def main() -> None:

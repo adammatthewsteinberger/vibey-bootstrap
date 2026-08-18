@@ -7,7 +7,7 @@ Tests telemetry manager upgrade functionality and Application Insights integrati
 import os
 from unittest.mock import Mock
 
-from azure_bootstrap.services.telemetry import telemetry_manager
+from vibey_bootstrap.services.telemetry import telemetry_manager
 
 
 class TestTelemetryManagerUpgrade:

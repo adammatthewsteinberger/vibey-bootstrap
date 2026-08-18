@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from azure_bootstrap.db.migrations import ENV_PY_TEMPLATE, write_env_py
+from vibey_bootstrap.db.migrations import ENV_PY_TEMPLATE, write_env_py
 
 
 def test_write_env_py(tmp_path: Path) -> None:

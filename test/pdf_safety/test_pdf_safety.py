@@ -1,10 +1,10 @@
-"""Tests for ``azure_bootstrap.pdf_safety``."""
+"""Tests for ``vibey_bootstrap.pdf_safety``."""
 
 from __future__ import annotations
 
 import pytest
 
-from azure_bootstrap.counters import _reset_counters, counter_snapshot
+from vibey_bootstrap.counters import _reset_counters, counter_snapshot
 
 # pypdf names internal dictionary nodes via these helpers; we avoid full PDF
 # construction by using simple dict-like objects that quack like pypdf objects.
@@ -41,7 +41,7 @@ class _FakeReader:
 
 
 def test_strips_catalog_open_action() -> None:
-    from azure_bootstrap.pdf_safety import sanitize_pdf_for_passthrough
+    from vibey_bootstrap.pdf_safety import sanitize_pdf_for_passthrough
 
     catalog = {"/OpenAction": "[malicious]", "/Type": "/Catalog"}
     reader = _FakeReader(catalog, pages=[])
@@ -52,7 +52,7 @@ def test_strips_catalog_open_action() -> None:
 
 
 def test_strips_javascript_and_names_tree() -> None:
-    from azure_bootstrap.pdf_safety import sanitize_pdf_for_passthrough
+    from vibey_bootstrap.pdf_safety import sanitize_pdf_for_passthrough
 
     catalog = {"/JavaScript": "...", "/Names": {"/EmbeddedFiles": "..."}}
     reader = _FakeReader(catalog, pages=[])
@@ -62,7 +62,7 @@ def test_strips_javascript_and_names_tree() -> None:
 
 
 def test_strips_per_page_aa() -> None:
-    from azure_bootstrap.pdf_safety import sanitize_pdf_for_passthrough
+    from vibey_bootstrap.pdf_safety import sanitize_pdf_for_passthrough
 
     page = _FakePage()
     page["/AA"] = "..."
@@ -74,7 +74,7 @@ def test_strips_per_page_aa() -> None:
 
 
 def test_strips_per_annotation() -> None:
-    from azure_bootstrap.pdf_safety import sanitize_pdf_for_passthrough
+    from vibey_bootstrap.pdf_safety import sanitize_pdf_for_passthrough
 
     annot_data = {"/A": "...", "/AA": "...", "/Subtype": "/Link"}
     page = _FakePage()
@@ -87,7 +87,7 @@ def test_strips_per_annotation() -> None:
 
 
 def test_passes_through_on_exception() -> None:
-    from azure_bootstrap.pdf_safety import sanitize_pdf_for_passthrough
+    from vibey_bootstrap.pdf_safety import sanitize_pdf_for_passthrough
 
     class BadReader:
         @property
@@ -108,7 +108,7 @@ def test_passes_through_on_exception() -> None:
 
 def test_counter_not_bumped_when_no_op() -> None:
     """A clean PDF (no actions to strip) MUST NOT bump the counter."""
-    from azure_bootstrap.pdf_safety import sanitize_pdf_for_passthrough
+    from vibey_bootstrap.pdf_safety import sanitize_pdf_for_passthrough
 
     catalog = {"/Type": "/Catalog"}
     reader = _FakeReader(catalog, pages=[_FakePage()])

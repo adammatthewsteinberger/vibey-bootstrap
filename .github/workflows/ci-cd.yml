@@ -1,4 +1,4 @@
-# GitHub Actions Workflow for Azure Bootstrap Library
+# GitHub Actions Workflow for vibey-bootstrap
 # This workflow builds, tests, and publishes the library to PyPI / TestPyPI
 #
 # Publishing Strategy:
@@ -24,7 +24,7 @@ on:
 
 env:
   PYTHON_VERSION: "3.11"
-  PACKAGE_NAME: "azure-bootstrap"
+  PACKAGE_NAME: "vibey-bootstrap"
 
 jobs:
   build-and-test:
@@ -54,7 +54,7 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          pytest test/ --verbose --cov=azure_bootstrap --cov-report=xml --cov-report=html --cov-report=term --junitxml=test-results.xml -m "not integration"
+          pytest test/ --verbose --cov=vibey_bootstrap --cov-report=xml --cov-report=html --cov-report=term --junitxml=test-results.xml -m "not integration"
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
@@ -91,11 +91,11 @@ jobs:
             sed -i -E "s/^version = \".*\"\$/version = \"${DEV_VERSION}\"/" pyproject.toml
 
             # Update version in __init__.py for build
-            sed -i -E "s/^__version__ = \".*\"\$/__version__ = \"${DEV_VERSION}\"/" azure_bootstrap/__init__.py
+            sed -i -E "s/^__version__ = \".*\"\$/__version__ = \"${DEV_VERSION}\"/" vibey_bootstrap/__init__.py
 
             grep -qx "version = \"${DEV_VERSION}\"" pyproject.toml \
               || { echo "::error::pyproject.toml version rewrite failed"; exit 1; }
-            grep -qx "__version__ = \"${DEV_VERSION}\"" azure_bootstrap/__init__.py \
+            grep -qx "__version__ = \"${DEV_VERSION}\"" vibey_bootstrap/__init__.py \
               || { echo "::error::__init__.py version rewrite failed"; exit 1; }
 
             echo "Updated version to ${DEV_VERSION} for development build"
@@ -238,7 +238,7 @@ jobs:
       - name: Publish to TestPyPI (Trusted Publisher)
         uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b  # v1.14.0
         # No credentials — OIDC Trusted Publisher registered at test.pypi.org
-        # for TheViziusGroup/azure-bootstrap, workflow ci-cd.yml, env testpypi.
+        # for adammatthewsteinberger/vibey-bootstrap, workflow ci-cd.yml, env testpypi.
         with:
           repository-url: https://test.pypi.org/legacy/
           # A workflow re-run re-uploads an identical timestamped dev version;
@@ -294,13 +294,13 @@ jobs:
         run: |
           python - <<'PY'
           import os
-          import azure_bootstrap
-          from azure_bootstrap import get_bootstrap_logger, initialize_application
+          import vibey_bootstrap
+          from vibey_bootstrap import get_bootstrap_logger, initialize_application
 
           expected = os.environ["VERSION"]
-          actual = azure_bootstrap.__version__
+          actual = vibey_bootstrap.__version__
           assert actual == expected, f"expected {expected!r}, got {actual!r}"
-          print(f"Import successful — azure-bootstrap {actual} (TestPyPI)")
+          print(f"Import successful — vibey-bootstrap {actual} (TestPyPI)")
           PY
 
   validate-installation:
@@ -326,18 +326,18 @@ jobs:
         run: |
           set -euo pipefail
           test -n "${VERSION}"
-          # Pinned: `pip install azure-bootstrap` would happily install the
+          # Pinned: `pip install vibey-bootstrap` would happily install the
           # PREVIOUS release if 15s wasn't enough for PyPI to index this one,
           # and the job would pass while validating the wrong artifact.
           pip install "${PACKAGE_NAME}==${VERSION}"
 
       - name: Verify package imports
         run: |
-          python -c "from azure_bootstrap import initialize_application, get_bootstrap_logger; print('Import successful!')"
+          python -c "from vibey_bootstrap import initialize_application, get_bootstrap_logger; print('Import successful!')"
 
       - name: Check package version
         run: |
-          python -c "import azure_bootstrap; print(f'Version: {azure_bootstrap.__version__}')"
+          python -c "import vibey_bootstrap; print(f'Version: {vibey_bootstrap.__version__}')"
 
       - name: Installation instructions
         run: |

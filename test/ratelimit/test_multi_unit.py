@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from azure_bootstrap.ratelimit import MultiUnitLimiter
+from vibey_bootstrap.ratelimit import MultiUnitLimiter
 
 
 def test_multi_unit_limiter_allows_within_budget() -> None:

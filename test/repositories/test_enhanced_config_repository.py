@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from azure_bootstrap.repositories.enhanced_config_repository import (
+from vibey_bootstrap.repositories.enhanced_config_repository import (
     EnhancedConfigRepository,
     create_enhanced_config_repository,
 )
@@ -384,7 +384,7 @@ class TestEnhancedConfigRepository:
                 assert os.environ["USE_MOCK_SHAREPOINT"] == "true"  # ✅ Local wins!
                 assert count == 0  # No new values added (1 skipped)
 
-    @patch("azure_bootstrap.repositories.enhanced_config_repository.logger")
+    @patch("vibey_bootstrap.repositories.enhanced_config_repository.logger")
     def test_load_to_environ_logs_skipped_keys(
         self, mock_logger, connection_string, mock_config_provider
     ):

@@ -1,13 +1,13 @@
-# Using `azure-bootstrap` — Complete Usage Guide
+# Using `vibey-bootstrap` — Complete Usage Guide
 
-> A practitioner's guide to consuming the **Azure Bootstrap Library** (`azure-bootstrap`,
-> v3.0.0) from a real codebase — in **Python** and in **TypeScript / Next.js**.
+> A practitioner's guide to consuming **vibey-bootstrap** (formerly **azure-bootstrap**,
+> v4.0.0) from a real codebase — in **Python** and in **TypeScript / Next.js**.
 
 ### v3.0.0 additions (2026-06-29)
 
 3.0.0 adds **seven optional logging transports** (`panther`, `file`, `blob`, `sql`,
 `nosql`, `adx`, `event_hubs`), a **DB/outbox/email** stack, **hardened HTTP**,
-**AKS runtime helpers**, **governance**, and a **`azbootstrap scaffold` CLI**.
+**AKS runtime helpers**, **governance**, and a **`vibey-bootstrap scaffold` CLI**.
 Everything is opt-in behind pip extras. See [MIGRATING-TO-V3.md](../MIGRATING-TO-V3.md).
 
 | Extra | Purpose |
@@ -23,7 +23,7 @@ Everything is opt-in behind pip extras. See [MIGRATING-TO-V3.md](../MIGRATING-TO
 
 ## 0. Read this first
 
-`azure-bootstrap` solves the **logging ↔ configuration circular dependency** every
+`vibey-bootstrap` solves the **logging ↔ configuration circular dependency** every
 Azure Functions / container app hits at startup (you need logging to report config
 loading, but App Insights logging needs config to initialize). On top of that v1
 core, v2 adds a large, opt-in, framework-agnostic "cross-cutting layer": structured
@@ -32,7 +32,7 @@ hardening, Service Bus plumbing, webhook auth, AI usage tracking, health probes,
 a v2.1 logging-transport layer (console / App Insights / Sumo Logic).
 
 > [!IMPORTANT]
-> **`azure-bootstrap` is a pure Python package.** It is published to PyPI and has
+> **`vibey-bootstrap` is a pure Python package.** It is published to PyPI and has
 > **no JavaScript/TypeScript distribution** — you cannot `npm install` or `import` it
 > from a Next.js app. Accordingly, the TypeScript/Next.js half of this guide covers
 > two distinct, legitimate things:
@@ -45,7 +45,7 @@ a v2.1 logging-transport layer (console / App Insights / Sumo Logic).
 >    (structured JSON logging, correlation via `AsyncLocalStorage`, masking, counters,
 >    token bucket, **HMAC action tokens that interoperate byte-for-byte** with Python).
 
-**Compatibility:** Python **≥ 3.11**. Distribution: `pip install azure-bootstrap`
+**Compatibility:** Python **≥ 3.11**. Distribution: `pip install vibey-bootstrap`
 (PyPI, MIT). Every v1 public symbol is preserved byte-identical across v2.
 
 ### Table of contents
@@ -65,10 +65,10 @@ a v2.1 logging-transport layer (console / App Insights / Sumo Logic).
 ## 1. Installation & extras
 
 ```bash
-pip install azure-bootstrap                       # core only
-pip install 'azure-bootstrap[fastapi]'            # one extra
-pip install 'azure-bootstrap[fastapi,servicebus,sumologic]'   # several
-pip install 'azure-bootstrap[all]'                # the aggregate extra
+pip install vibey-bootstrap                       # core only
+pip install 'vibey-bootstrap[fastapi]'            # one extra
+pip install 'vibey-bootstrap[fastapi,servicebus,sumologic]'   # several
+pip install 'vibey-bootstrap[all]'                # the aggregate extra
 ```
 
 ### Core dependencies (always installed)
@@ -92,33 +92,54 @@ markers (`[]`): the code is **stdlib-only** and already importable without the
 extra — the extra exists for discoverability / intent, and only pulls real
 dependencies where a third-party package is genuinely required.
 
-| Extra | Installs | What it unlocks |
-|---|---|---|
-| `fastapi` | `fastapi>=0.110` | `fastapi_middleware`, webhook route, API-key dep, `fastapi_rate_limit` |
-| `servicebus` | `azure-servicebus>=7.11` | `servicebus.*` consumer/DLQ helpers |
-| `sb-lock` | — (uses `servicebus`) | `sb_lock` message-lock renewal |
-| `scheduler` | `apscheduler>=3.10` | `scheduler.parse_cron_trigger` |
-| `retry` | `tenacity>=8.0` | `retry.build_retry` + Azure/AI presets |
-| `pdf-safety` | `pypdf>=4.0` | `pdf_safety.sanitize_pdf_for_passthrough` |
-| `sumologic` | `requests>=2.32.0` | `SumoLogicHandler` transport |
-| `transports` | — (stdlib) | transport registry + console/app-insights |
-| `alerts` | — (stdlib) | tiered alert dispatcher |
-| `health` | — (stdlib) | readiness probes |
-| `heartbeat` | — (stdlib) | heartbeat + consumer watchdog |
-| `config-refresh` | — (stdlib) | `refresh_log_flags` |
-| `ingress` | — (stdlib) | 4-gate attachment classifier |
-| `ratelimit` | — (stdlib) | `TokenBucket` + presets |
-| `notify` | — (stdlib) | two-tier notification builders |
-| `subscription` | — (stdlib) | resource renewal loop |
-| `auth` | — (uses `fastapi`) | webhook + API-key guards |
-| `identity` | — (`azure-identity` in core) | `build_credential` |
-| `audit` | — (stdlib) | `build_audit_extra` |
-| `failclose` | — (stdlib) | `require_env` / `optional_env` / `fail_open_env` |
-| `openai` | — (stdlib) | AI usage tracker |
-| `tokens` | — (stdlib) | HMAC action tokens |
-| `metrics` | — (stdlib) | `build_metrics_snapshot` |
-| `all` | `fastapi`, `azure-servicebus`, `apscheduler`, `requests` | the four real third-party deps |
-| `dev` / `test` | tooling / test deps | development & CI |
+| Extra | Pulls | When you need |
+| --- | --- | --- |
+| `[alerts]` | stdlib only | Tiered alert dispatcher + global excepthooks |
+| `[health]` | core deps | App Config + App Insights health probes |
+| `[fastapi]` | `fastapi` | Request middleware, webhook route, rate-limit dep |
+| `[heartbeat]` | stdlib only | Background heartbeat + consumer watchdog |
+| `[config-refresh]` | stdlib only | Dynamic `LOG_LEVEL` refresh via App Config |
+| `[servicebus]` | `azure-servicebus` | DLQ digest, growth alarm, consumer wrapper, sb_lock |
+| `[openai]` | stdlib only | AI usage tracker (SDK-agnostic) |
+| `[tokens]` | stdlib only | HMAC action tokens |
+| `[scheduler]` | `apscheduler` | NCRONTAB parser |
+| `[metrics]` | stdlib only | `/api/metrics` aggregator |
+| `[retry]` | `tenacity` | Pre-configured retry wrappers |
+| `[ingress]` | stdlib only | 4-gate attachment classifier |
+| `[pdf-safety]` | `pypdf` | PDF action stripping |
+| `[ratelimit]` | stdlib only | TokenBucket |
+| `[notify]` | stdlib only | Two-tier notification builders + throttle |
+| `[subscription]` | stdlib only | Renewal loop pattern |
+| `[identity]` | core deps | `build_credential` (Workload Identity preferred) |
+| `[auth]` | (pair with `[fastapi]`) | Graph webhook + API-key helpers |
+| `[sb-lock]` | (pair with `[servicebus]`) | Message lock auto-renewer |
+| `[audit]` | stdlib only | Audit-log conventions |
+| `[failclose]` | stdlib only | Env-var fail-closed-vs-open helpers |
+| `[transports]` | stdlib only | Logging transport registry (console / App Insights / Sumo Logic) |
+| `[sumologic]` | `requests` | Buffered POST to a Sumo Logic HTTP Source (urllib3 Retry, gzip, Retry-After) |
+| `[panther]` | `requests` | Panther log ingest transport |
+| `[bloblog]` | `azure-storage-blob` | NDJSON append/block blob logging |
+| `[sqllog]` | `sqlalchemy` | Relational DB log shipper |
+| `[nosqllog]` | `pymongo` | MongoDB / Cosmos (Mongo API) document shipper |
+| `[adxlog]` | `azure-kusto-*` | Azure Data Explorer streaming ingest |
+| `[eventhubslog]` | `azure-eventhub` | Event Hubs live-tail producer |
+| `[logging-all]` | all transport deps | Every logging sink at once |
+| `[db]` | `sqlalchemy`, `alembic` | Session factory + migrations + outbox |
+| `[email]` | `azure-communication-email` | ACS transactional email |
+| `[http]` | `requests` | Sync HTTP client with retry |
+| `[http-async]` | `httpx` | Async HTTP client |
+| `[documentdb]` | `pymongo` | DocumentDB client factory |
+| `[governance]` | stdlib only | Budget guard + usage tracking |
+| `[aks]` | stdlib only | AKS runtime helpers + leader election |
+| `[all]` | everything above | All extras at once |
+| `[dev]` / `[test]` / `[docs]` | tooling | Development, CI, and the documentation-site toolchain |
+
+```bash
+# Common combinations
+pip install 'vibey-bootstrap[alerts,fastapi,health]'
+pip install 'vibey-bootstrap[servicebus,sb-lock,retry,heartbeat]'
+pip install 'vibey-bootstrap[all]'
+```
 
 ---
 
@@ -138,7 +159,7 @@ configuration to initialize. The library breaks the cycle in four phases:
 
 ```python
 import os
-from azure_bootstrap import initialize_application, get_bootstrap_logger
+from vibey_bootstrap import initialize_application, get_bootstrap_logger
 
 logger = get_bootstrap_logger(__name__)     # works before bootstrap completes
 config_repo = initialize_application()       # runs all four phases
@@ -162,10 +183,43 @@ added. App Config can store Key Vault *references* (a JSON `{"uri": "...vault...
 the provider resolves them transparently, so `os.getenv("DATABASE_PASSWORD")` returns
 the actual secret, not the URI.
 
+### Configuration sources: two ways to run
+
+**Enterprise** — App Configuration + Key Vault (`local.settings.json` for a Function app):
+
+```json
+{
+  "Values": {
+    "AZURE_APP_CONFIGURATION_CONNECTION_STRING": "Endpoint=https://...;Id=...;Secret=...",
+    "AZURE_KEY_VAULT_URL": "https://myvault.vault.azure.net/",
+    "AZURE_APP_CONFIG_LABEL": "dev"
+  }
+}
+```
+
+**Simple** — environment variables only. The library falls back gracefully when
+App Configuration is not configured, so the same code runs locally and in Azure:
+
+```json
+{
+  "Values": {
+    "DATABASE_HOST": "localhost",
+    "DATABASE_NAME": "mydb",
+    "API_KEY": "your-api-key"
+  }
+}
+```
+
+```python
+# local.settings.json sets: USE_MOCK_DB = "true"
+# App Config has:          USE_MOCK_DB = "false"
+# After bootstrap:         os.getenv("USE_MOCK_DB") → "true"   (local wins)
+```
+
 ### API reference — entry points
 
 ```python
-from azure_bootstrap import (
+from vibey_bootstrap import (
     initialize_application, get_bootstrap_logger,
     ensure_bootstrap_logging, create_enhanced_config_repository,
 )
@@ -181,7 +235,7 @@ from azure_bootstrap import (
 ### API reference — classes
 
 ```python
-from azure_bootstrap import (
+from vibey_bootstrap import (
     ApplicationBootstrap, BootstrapLogger, ExtraFieldsFormatter,
     TelemetryManager, telemetry_manager,
     EnhancedConfigRepository, SecretsRepository,
@@ -195,7 +249,7 @@ from azure_bootstrap import (
   level falls back to `LOG_LEVEL` env, then `INFO`).
 - **`ExtraFieldsFormatter`** — `logging.Formatter` that appends `extra={}` fields to
   each line. (v1 lives in `services.bootstrap_logging`; a v2 variant lives in
-  `azure_bootstrap.logging` — see Part 3.)
+  `vibey_bootstrap.logging` — see Part 3.)
 - **`TelemetryManager` / `telemetry_manager`** (singleton) —
   `.configure(connection_string=None, allow_reconfigure=False) -> bool` and
   `.try_upgrade_from_config(config_repository) -> bool`. Best-effort: always falls
@@ -218,7 +272,7 @@ from azure_bootstrap import (
 ### Interfaces (DI / type hints) and exceptions
 
 ```python
-from azure_bootstrap import (
+from vibey_bootstrap import (
     ApplicationBootstrapInterface, BootstrapLoggerInterface,
     TelemetryManagerInterface, EnhancedConfigRepositoryInterface,
     SecretsRepositoryInterface,
@@ -237,18 +291,50 @@ from azure_bootstrap import (
 | `LOG_LEVEL` | bootstrap + telemetry logging | `DEBUG`/`INFO`/`WARNING`/`ERROR` (default `INFO`) |
 | `FUNCTIONS_WORKER_RUNTIME` | bootstrap logging | presence triggers Azure-Functions log setup |
 
+### v2 top-level re-exports (additive)
+
+The v1 surface (`initialize_application`, `get_bootstrap_logger`,
+`create_enhanced_config_repository`, `telemetry_manager`, and the rest of the
+original `__all__`) is preserved byte-identical. The most common v2 primitives
+are also re-exported from the top-level namespace:
+
+```python
+from vibey_bootstrap import (
+    # Logging
+    configure_logging, correlation_scope, get_correlation_id, set_correlation_id,
+    mask_api_key, mask_email_address, mask_secrets_in_dict, sanitize_for_log,
+    # Tracing + counters
+    traced, latency_snapshot, bump_counter, counter_snapshot,
+    # Bootstrap
+    ensure_bootstrap, bootstrap_initialized, load_local_settings, refresh_setting,
+    # Exception hierarchy
+    PipelineError, UnrecoverableError, TransientError,
+    InvalidMessageError, RateLimitError, NetworkError, is_unrecoverable,
+    # Soft-fail + phases + validation
+    soft_fail, soft_fail_with, SoftFailResult,
+    run_phase, run_phases, PhaseResult,
+    validate_message, MessageSchema, queue_message_schema,
+    # Path / security
+    sanitize_path_segment, confine_to_root, compare_secrets,
+)
+```
+
+Everything else is reachable via its subpackage (e.g.
+`from vibey_bootstrap.alerts import alert_dev_team`). The authoritative list is
+[`vibey_bootstrap/__init__.py`](../vibey_bootstrap/__init__.py).
+
 ---
 
 ## 3. Python: v2 Tier 1 primitives (always-on, stdlib-only)
 
-Everything here is importable from the top-level `azure_bootstrap` namespace (or its
+Everything here is importable from the top-level `vibey_bootstrap` namespace (or its
 subpackage) with **no extra installed**.
 
 ### Structured logging
 
 ```python
-from azure_bootstrap import configure_logging, JsonLogFormatter
-from azure_bootstrap.logging import (
+from vibey_bootstrap import configure_logging, JsonLogFormatter
+from vibey_bootstrap.logging import (
     ExtraFieldsFormatter, effective_log_level, env_flag, debug_logging_enabled,
 )
 
@@ -276,8 +362,8 @@ collides with a reserved `LogRecord` attribute raises `LoggingExtraConflictError
 ### Correlation context
 
 ```python
-from azure_bootstrap import correlation_scope, get_correlation_id, set_correlation_id
-from azure_bootstrap.logging import CorrelationFilter
+from vibey_bootstrap import correlation_scope, get_correlation_id, set_correlation_id
+from vibey_bootstrap.logging import CorrelationFilter
 
 with correlation_scope("req-123", user_id="u-456", email_id="e-789") as cid:
     logger.info("processing")   # log line auto-includes correlation_id, user_id, email_id
@@ -292,11 +378,11 @@ scope.
 ### Masking & sanitization
 
 ```python
-from azure_bootstrap import (
+from vibey_bootstrap import (
     mask_api_key, mask_bearer_token, mask_email_address,
     mask_secrets_in_dict, safe_json_dumps, sanitize_for_log,
 )
-from azure_bootstrap.logging import register_secret_keys, content_preview
+from vibey_bootstrap.logging import register_secret_keys, content_preview
 ```
 
 | Function | Behavior |
@@ -313,7 +399,7 @@ from azure_bootstrap.logging import register_secret_keys, content_preview
 ### Tracing & counters
 
 ```python
-from azure_bootstrap import traced, latency_snapshot, bump_counter, counter_snapshot
+from vibey_bootstrap import traced, latency_snapshot, bump_counter, counter_snapshot
 
 @traced(operation="reports.process", alert_on_error="error",
         sensitive_args=("api_key",), slow_threshold_seconds=2.0)
@@ -332,7 +418,7 @@ is thread-safe and never raises; `counter_snapshot()` returns a copy.
 ### Bootstrap helpers
 
 ```python
-from azure_bootstrap import (
+from vibey_bootstrap import (
     ensure_bootstrap, bootstrap_initialized, load_local_settings, refresh_setting,
 )
 ```
@@ -347,7 +433,7 @@ from azure_bootstrap import (
 ### Error vocabulary
 
 ```python
-from azure_bootstrap import (
+from vibey_bootstrap import (
     PipelineError, UnrecoverableError, TransientError,
     InvalidMessageError, RateLimitError, NetworkError, is_unrecoverable,
 )
@@ -362,7 +448,7 @@ is a single classifier the retry/soft-fail/consumer helpers all consult.
 ### Resilience — soft-fail & phases
 
 ```python
-from azure_bootstrap import (
+from vibey_bootstrap import (
     soft_fail, soft_fail_with, SoftFailResult, run_phase, run_phases, PhaseResult,
 )
 
@@ -390,7 +476,7 @@ results = run_phases([("download", download), ("parse", parse), ("index", index)
 ### Validation
 
 ```python
-from azure_bootstrap import validate_message, queue_message_schema, MessageSchema
+from vibey_bootstrap import validate_message, queue_message_schema, MessageSchema
 
 schema = queue_message_schema(
     required_fields=("correlation_id",),
@@ -406,7 +492,7 @@ and raises `InvalidMessageError` (an `UnrecoverableError` — so consumers dead-
 ### Path safety
 
 ```python
-from azure_bootstrap import sanitize_path_segment, confine_to_root
+from vibey_bootstrap import sanitize_path_segment, confine_to_root
 
 safe = sanitize_path_segment(user_filename)            # strips bidi/zero-width, caps 64 chars
 path = confine_to_root(raw, allowed_root="/data/work") # raises ValueError on escape
@@ -418,8 +504,8 @@ comparison, defeating `..` traversal **and** symlink escape.
 ### Security & fail-close
 
 ```python
-from azure_bootstrap import compare_secrets
-from azure_bootstrap.failclose import require_env, optional_env, fail_open_env
+from vibey_bootstrap import compare_secrets
+from vibey_bootstrap.failclose import require_env, optional_env, fail_open_env
 ```
 
 - `compare_secrets(a, b) -> bool` — constant-time (`hmac.compare_digest`); `False` on
@@ -432,8 +518,8 @@ from azure_bootstrap.failclose import require_env, optional_env, fail_open_env
 ### Identity & audit
 
 ```python
-from azure_bootstrap.identity import build_credential, credential_kind, CredentialKind
-from azure_bootstrap.audit import build_audit_extra
+from vibey_bootstrap.identity import build_credential, credential_kind, CredentialKind
+from vibey_bootstrap.audit import build_audit_extra
 
 cred = build_credential()   # ClientSecret (if secret set) → WorkloadIdentity → DefaultAzureCredential
 logger.info("EMAIL_AUDIT", extra=build_audit_extra("send", sender=addr, subject=subj))
@@ -463,7 +549,7 @@ attaches its handler to the root logger; disabling detaches and closes it. This
 decouples *where logs go* from *how they're formatted*.
 
 ```python
-from azure_bootstrap import (
+from vibey_bootstrap import (
     configure_transports, register_transport,
     enable_transport, disable_transport, list_transports,
 )
@@ -549,7 +635,7 @@ background flush thread, batch by count and bytes, flush at `atexit`.
 | `event_hubs` | `[eventhubslog]` | `EVENTHUBS_LOGGING_ENABLED` | `EVENTHUB_FQNS`, `EVENTHUB_NAME` |
 
 ```python
-from azure_bootstrap import configure_transports
+from vibey_bootstrap import configure_transports
 
 configure_transports(
     console=True,
@@ -563,20 +649,20 @@ configure_transports(
 ```
 
 See [examples/39_v3_transports.py](../examples/39_v3_transports.py). Install all deps
-with `pip install 'azure-bootstrap[logging-all]'`.
+with `pip install 'vibey-bootstrap[logging-all]'`.
 
 ### v3.0.0 runtime modules (non-transport)
 
 | Module | Extra | Key APIs |
 |---|---|---|
-| `azure_bootstrap.db` | `[db]` | `get_sessionmaker()`, `Outbox`, `drain_outbox()` |
-| `azure_bootstrap.email` | `[email]` | `AcsEmailSender` |
-| `azure_bootstrap.http` | `[http]` | `build_session()`, `request_with_retry()` |
-| `azure_bootstrap.http.async_client` | `[http-async]` | `build_async_client()` |
-| `azure_bootstrap.documentdb` | `[documentdb]` | `mongo_client_from_env()` |
-| `azure_bootstrap.aks` | `[aks]` | `build_info()`, `install_sigterm_handler()` |
-| `azure_bootstrap.governance` | `[governance]` | `budget_guard()`, `track_usage()` |
-| `azure_bootstrap.contrib.scaffold` | core | `azbootstrap list`, `azbootstrap scaffold` |
+| `vibey_bootstrap.db` | `[db]` | `get_sessionmaker()`, `Outbox`, `drain_outbox()` |
+| `vibey_bootstrap.email` | `[email]` | `AcsEmailSender` |
+| `vibey_bootstrap.http` | `[http]` | `build_session()`, `request_with_retry()` |
+| `vibey_bootstrap.http.async_client` | `[http-async]` | `build_async_client()` |
+| `vibey_bootstrap.documentdb` | `[documentdb]` | `mongo_client_from_env()` |
+| `vibey_bootstrap.aks` | `[aks]` | `build_info()`, `install_sigterm_handler()` |
+| `vibey_bootstrap.governance` | `[governance]` | `budget_guard()`, `track_usage()` |
+| `vibey_bootstrap.contrib.scaffold` | core | `vibey-bootstrap list`, `vibey-bootstrap scaffold` |
 
 Examples: [44](../examples/44_db_outbox_email.py), [45](../examples/45_http_client.py),
 [46](../examples/46_scaffold_cli.py).
@@ -590,7 +676,7 @@ demos (the numbers below reference numbered example files).
 
 ### `alerts` — tiered dispatcher
 ```python
-from azure_bootstrap.alerts import (
+from vibey_bootstrap.alerts import (
     register_dispatcher, alert_dev_team, AlertSeverity, install_global_exception_hooks,
 )
 register_dispatcher(my_email_sender, recipients=["dev-alerts@example.com"])
@@ -609,7 +695,7 @@ Tunables (env): `DEV_ALERTS_ENABLED` (kill switch, default on), `DEV_ALERT_RECIP
 
 ### `fastapi_middleware` — request timing + 5xx alerts
 ```python
-from azure_bootstrap.fastapi_middleware import install_middleware
+from vibey_bootstrap.fastapi_middleware import install_middleware
 install_middleware(app, probe_paths=("/health/live","/health/ready"),
                    alert_subject_prefix="[svc] ", fire_alerts=True)
 ```
@@ -620,7 +706,7 @@ context vars, not HTTP headers.
 
 ### `health` — readiness probes
 ```python
-from azure_bootstrap.health import (
+from vibey_bootstrap.health import (
     check_app_config_health, check_app_insights_health, check_app_insights_logging,
 )
 ```
@@ -630,7 +716,7 @@ the App Insights checks are fast readiness checks.
 
 ### `auth` — webhook + API-key (needs `fastapi`)
 ```python
-from azure_bootstrap.auth import (
+from vibey_bootstrap.auth import (
     install_graph_webhook_route, WebhookDedup, verify_api_key_header,
     verify_webhook_client_state, validation_token_handshake,
 )
@@ -644,7 +730,7 @@ an async FastAPI dependency raising `HTTPException(401)` on mismatch.
 
 ### `ratelimit` — token bucket
 ```python
-from azure_bootstrap.ratelimit import (
+from vibey_bootstrap.ratelimit import (
     TokenBucket, fastapi_rate_limit, webhook_bucket, admin_bucket,
 )
 bucket = TokenBucket(budget=240, refill_per_second=4.0, name="webhook")
@@ -657,7 +743,7 @@ async def x(): ...
 
 ### `retry` — tenacity wrappers (needs `tenacity`)
 ```python
-from azure_bootstrap.retry import build_retry, retry_azure_transient, retry_ai_transient
+from vibey_bootstrap.retry import build_retry, retry_azure_transient, retry_ai_transient
 
 @retry_azure_transient(operation="blob.download")   # 3 attempts, 2–10s, NetworkError|RateLimitError
 def download(): ...
@@ -668,7 +754,7 @@ def chat(): ...
 
 ### `ingress` — 4-gate attachment classifier
 ```python
-from azure_bootstrap.ingress import AttachmentClassifier, ClassifiedKind, enforce_zip_safety_limits
+from vibey_bootstrap.ingress import AttachmentClassifier, ClassifiedKind, enforce_zip_safety_limits
 
 result = AttachmentClassifier().classify(           # gates: extension → MIME → size → magic-byte
     filename=name, content_type=mime, size_bytes=len(data), content=data,
@@ -685,7 +771,7 @@ classifier's `allowed_kinds` defaults to `("pdf", "zip")`). Zip-bomb defense:
 
 ### `notify` — two-tier notifications
 ```python
-from azure_bootstrap.notify import (
+from vibey_bootstrap.notify import (
     build_failure_alert_body, build_unprocessable_notification,
     build_validation_notice_body, should_notify_sender, UnprocessableReason,
 )
@@ -706,7 +792,7 @@ tuple). All builders take **keyword-only** args.
 
 ### `heartbeat` — pulse + consumer watchdog
 ```python
-from azure_bootstrap.heartbeat import (
+from vibey_bootstrap.heartbeat import (
     start_background_monitors, record_consumer_iteration, record_message_settled,
 )
 monitors = start_background_monitors(stop_event)   # heartbeat + watchdog daemons
@@ -717,20 +803,20 @@ silence (default 30 min). Env: `HEARTBEAT_INTERVAL_SECONDS`,
 
 ### `config_refresh` — dynamic log flags (run on a schedule)
 ```python
-from azure_bootstrap.config_refresh import refresh_log_flags
+from vibey_bootstrap.config_refresh import refresh_log_flags
 refresh_log_flags(("DEBUG_LOGGING_ENABLED", "LOG_LEVEL"))   # re-reads App Config; reapplies logging
 ```
 
 ### `subscription` — resource renewal loop
 ```python
-from azure_bootstrap.subscription import ensure_resource, renewal_loop, SubscriptionGone
+from vibey_bootstrap.subscription import ensure_resource, renewal_loop, SubscriptionGone
 ```
 Idempotent find-or-create + a SIGTERM-responsive renewal thread (sleeps in ≤5 s
 slices). Built for Graph webhook subscriptions but generic.
 
 ### `servicebus` — consumer + DLQ (needs `azure-servicebus`)
 ```python
-from azure_bootstrap.servicebus import handle_message, run_dlq_digest, issue_resubmit_token
+from vibey_bootstrap.servicebus import handle_message, run_dlq_digest, issue_resubmit_token
 handle_message(receiver, msg, processor, schema=schema,
                correlation_field="correlation_id", source="consumer", counter_namespace="sb")
 ```
@@ -746,14 +832,14 @@ validates → opens `correlation_scope` → calls your processor → classifies 
 
 ### `sb_lock` — message-lock renewal (needs `azure-servicebus`)
 ```python
-from azure_bootstrap.sb_lock import lock_for_process, ManagedLock
+from vibey_bootstrap.sb_lock import lock_for_process, ManagedLock
 with lock_for_process(receiver, msg, max_lock_renewal_seconds=3600):
     ...   # broker won't redeliver mid-process
 ```
 
 ### `openai` — AI usage tracker
 ```python
-from azure_bootstrap.openai import record_usage, acquire, usage_snapshot, check_thresholds_and_alert
+from vibey_bootstrap.openai import record_usage, acquire, usage_snapshot, check_thresholds_and_alert
 record_usage("gpt-4o", prompt_tokens=1200, completion_tokens=300)
 ```
 Sliding-window tokens + cost (built-in pricing for GPT-4o & Claude 3 families;
@@ -763,7 +849,7 @@ override via `register_pricing`). Soft TPM cap via `acquire`. Env:
 
 ### `tokens` — HMAC-SHA256 action tokens
 ```python
-from azure_bootstrap.tokens import issue_action_token, verify_action_token, InvalidActionToken
+from vibey_bootstrap.tokens import issue_action_token, verify_action_token, InvalidActionToken
 tok = issue_action_token(SECRET, action="dlq_resubmit", ttl_seconds=86400, payload={"id": "m1"})
 body = verify_action_token(SECRET, tok, expected_action="dlq_resubmit")   # raises InvalidActionToken
 ```
@@ -772,13 +858,13 @@ seconds) + `act`. **This is the interop point for the TS port in Part 8.**
 
 ### `scheduler` — NCRONTAB parser (needs `apscheduler`)
 ```python
-from azure_bootstrap.scheduler import parse_cron_trigger
+from vibey_bootstrap.scheduler import parse_cron_trigger
 trigger = parse_cron_trigger("0 */5 * * * *")   # 5- or 6-field NCRONTAB → APScheduler CronTrigger
 ```
 
 ### `metrics` — aggregate snapshot
 ```python
-from azure_bootstrap.metrics import build_metrics_snapshot
+from vibey_bootstrap.metrics import build_metrics_snapshot
 snap = build_metrics_snapshot()
 # {"latency": {...}, "alert_counters": {...}, "ai_usage": {...},
 #  "bootstrap_initialized": bool, "last_sb_settle_age_seconds": float|None}
@@ -787,7 +873,7 @@ Soft-imports contributors — sections for absent modules are simply omitted.
 
 ### `pdf_safety` — strip active content (needs `pypdf`)
 ```python
-from azure_bootstrap.pdf_safety import sanitize_pdf_for_passthrough
+from vibey_bootstrap.pdf_safety import sanitize_pdf_for_passthrough
 reader = sanitize_pdf_for_passthrough(reader)   # removes OpenAction/AA/JavaScript/URI; best-effort
 ```
 
@@ -806,12 +892,12 @@ Lazy idempotent startup, per-request correlation, a fully traced handler, audit 
 
 ```python
 import logging, uuid
-from azure_bootstrap.alerts import install_global_exception_hooks, register_dispatcher
-from azure_bootstrap.audit import build_audit_extra
-from azure_bootstrap.bootstrap import ensure_bootstrap
-from azure_bootstrap.counters import bump_counter
-from azure_bootstrap.logging import configure_logging, correlation_scope
-from azure_bootstrap.tracing import traced
+from vibey_bootstrap.alerts import install_global_exception_hooks, register_dispatcher
+from vibey_bootstrap.audit import build_audit_extra
+from vibey_bootstrap.bootstrap import ensure_bootstrap
+from vibey_bootstrap.counters import bump_counter
+from vibey_bootstrap.logging import configure_logging, correlation_scope
+from vibey_bootstrap.tracing import traced
 
 logger = logging.getLogger(__name__)
 _started = False
@@ -851,14 +937,14 @@ Bootstrap + alerts + middleware + webhook + health + API-key admin + `/api/metri
 
 ```python
 from fastapi import Depends, FastAPI, Header
-from azure_bootstrap.alerts import install_global_exception_hooks, register_dispatcher
-from azure_bootstrap.auth import WebhookDedup, install_graph_webhook_route, verify_api_key_header
-from azure_bootstrap.bootstrap import ensure_bootstrap
-from azure_bootstrap.fastapi_middleware import install_middleware
-from azure_bootstrap.health import check_app_config_health, check_app_insights_health
-from azure_bootstrap.logging import configure_logging
-from azure_bootstrap.metrics import build_metrics_snapshot
-from azure_bootstrap.ratelimit import admin_bucket, fastapi_rate_limit, webhook_bucket
+from vibey_bootstrap.alerts import install_global_exception_hooks, register_dispatcher
+from vibey_bootstrap.auth import WebhookDedup, install_graph_webhook_route, verify_api_key_header
+from vibey_bootstrap.bootstrap import ensure_bootstrap
+from vibey_bootstrap.fastapi_middleware import install_middleware
+from vibey_bootstrap.health import check_app_config_health, check_app_insights_health
+from vibey_bootstrap.logging import configure_logging
+from vibey_bootstrap.metrics import build_metrics_snapshot
+from vibey_bootstrap.ratelimit import admin_bucket, fastapi_rate_limit, webhook_bucket
 
 configure_logging(); install_global_exception_hooks(); ensure_bootstrap()
 register_dispatcher(my_email_sender, recipients=["dev-alerts@example.com"])
@@ -894,13 +980,13 @@ Consumer loop, heartbeat + watchdog, lock-per-message, SIGTERM-clean shutdown:
 
 ```python
 import signal, threading
-from azure_bootstrap.bootstrap import ensure_bootstrap
-from azure_bootstrap.heartbeat import record_consumer_iteration, start_background_monitors
-from azure_bootstrap.identity import build_credential
-from azure_bootstrap.logging import configure_logging
-from azure_bootstrap.sb_lock import lock_for_process
-from azure_bootstrap.servicebus import handle_message
-from azure_bootstrap.validation import queue_message_schema
+from vibey_bootstrap.bootstrap import ensure_bootstrap
+from vibey_bootstrap.heartbeat import record_consumer_iteration, start_background_monitors
+from vibey_bootstrap.identity import build_credential
+from vibey_bootstrap.logging import configure_logging
+from vibey_bootstrap.sb_lock import lock_for_process
+from vibey_bootstrap.servicebus import handle_message
+from vibey_bootstrap.validation import queue_message_schema
 
 def main_loop(receiver, processor, stop_event):
     schema = queue_message_schema(required_fields=("correlation_id",),
@@ -933,7 +1019,7 @@ def main_pod():
 ## 7. TypeScript/Next.js — A: HTTP client integration
 
 This section documents the **exact HTTP contract** a Python backend exposes when it
-wires up `azure_bootstrap.auth`, `health`, `metrics`, and `fastapi_middleware`, then
+wires up `vibey_bootstrap.auth`, `health`, `metrics`, and `fastapi_middleware`, then
 gives typed Next.js (App Router) client code to consume it.
 
 > Conventions assumed below: backend base URL in `process.env.BACKEND_URL`; the API
@@ -1176,7 +1262,7 @@ export const adminBucket   = () => new TokenBucket(30, 0.5);  // 30 burst, 0.5/s
 
 ### 8.6 HMAC-SHA256 action tokens — **interoperable with Python `tokens`**
 
-Same wire format as `azure_bootstrap.tokens` / the Service-Bus resubmit token:
+Same wire format as `vibey_bootstrap.tokens` / the Service-Bus resubmit token:
 `base64url(json).base64url(hmac_sha256)`, payload sorted-keys with `exp` (unix
 seconds) and `act`. A token minted here verifies in Python and vice-versa — so a
 Next.js admin UI can issue a `dlq_resubmit` token the Python consumer accepts.

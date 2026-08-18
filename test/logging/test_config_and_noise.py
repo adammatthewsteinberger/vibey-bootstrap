@@ -1,4 +1,4 @@
-"""Tests for ``azure_bootstrap.logging.config`` and ``.noise``."""
+"""Tests for ``vibey_bootstrap.logging.config`` and ``.noise``."""
 
 from __future__ import annotations
 
@@ -7,13 +7,13 @@ import os
 
 import pytest
 
-from azure_bootstrap.logging.config import (
+from vibey_bootstrap.logging.config import (
     configure_logging,
     debug_logging_enabled,
     effective_log_level,
     env_flag,
 )
-from azure_bootstrap.logging.noise import (
+from vibey_bootstrap.logging.noise import (
     _DEFAULT_NOISY_LOGGERS,
     register_noisy_logger,
     silence_noisy_loggers,

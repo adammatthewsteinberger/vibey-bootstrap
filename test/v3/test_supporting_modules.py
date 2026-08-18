@@ -7,15 +7,15 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from azure_bootstrap.contrib.scaffold import list_templates, main, scaffold
-from azure_bootstrap.db.migrations import ENV_PY_TEMPLATE
+from vibey_bootstrap.contrib.scaffold import list_templates, main, scaffold
+from vibey_bootstrap.db.migrations import ENV_PY_TEMPLATE
 
 
 def test_acs_sender_callable_for_outbox(monkeypatch) -> None:
     pytest.importorskip("azure.communication.email")
     monkeypatch.setenv("ACS_CONNECTION_STRING", "endpoint=https://x/;accesskey=y")
     monkeypatch.setenv("ACS_SENDER_ADDRESS", "sender@test.com")
-    from azure_bootstrap.email import AcsEmailSender
+    from vibey_bootstrap.email import AcsEmailSender
 
     poller = MagicMock()
     poller.result.return_value = MagicMock(id="m1")
@@ -30,7 +30,7 @@ def test_acs_sender_callable_for_outbox(monkeypatch) -> None:
 def test_documentdb_client_from_env(monkeypatch) -> None:
     pytest.importorskip("pymongo")
     monkeypatch.setenv("NOSQL_URI", "mongodb://localhost:27017")
-    from azure_bootstrap.documentdb import mongo_client_from_env
+    from vibey_bootstrap.documentdb import mongo_client_from_env
 
     client = mongo_client_from_env()
     client.close()
@@ -45,7 +45,7 @@ def test_migrations_upgrade_mocked(tmp_path: Path) -> None:
     ini = tmp_path / "alembic.ini"
     ini.write_text("[alembic]\nscript_location = .\n", encoding="utf-8")
     with patch("alembic.command.upgrade") as upgrade:
-        from azure_bootstrap.db.migrations import upgrade_to_head
+        from vibey_bootstrap.db.migrations import upgrade_to_head
 
         upgrade_to_head(alembic_ini=ini)
         upgrade.assert_called_once()

@@ -3,16 +3,16 @@ requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "azure-bootstrap"
-version = "3.0.1"
+name = "vibey-bootstrap"
+version = "4.0.0"
 description = "Production-ready Azure bootstrap library for App Configuration, Key Vault, and App Insights integration"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
-    {name = "Adam Matthew Steinberger", email = "Adam.Steinberger@vizius.com"}
+    {name = "Adam Matthew Steinberger", email = "adam@matthewsteinberger.com"}
 ]
 maintainers = [
-    {name = "Adam Matthew Steinberger", email = "Adam.Steinberger@vizius.com"}
+    {name = "Adam Matthew Steinberger", email = "adam@matthewsteinberger.com"}
 ]
 keywords = [
     "azure",
@@ -39,7 +39,7 @@ requires-python = ">=3.11"
 
 dependencies = [
     "azure-appconfiguration-provider>=1.0.0",
-    # Imported directly by azure_bootstrap.health for a cheap readiness probe.
+    # Imported directly by vibey_bootstrap.health for a cheap readiness probe.
     # It also arrives transitively via the provider, but we import it, so we
     # declare it.
     "azure-appconfiguration>=1.9.0",
@@ -172,67 +172,69 @@ all = [
 ]
 
 [project.scripts]
-azbootstrap = "azure_bootstrap.contrib.scaffold:main"
+vibey-bootstrap = "vibey_bootstrap.contrib.scaffold:main"
+# Deprecated alias (pre-4.0 name). Prints a one-line warning, then delegates.
+azbootstrap = "vibey_bootstrap.contrib.scaffold:main_azbootstrap"
 
 [project.urls]
-Homepage = "https://github.com/TheViziusGroup/azure-bootstrap"
-Repository = "https://github.com/TheViziusGroup/azure-bootstrap"
-Documentation = "https://theviziusgroup.github.io/azure-bootstrap/"
-Issues = "https://github.com/TheViziusGroup/azure-bootstrap/issues"
+Homepage = "https://github.com/adammatthewsteinberger/vibey-bootstrap"
+Repository = "https://github.com/adammatthewsteinberger/vibey-bootstrap"
+Documentation = "https://adammatthewsteinberger.github.io/vibey-bootstrap/"
+Issues = "https://github.com/adammatthewsteinberger/vibey-bootstrap/issues"
 
 [tool.setuptools]
 packages = [
-    "azure_bootstrap",
-    "azure_bootstrap.alerts",
-    "azure_bootstrap.bootstrap",
-    "azure_bootstrap.config_refresh",
-    "azure_bootstrap.counters",
-    "azure_bootstrap.exceptions",
-    "azure_bootstrap.fastapi_middleware",
-    "azure_bootstrap.health",
-    "azure_bootstrap.heartbeat",
-    "azure_bootstrap.ingress",
-    "azure_bootstrap.logging",
-    "azure_bootstrap.metrics",
-    "azure_bootstrap.models",
-    "azure_bootstrap.notify",
-    "azure_bootstrap.openai",
-    "azure_bootstrap.path_safety",
-    "azure_bootstrap.phases",
-    "azure_bootstrap.ratelimit",
-    "azure_bootstrap.repositories",
-    "azure_bootstrap.repositories.interfaces",
-    "azure_bootstrap.retry",
-    "azure_bootstrap.scheduler",
-    "azure_bootstrap.security",
-    "azure_bootstrap.services",
-    "azure_bootstrap.softfail",
-    "azure_bootstrap.subscription",
-    "azure_bootstrap.validation",
-    "azure_bootstrap.audit",
-    "azure_bootstrap.auth",
-    "azure_bootstrap.failclose",
-    "azure_bootstrap.identity",
-    "azure_bootstrap.pdf_safety",
-    "azure_bootstrap.sb_lock",
-    "azure_bootstrap.services.interfaces",
-    "azure_bootstrap.servicebus",
-    "azure_bootstrap.tokens",
-    "azure_bootstrap.tracing",
-    "azure_bootstrap.transports",
-    "azure_bootstrap.db",
-    "azure_bootstrap.db.migrations",
-    "azure_bootstrap.email",
-    "azure_bootstrap.http",
-    "azure_bootstrap.documentdb",
-    "azure_bootstrap.aks",
-    "azure_bootstrap.governance",
-    "azure_bootstrap.contrib",
+    "vibey_bootstrap",
+    "vibey_bootstrap.alerts",
+    "vibey_bootstrap.bootstrap",
+    "vibey_bootstrap.config_refresh",
+    "vibey_bootstrap.counters",
+    "vibey_bootstrap.exceptions",
+    "vibey_bootstrap.fastapi_middleware",
+    "vibey_bootstrap.health",
+    "vibey_bootstrap.heartbeat",
+    "vibey_bootstrap.ingress",
+    "vibey_bootstrap.logging",
+    "vibey_bootstrap.metrics",
+    "vibey_bootstrap.models",
+    "vibey_bootstrap.notify",
+    "vibey_bootstrap.openai",
+    "vibey_bootstrap.path_safety",
+    "vibey_bootstrap.phases",
+    "vibey_bootstrap.ratelimit",
+    "vibey_bootstrap.repositories",
+    "vibey_bootstrap.repositories.interfaces",
+    "vibey_bootstrap.retry",
+    "vibey_bootstrap.scheduler",
+    "vibey_bootstrap.security",
+    "vibey_bootstrap.services",
+    "vibey_bootstrap.softfail",
+    "vibey_bootstrap.subscription",
+    "vibey_bootstrap.validation",
+    "vibey_bootstrap.audit",
+    "vibey_bootstrap.auth",
+    "vibey_bootstrap.failclose",
+    "vibey_bootstrap.identity",
+    "vibey_bootstrap.pdf_safety",
+    "vibey_bootstrap.sb_lock",
+    "vibey_bootstrap.services.interfaces",
+    "vibey_bootstrap.servicebus",
+    "vibey_bootstrap.tokens",
+    "vibey_bootstrap.tracing",
+    "vibey_bootstrap.transports",
+    "vibey_bootstrap.db",
+    "vibey_bootstrap.db.migrations",
+    "vibey_bootstrap.email",
+    "vibey_bootstrap.http",
+    "vibey_bootstrap.documentdb",
+    "vibey_bootstrap.aks",
+    "vibey_bootstrap.governance",
+    "vibey_bootstrap.contrib",
 ]
 
 [tool.setuptools.package-data]
-azure_bootstrap = ["py.typed"]
-"azure_bootstrap.contrib" = ["templates/**/*"]
+vibey_bootstrap = ["py.typed"]
+"vibey_bootstrap.contrib" = ["templates/**/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["test"]
@@ -245,7 +247,7 @@ markers = [
 ]
 addopts = [
     "--verbose",
-    "--cov=azure_bootstrap",
+    "--cov=vibey_bootstrap",
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-report=xml",
@@ -350,7 +352,7 @@ module = "opentelemetry.*"
 ignore_missing_imports = true
 
 [tool.coverage.run]
-source = ["azure_bootstrap"]
+source = ["vibey_bootstrap"]
 omit = [
     "test/*",
     "*/__pycache__/*",

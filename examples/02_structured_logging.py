@@ -20,7 +20,7 @@ import os
 
 os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
 
-from azure_bootstrap.logging import (
+from vibey_bootstrap.logging import (
     configure_logging,
     mask_api_key,
     mask_email_address,

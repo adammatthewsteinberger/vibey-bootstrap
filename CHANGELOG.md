@@ -1,9 +1,45 @@
 # Changelog
 
-All notable changes to the Azure Bootstrap library.
+All notable changes to the vibey-bootstrap library (formerly azure-bootstrap).
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/); the
 project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [4.0.0] — 2026-08-18
+
+**Breaking — rename only.** `azure-bootstrap` is now **`vibey-bootstrap`**,
+republished under
+[adammatthewsteinberger/vibey-bootstrap](https://github.com/adammatthewsteinberger/vibey-bootstrap)
+with the permission of The Vizius Group (see [NOTICE.md](NOTICE.md)). No
+runtime behaviour, symbol, signature, default, or environment variable changed;
+the major bump exists because the import path changed. Upgrade path:
+[MIGRATING-TO-V4.md](MIGRATING-TO-V4.md).
+
+### Changed
+
+- **PyPI distribution**: `azure-bootstrap` → `vibey-bootstrap`. Extras keep
+  their names.
+- **Import package**: `azure_bootstrap` → `vibey_bootstrap` (every subpackage
+  moves with it, e.g. `vibey_bootstrap.alerts`, `vibey_bootstrap.transports`).
+- **Console script**: `vibey-bootstrap` is the primary entry point for the
+  scaffold CLI (`list` / `scaffold` / `version`).
+- **Repository / docs / issue URLs**: `TheViziusGroup/azure-bootstrap` →
+  `adammatthewsteinberger/vibey-bootstrap`; documentation site moves to
+  <https://adammatthewsteinberger.github.io/vibey-bootstrap/>.
+- `[project] authors` / `maintainers` email → `adam@matthewsteinberger.com`;
+  `__author__` → Adam Matthew Steinberger.
+- `LICENSE` now carries both copyright lines (The Vizius Group; Adam Matthew
+  Steinberger). Added `NOTICE.md` with the attribution history and a
+  matching **License & attribution** section in the README.
+- CI: package name, coverage/build paths, and the Trusted Publisher comment
+  updated for the new names. Job structure unchanged. The new PyPI/TestPyPI
+  projects need their own Trusted Publisher entries before the first publish.
+
+### Deprecated
+
+- `azbootstrap` console script — still installed and functional in 4.x; prints
+  a one-line notice to stderr and delegates to `vibey-bootstrap`. Will be
+  removed in a future major release.
 
 ## [3.0.1] — 2026-08-10
 

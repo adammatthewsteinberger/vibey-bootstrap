@@ -6,8 +6,8 @@ import logging
 from pathlib import Path
 from unittest.mock import patch
 
-from azure_bootstrap.counters import counter_snapshot
-from azure_bootstrap.transports.file import _CountingFileHandler, make_file_handler
+from vibey_bootstrap.counters import counter_snapshot
+from vibey_bootstrap.transports.file import _CountingFileHandler, make_file_handler
 
 
 def test_file_handler_records_counter(tmp_path: Path, monkeypatch) -> None:
@@ -45,7 +45,7 @@ def test_file_handler_rejects_escape(tmp_path: Path, monkeypatch) -> None:
 def test_file_handler_makedirs_failure(tmp_path: Path, monkeypatch) -> None:
     log_path = tmp_path / "nested" / "deep" / "app.jsonl"
     monkeypatch.setenv("FILE_LOG_PATH", str(log_path))
-    with patch("azure_bootstrap.transports.file.os.makedirs", side_effect=OSError("denied")):
+    with patch("vibey_bootstrap.transports.file.os.makedirs", side_effect=OSError("denied")):
         assert make_file_handler() is None
 
 

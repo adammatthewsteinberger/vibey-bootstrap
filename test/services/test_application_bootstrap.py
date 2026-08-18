@@ -43,7 +43,7 @@ def mock_config_modules():
         del sys.modules["src.repositories.secrets_repository"]
 
 
-from azure_bootstrap.services.application_bootstrap import ApplicationBootstrap  # noqa: E402
+from vibey_bootstrap.services.application_bootstrap import ApplicationBootstrap  # noqa: E402
 
 
 class TestApplicationBootstrap:
@@ -55,7 +55,7 @@ class TestApplicationBootstrap:
         self.original_env = os.environ.copy()
 
         # Store original telemetry state
-        from azure_bootstrap.services.telemetry import telemetry_manager
+        from vibey_bootstrap.services.telemetry import telemetry_manager
 
         self.original_telemetry_configured = getattr(telemetry_manager, "_configured", False)
 
@@ -69,7 +69,7 @@ class TestApplicationBootstrap:
         os.environ.update(self.original_env)
 
         # Restore telemetry state
-        from azure_bootstrap.services.telemetry import telemetry_manager
+        from vibey_bootstrap.services.telemetry import telemetry_manager
 
         telemetry_manager._configured = self.original_telemetry_configured
 
@@ -85,8 +85,8 @@ class TestApplicationBootstrap:
         assert bootstrap.config_repository is None, "Should not have config repo before init"
         assert bootstrap._bootstrap_completed is False, "Should not be completed initially"
 
-    @patch("azure_bootstrap.services.application_bootstrap.create_enhanced_config_repository")
-    @patch("azure_bootstrap.services.application_bootstrap.telemetry_manager")
+    @patch("vibey_bootstrap.services.application_bootstrap.create_enhanced_config_repository")
+    @patch("vibey_bootstrap.services.application_bootstrap.telemetry_manager")
     def test_initialize_complete_flow(self, mock_telemetry, mock_create_config):
         """Test complete bootstrap initialization flow."""
         # Red: Test complete bootstrap flow
@@ -118,8 +118,8 @@ class TestApplicationBootstrap:
         # Verify telemetry upgrade was attempted
         mock_telemetry.try_upgrade_from_config.assert_called_once_with(mock_config_repo)
 
-    @patch("azure_bootstrap.services.application_bootstrap.create_enhanced_config_repository")
-    @patch("azure_bootstrap.services.application_bootstrap.telemetry_manager")
+    @patch("vibey_bootstrap.services.application_bootstrap.create_enhanced_config_repository")
+    @patch("vibey_bootstrap.services.application_bootstrap.telemetry_manager")
     def test_initialize_with_app_insights_from_environment(
         self, mock_telemetry, mock_create_config
     ):
@@ -145,8 +145,8 @@ class TestApplicationBootstrap:
         assert bootstrap._bootstrap_completed is True
         mock_telemetry.configure.assert_called_once()
 
-    @patch("azure_bootstrap.services.application_bootstrap.create_enhanced_config_repository")
-    @patch("azure_bootstrap.services.application_bootstrap.telemetry_manager")
+    @patch("vibey_bootstrap.services.application_bootstrap.create_enhanced_config_repository")
+    @patch("vibey_bootstrap.services.application_bootstrap.telemetry_manager")
     def test_initialize_with_config_loading_error(self, mock_telemetry, mock_create_config):
         """Test bootstrap handling config loading errors."""
         # Red: Test error handling during config loading
@@ -162,8 +162,8 @@ class TestApplicationBootstrap:
         assert "Application bootstrap failed" in str(exc_info.value)
         assert bootstrap._bootstrap_completed is False, "Should not mark as completed on error"
 
-    @patch("azure_bootstrap.services.application_bootstrap.create_enhanced_config_repository")
-    @patch("azure_bootstrap.services.application_bootstrap.telemetry_manager")
+    @patch("vibey_bootstrap.services.application_bootstrap.create_enhanced_config_repository")
+    @patch("vibey_bootstrap.services.application_bootstrap.telemetry_manager")
     def test_initialize_telemetry_upgrade_attempted(self, mock_telemetry, mock_create_config):
         """Test that telemetry upgrade is attempted when config available."""
         # Red: Test telemetry upgrade is called
@@ -185,8 +185,8 @@ class TestApplicationBootstrap:
         # Verify upgrade was attempted with the config repository
         mock_telemetry.try_upgrade_from_config.assert_called_once_with(mock_config_repo)
 
-    @patch("azure_bootstrap.services.application_bootstrap.create_enhanced_config_repository")
-    @patch("azure_bootstrap.services.application_bootstrap.telemetry_manager")
+    @patch("vibey_bootstrap.services.application_bootstrap.create_enhanced_config_repository")
+    @patch("vibey_bootstrap.services.application_bootstrap.telemetry_manager")
     def test_initialize_idempotent(self, mock_telemetry, mock_create_config):
         """Test that initialize can be called multiple times safely."""
         # Red: Test idempotency
@@ -211,8 +211,8 @@ class TestApplicationBootstrap:
         # Config repository should only be created once
         assert mock_create_config.call_count == 1, "Should only create config repo once"
 
-    @patch("azure_bootstrap.services.application_bootstrap.create_enhanced_config_repository")
-    @patch("azure_bootstrap.services.application_bootstrap.telemetry_manager")
+    @patch("vibey_bootstrap.services.application_bootstrap.create_enhanced_config_repository")
+    @patch("vibey_bootstrap.services.application_bootstrap.telemetry_manager")
     def test_bootstrap_error_logging(self, mock_telemetry, mock_create_config):
         """Test that bootstrap errors are properly logged."""
         # Red: Test error handling and logging
@@ -235,8 +235,8 @@ class TestApplicationBootstrap:
 class TestApplicationBootstrapLogging:
     """Test ApplicationBootstrap logging functionality."""
 
-    @patch("azure_bootstrap.services.application_bootstrap.create_enhanced_config_repository")
-    @patch("azure_bootstrap.services.application_bootstrap.telemetry_manager")
+    @patch("vibey_bootstrap.services.application_bootstrap.create_enhanced_config_repository")
+    @patch("vibey_bootstrap.services.application_bootstrap.telemetry_manager")
     def test_get_config_repository_before_init(self, mock_telemetry, mock_create_config):
         """Test get_config_repository returns None before initialization."""
         # Red: Test getter before initialization
@@ -249,8 +249,8 @@ class TestApplicationBootstrapLogging:
         # Assert
         assert config_repo is None, "Should return None before initialization"
 
-    @patch("azure_bootstrap.services.application_bootstrap.create_enhanced_config_repository")
-    @patch("azure_bootstrap.services.application_bootstrap.telemetry_manager")
+    @patch("vibey_bootstrap.services.application_bootstrap.create_enhanced_config_repository")
+    @patch("vibey_bootstrap.services.application_bootstrap.telemetry_manager")
     def test_get_config_repository_after_init(self, mock_telemetry, mock_create_config):
         """Test get_config_repository returns repository after initialization."""
         # Red: Test getter after initialization
@@ -272,8 +272,8 @@ class TestApplicationBootstrapLogging:
         # Assert
         assert config_repo is mock_config_repo, "Should return config repo after init"
 
-    @patch("azure_bootstrap.services.application_bootstrap.create_enhanced_config_repository")
-    @patch("azure_bootstrap.services.application_bootstrap.telemetry_manager")
+    @patch("vibey_bootstrap.services.application_bootstrap.create_enhanced_config_repository")
+    @patch("vibey_bootstrap.services.application_bootstrap.telemetry_manager")
     def test_is_bootstrap_completed(self, mock_telemetry, mock_create_config):
         """Test is_bootstrap_completed status tracking."""
         # Red: Test completion status
@@ -297,8 +297,8 @@ class TestApplicationBootstrapLogging:
         # Assert - After initialization
         assert bootstrap.is_bootstrap_completed() is True
 
-    @patch("azure_bootstrap.services.application_bootstrap.create_enhanced_config_repository")
-    @patch("azure_bootstrap.services.application_bootstrap.telemetry_manager")
+    @patch("vibey_bootstrap.services.application_bootstrap.create_enhanced_config_repository")
+    @patch("vibey_bootstrap.services.application_bootstrap.telemetry_manager")
     def test_telemetry_upgrade_successful(self, mock_telemetry, mock_create_config):
         """Test successful telemetry upgrade from config."""
         # Arrange - Start without App Insights
@@ -325,8 +325,8 @@ class TestApplicationBootstrapLogging:
         assert bootstrap._bootstrap_completed is True
         mock_telemetry.try_upgrade_from_config.assert_called_once_with(mock_config_repo)
 
-    @patch("azure_bootstrap.services.application_bootstrap.create_enhanced_config_repository")
-    @patch("azure_bootstrap.services.application_bootstrap.telemetry_manager")
+    @patch("vibey_bootstrap.services.application_bootstrap.create_enhanced_config_repository")
+    @patch("vibey_bootstrap.services.application_bootstrap.telemetry_manager")
     def test_telemetry_upgrade_failed(self, mock_telemetry, mock_create_config):
         """Test telemetry upgrade fails but bootstrap continues."""
         # Arrange
@@ -348,8 +348,8 @@ class TestApplicationBootstrapLogging:
         assert config_repo is not None
         assert bootstrap._bootstrap_completed is True
 
-    @patch("azure_bootstrap.services.application_bootstrap.create_enhanced_config_repository")
-    @patch("azure_bootstrap.services.application_bootstrap.telemetry_manager")
+    @patch("vibey_bootstrap.services.application_bootstrap.create_enhanced_config_repository")
+    @patch("vibey_bootstrap.services.application_bootstrap.telemetry_manager")
     def test_finalize_configuration_with_metrics_error(self, mock_telemetry, mock_create_config):
         """Test finalization continues when metrics retrieval fails."""
         # Arrange
@@ -369,8 +369,8 @@ class TestApplicationBootstrapLogging:
         assert config_repo is not None
         assert bootstrap._bootstrap_completed is True
 
-    @patch("azure_bootstrap.services.application_bootstrap.create_enhanced_config_repository")
-    @patch("azure_bootstrap.services.application_bootstrap.telemetry_manager")
+    @patch("vibey_bootstrap.services.application_bootstrap.create_enhanced_config_repository")
+    @patch("vibey_bootstrap.services.application_bootstrap.telemetry_manager")
     def test_bootstrap_with_secrets_repository(self, mock_telemetry, mock_create_config):
         """Test bootstrap initialization with secrets repository."""
         # Arrange
@@ -394,8 +394,8 @@ class TestApplicationBootstrapLogging:
         call_args = mock_create_config.call_args
         assert call_args.kwargs.get("secrets_repository") is mock_secrets_repo
 
-    @patch("azure_bootstrap.services.application_bootstrap.create_enhanced_config_repository")
-    @patch("azure_bootstrap.services.application_bootstrap.telemetry_manager")
+    @patch("vibey_bootstrap.services.application_bootstrap.create_enhanced_config_repository")
+    @patch("vibey_bootstrap.services.application_bootstrap.telemetry_manager")
     def test_config_repository_auto_load_enabled(self, mock_telemetry, mock_create_config):
         """Test that config repository is created with auto_load_to_environ=True."""
         # Arrange
@@ -419,7 +419,7 @@ class TestApplicationBootstrapLogging:
 class TestInitializeApplication:
     """Test the initialize_application convenience function."""
 
-    @patch("azure_bootstrap.services.application_bootstrap.ApplicationBootstrap")
+    @patch("vibey_bootstrap.services.application_bootstrap.ApplicationBootstrap")
     def test_initialize_application_without_secrets(self, mock_bootstrap_class):
         """Test initialize_application without secrets repository."""
         # Arrange
@@ -429,7 +429,7 @@ class TestInitializeApplication:
         mock_bootstrap_class.return_value = mock_bootstrap_instance
 
         # Act
-        from azure_bootstrap.services.application_bootstrap import initialize_application
+        from vibey_bootstrap.services.application_bootstrap import initialize_application
 
         result = initialize_application()
 
@@ -438,7 +438,7 @@ class TestInitializeApplication:
         mock_bootstrap_class.assert_called_once_with(secrets_repository=None)
         mock_bootstrap_instance.initialize.assert_called_once()
 
-    @patch("azure_bootstrap.services.application_bootstrap.ApplicationBootstrap")
+    @patch("vibey_bootstrap.services.application_bootstrap.ApplicationBootstrap")
     def test_initialize_application_with_secrets(self, mock_bootstrap_class):
         """Test initialize_application with secrets repository."""
         # Arrange
@@ -449,7 +449,7 @@ class TestInitializeApplication:
         mock_bootstrap_class.return_value = mock_bootstrap_instance
 
         # Act
-        from azure_bootstrap.services.application_bootstrap import initialize_application
+        from vibey_bootstrap.services.application_bootstrap import initialize_application
 
         result = initialize_application(secrets_repository=mock_secrets_repo)
 

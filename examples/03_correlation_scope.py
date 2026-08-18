@@ -21,7 +21,7 @@ import os
 
 os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
 
-from azure_bootstrap.logging import (
+from vibey_bootstrap.logging import (
     configure_logging,
     correlation_scope,
     get_correlation_id,

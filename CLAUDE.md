@@ -1,13 +1,13 @@
-# Azure Bootstrap Library - AI Assistant Context
+# vibey-bootstrap - AI Assistant Context
 
-> Complete context for AI assistants working on the Azure Bootstrap library repository.
+> Complete context for AI assistants working on the vibey-bootstrap library repository.
 
 ## Repository Purpose
 
-This repository contains the **Azure Bootstrap Library** - a production-ready pip package that provides unified bootstrap functionality for Azure Functions applications across multiple organizations.
+This repository contains the **vibey-bootstrap** library (formerly **azure-bootstrap**) - a production-ready pip package that provides unified bootstrap functionality for Azure Functions applications across multiple organizations.
 
-**Package Name**: `azure-bootstrap`
-**Version**: 2.1.2
+**Package Name**: `vibey-bootstrap`
+**Version**: 4.0.0
 **Language**: Python 3.11+
 **Distribution**: PyPI (public)
 
@@ -50,8 +50,8 @@ path.
 ## Repository Structure
 
 ```
-azure-bootstrap/
-├── azure_bootstrap/              # Main package (distributable)
+vibey-bootstrap/
+├── vibey_bootstrap/              # Main package (distributable)
 │   ├── __init__.py                   # Public API surface (v1 + v2 re-exports)
 │   ├── py.typed                      # PEP 561 type hints marker
 │   │
@@ -128,7 +128,7 @@ azure-bootstrap/
 ├── .vscode/                          # VS Code workspace config
 ├── pyproject.toml                    # Package metadata + 40+ optional extras
 ├── MANIFEST.in                       # Distribution file control
-├── README.md                         # Library overview + extras matrix
+├── README.md                         # Landing page (pitch, quick start, links); PyPI long description
 ├── CHANGELOG.md                      # Release-by-release surface (v1.0.0, v2.0.0, v2.1.0)
 ├── MIGRATING-FROM-V1.md              # v1 → v2 adoption guide
 ├── CLAUDE.md                         # AI assistant & developer context (this file)
@@ -213,7 +213,7 @@ os.getenv("DATABASE_PASSWORD")  // → Actual secret value (not URI)
 ### v1 — Main Functions (preserved unchanged)
 
 ```python
-from azure_bootstrap import initialize_application, get_bootstrap_logger
+from vibey_bootstrap import initialize_application, get_bootstrap_logger
 
 logger = get_bootstrap_logger(__name__)
 config_repo = initialize_application()
@@ -223,7 +223,7 @@ config_repo = initialize_application()
 ### v1 — Core Classes (advanced usage, preserved unchanged)
 
 ```python
-from azure_bootstrap import (
+from vibey_bootstrap import (
     ApplicationBootstrap,          # Bootstrap orchestrator
     EnhancedConfigRepository,      # Config repository
     SecretsRepository,             # Key Vault secrets
@@ -237,7 +237,7 @@ from azure_bootstrap import (
 The most-used v2 primitives are re-exported from the top-level namespace:
 
 ```python
-from azure_bootstrap import (
+from vibey_bootstrap import (
     # Logging
     configure_logging, correlation_scope, get_correlation_id,
     mask_api_key, mask_email_address, mask_secrets_in_dict, sanitize_for_log,
@@ -264,11 +264,11 @@ subpackage import path.
 ### Interfaces (Type hints & custom implementations)
 
 ```python
-from azure_bootstrap.repositories.interfaces import (
+from vibey_bootstrap.repositories.interfaces import (
     EnhancedConfigRepositoryInterface,
     SecretsRepositoryInterface,
 )
-from azure_bootstrap.services.interfaces import (
+from vibey_bootstrap.services.interfaces import (
     ApplicationBootstrapInterface,
     TelemetryManagerInterface,
 )
@@ -280,8 +280,8 @@ from azure_bootstrap.services.interfaces import (
 
 ```bash
 # Clone repository
-git clone https://github.com/TheViziusGroup/azure-bootstrap
-cd azure-bootstrap
+git clone https://github.com/adammatthewsteinberger/vibey-bootstrap
+cd vibey-bootstrap
 
 # Create virtual environment
 python -m venv .venv
@@ -301,7 +301,7 @@ pytest
 pytest test/services/test_application_bootstrap.py -v
 
 # Generate coverage report
-pytest --cov=azure_bootstrap --cov-report=html
+pytest --cov=vibey_bootstrap --cov-report=html
 ```
 
 ### Build Package
@@ -314,8 +314,8 @@ pip install build
 python -m build
 
 # Output:
-# dist/azure_bootstrap-2.1.0-py3-none-any.whl
-# dist/azure_bootstrap-2.1.0.tar.gz
+# dist/vibey_bootstrap-2.1.0-py3-none-any.whl
+# dist/vibey_bootstrap-2.1.0.tar.gz
 ```
 
 ### Publish to PyPI
@@ -331,7 +331,7 @@ git push origin main
 
 ### Documentation Site
 
-The site at <https://theviziusgroup.github.io/azure-bootstrap/> is built with
+The site at <https://adammatthewsteinberger.github.io/vibey-bootstrap/> is built with
 MkDocs Material and deployed by `.github/workflows/docs.yml` on every push to
 `main`.
 
@@ -375,7 +375,7 @@ API reference. Consequences worth knowing:
 
 ```python
 # ALWAYS use package imports (never relative)
-from azure_bootstrap.services.bootstrap_logging import BootstrapLogger
+from vibey_bootstrap.services.bootstrap_logging import BootstrapLogger
 
 # NOT this:
 from .bootstrap_logging import BootstrapLogger
@@ -383,11 +383,11 @@ from .bootstrap_logging import BootstrapLogger
 
 ### Public API Exports
 
-All public API must be exported in `azure_bootstrap/__init__.py`:
+All public API must be exported in `vibey_bootstrap/__init__.py`:
 
 ```python
-# azure_bootstrap/__init__.py
-from azure_bootstrap.services.application_bootstrap import (
+# vibey_bootstrap/__init__.py
+from vibey_bootstrap.services.application_bootstrap import (
     initialize_application,  # Main function
     create_enhanced_config_repository,
 )
@@ -426,7 +426,7 @@ def use_telemetry(manager: TelemetryManagerInterface) -> None:
 Use custom exceptions from `models.exceptions`:
 
 ```python
-from azure_bootstrap.models.exceptions import ConfigurationError
+from vibey_bootstrap.models.exceptions import ConfigurationError
 
 raise ConfigurationError("Config not found: DATABASE_HOST")
 ```
@@ -474,7 +474,7 @@ class TestApplicationBootstrap:
 ### Mocking Pattern
 
 ```python
-@patch("azure_bootstrap.services.application_bootstrap.telemetry_manager")
+@patch("vibey_bootstrap.services.application_bootstrap.telemetry_manager")
 def test_with_mock(mock_telemetry):
     mock_telemetry.configure.return_value = None
     # Test code
@@ -485,7 +485,7 @@ def test_with_mock(mock_telemetry):
 - Minimum: 85% overall coverage (raised from 80% at v2.0.0)
 - Current: 87.48% overall, 469 passing tests
 - New code: 90% coverage
-- Run: `pytest --cov=azure_bootstrap --cov-report=term-missing`
+- Run: `pytest --cov=vibey_bootstrap --cov-report=term-missing`
 
 Every subpackage with global state (counters, latency histograms,
 alerts dispatcher, etc.) exposes a `reset_state()` / `_reset_*` helper
@@ -521,7 +521,7 @@ See `azure-pipelines.yml` for complete configuration.
 ### Release Process
 
 1. Update version in `pyproject.toml`
-2. Update version in `azure_bootstrap/__init__.py`
+2. Update version in `vibey_bootstrap/__init__.py`
 3. Append a section to `CHANGELOG.md` (the authoritative changelog)
 4. Mirror a short summary in the Version History section of this file
 5. Commit and tag: `git tag v2.x.y`
@@ -536,7 +536,7 @@ See `azure-pipelines.yml` for complete configuration.
 2. Add code to the appropriate subpackage (Tier 1/2/3 — match the
    existing layout described under Repository Structure)
 3. Add tests (maintain ≥ 85% coverage; aim for 90% on new code)
-4. Update `azure_bootstrap/__init__.py` if the feature belongs in the
+4. Update `vibey_bootstrap/__init__.py` if the feature belongs in the
    top-level surface (most subpackage-specific features don't)
 5. Add a numbered example under [examples/](examples/) and a row in
    [examples/README.md](examples/README.md)
@@ -576,7 +576,7 @@ pytest -v
 
 ### Import Errors in Tests
 
-Check that all imports use `azure_bootstrap` prefix:
+Check that all imports use `vibey_bootstrap` prefix:
 
 ```bash
 # Find any old src imports
@@ -590,17 +590,17 @@ grep -r "from src\." .
 python -m build --sdist --wheel --outdir dist/ .
 
 # Verify no syntax errors
-python -m py_compile azure_bootstrap/**/*.py
+python -m py_compile vibey_bootstrap/**/*.py
 ```
 
 ### Package Import Fails
 
 ```bash
 # Verify package installed
-pip show azure-bootstrap
+pip show vibey-bootstrap
 
 # Test import
-python -c "from azure_bootstrap import initialize_application; print('OK')"
+python -c "from vibey_bootstrap import initialize_application; print('OK')"
 ```
 
 ## Related Projects
@@ -641,8 +641,8 @@ Optional-extra CVE pins (v2.1.2): `pypdf>=6.13.3` (`[pdf-safety]`) and
 
 ### Optional Dependencies (40+ extras)
 
-See [pyproject.toml](pyproject.toml) and the **Installation** table in
-[README.md](README.md) for the full extras matrix. Highlights:
+See [pyproject.toml](pyproject.toml) and the **Optional extras matrix** in
+[docs/USAGE.md](docs/USAGE.md) for the full extras matrix. Highlights:
 
 ```toml
 # Tier 2 (opt-in primitives)
@@ -678,21 +678,23 @@ pytest-mock >= 3.11.1
 
 | File | Purpose |
 |------|---------|
-| **azure_bootstrap/__init__.py** | Public API exports - ALWAYS update when adding public functions |
+| **vibey_bootstrap/__init__.py** | Public API exports - ALWAYS update when adding public functions |
 | **pyproject.toml** | Package metadata, dependencies, build configuration |
 | **MANIFEST.in** | Controls what gets included in distribution |
 | **.github/workflows/ci-cd.yml** | GitHub Actions CI/CD workflow (PyPI + TestPyPI) |
 | **.github/workflows/docs.yml** | Docs build + GitHub Pages deploy |
 | **mkdocs.yml** | Docs-site config (theme, nav, mkdocstrings options) |
 | **docs/gen_pages.py** | Assembles the site from root markdown + docstrings |
-| **README.md** | Library documentation, API reference, migration guide |
+| **README.md** | Landing page: pitch, quick start, worked example, links (also the PyPI long description) |
+| **docs/USAGE.md** | Complete usage guide: extras matrix, every subpackage, recipes, TypeScript integration |
 | **CONTRIBUTING.md** | Git workflow, quality standards, tooling setup |
 
 ## Documentation for Users
 
 When users install this library, they should read:
 
-1. **[README.md](README.md)** — Library overview + extras matrix
+1. **[README.md](README.md)** — Library overview + quick start
+1. **[docs/USAGE.md](docs/USAGE.md)** — Extras matrix and the complete usage guide
 2. **[examples/README.md](examples/README.md)** — Reading order through
    the ~40 example files (start at 01_quickstart.py)
 3. **[MIGRATING-FROM-V1.md](MIGRATING-FROM-V1.md)** — v1 → v2 upgrade
@@ -703,7 +705,7 @@ When users install this library, they should read:
 ### Most Common User Pattern
 
 ```python
-from azure_bootstrap import initialize_application, get_bootstrap_logger
+from vibey_bootstrap import initialize_application, get_bootstrap_logger
 
 _bootstrap_initialized = False
 _logger = None
@@ -728,9 +730,9 @@ def hello(req):
 
 ## Support
 
-- **Repository**: https://github.com/TheViziusGroup/azure-bootstrap
-- **Issues**: https://github.com/TheViziusGroup/azure-bootstrap/issues
-- **PyPI**: https://pypi.org/project/azure-bootstrap/
+- **Repository**: https://github.com/adammatthewsteinberger/vibey-bootstrap
+- **Issues**: https://github.com/adammatthewsteinberger/vibey-bootstrap/issues
+- **PyPI**: https://pypi.org/project/vibey-bootstrap/
 
 ---
 
@@ -789,24 +791,24 @@ graph LR
 
 | Branch | Version Format | Example | Target index |
 |--------|---------------|---------|--------------|
-| `main` | Stable | `3.0.1` | PyPI |
-| `develop` | Dev + timestamp | `3.0.0.dev20260518123456` | TestPyPI |
-| `v*` tags | Stable | `3.0.1` | PyPI |
+| `main` | Stable | `4.0.0` | PyPI |
+| `develop` | Dev + timestamp | `4.0.0.dev20260818123456` | TestPyPI |
+| `v*` tags | Stable | `4.0.0` | PyPI |
 
 ### GitHub Actions Setup for PyPI Publishing
 
 **Option A: Trusted Publishers (recommended)**
 1. Go to [PyPI](https://pypi.org) → Your Account → **Publishing**
 2. Add a new **pending publisher** (or configure on existing package):
-   - Owner: `TheViziusGroup`
-   - Repository: `azure-bootstrap`
+   - Owner: `adammatthewsteinberger`
+   - Repository: `vibey-bootstrap`
    - Workflow: `ci-cd.yml`
    - Environment: `pypi` (optional)
 3. No secrets needed — GitHub Actions authenticates via OIDC
 
 **Option B: API Token**
 1. Go to [PyPI](https://pypi.org) → Account Settings → **API tokens**
-2. Create a token scoped to the `azure-bootstrap` project
+2. Create a token scoped to the `vibey-bootstrap` project
 3. Add GitHub Secret: `PYPI_API_TOKEN` = [token value]
 
 ### GitHub Actions Setup for TestPyPI Publishing (dev builds)
@@ -816,9 +818,9 @@ not work there.
 
 1. Go to [TestPyPI](https://test.pypi.org) → Your Account → **Publishing**
 2. Add a new **pending publisher**:
-   - PyPI Project Name: `azure-bootstrap`
-   - Owner: `TheViziusGroup`
-   - Repository: `azure-bootstrap`
+   - PyPI Project Name: `vibey-bootstrap`
+   - Owner: `adammatthewsteinberger`
+   - Repository: `vibey-bootstrap`
    - Workflow: `ci-cd.yml`
    - Environment: `testpypi`
 3. Create the matching GitHub environment: **Settings** → **Environments** →
@@ -839,10 +841,10 @@ if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWit
 
 ```bash
 # Install from PyPI (no extra config needed)
-pip install azure-bootstrap
+pip install vibey-bootstrap
 
 # Install specific version
-pip install azure-bootstrap==3.0.1
+pip install vibey-bootstrap==4.0.0
 
 # Install a dev build. These live on TestPyPI, NOT PyPI — `--pre` against PyPI
 # finds nothing, because PyPI now only ever holds real releases. TestPyPI does
@@ -850,11 +852,11 @@ pip install azure-bootstrap==3.0.1
 pip install \
   --index-url https://test.pypi.org/simple/ \
   --extra-index-url https://pypi.org/simple/ \
-  'azure-bootstrap==3.0.0.dev20260518123456'
+  'vibey-bootstrap==4.0.0.dev20260818123456'
 
 # Install with optional extras
-pip install 'azure-bootstrap[alerts,fastapi,servicebus]'
-pip install 'azure-bootstrap[all]'
+pip install 'vibey-bootstrap[alerts,fastapi,servicebus]'
+pip install 'vibey-bootstrap[all]'
 ```
 
 ### CI/CD Troubleshooting
@@ -874,8 +876,8 @@ Reads like a permissions bug; it is almost always a claim mismatch:
 
 #### Package Not Found After Publishing
 - PyPI indexing is usually instant, but wait a few seconds and retry
-- Verify package at https://pypi.org/project/azure-bootstrap/ (stable) or
-  https://test.pypi.org/project/azure-bootstrap/ (dev builds)
+- Verify package at https://pypi.org/project/vibey-bootstrap/ (stable) or
+  https://test.pypi.org/project/vibey-bootstrap/ (dev builds)
 
 #### Workflow Not Running
 - Verify `.github/workflows/ci-cd.yml` exists
@@ -899,13 +901,13 @@ GitHub Pages must be enabled once, by hand, before the first deploy:
 
 #### Version Conflicts
 - Clear pip cache: `pip cache purge`
-- Install specific version: `pip install azure-bootstrap==3.0.1`
+- Install specific version: `pip install vibey-bootstrap==4.0.0`
 
 ---
 
 ## Version History
 
-All notable changes to the Azure Bootstrap library.
+All notable changes to the vibey-bootstrap library (formerly azure-bootstrap).
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
@@ -914,6 +916,16 @@ short summaries below are kept for AI-assistant context.
 
 > Note: this section skips 3.0.0 — see [CHANGELOG.md](CHANGELOG.md) for the
 > full v3 surface.
+
+### [4.0.0] - 2026-08-18
+
+Rename-only major. `azure-bootstrap` → **`vibey-bootstrap`** (PyPI),
+`azure_bootstrap` → **`vibey_bootstrap`** (import), `azbootstrap` →
+**`vibey-bootstrap`** (CLI; old name kept as a deprecated alias that warns
+once and delegates). Repo moved to `adammatthewsteinberger/vibey-bootstrap`
+with The Vizius Group's permission — see [NOTICE.md](NOTICE.md) and
+[MIGRATING-TO-V4.md](MIGRATING-TO-V4.md). No behaviour, signature, default,
+or environment variable changed.
 
 ### [3.0.1] - 2026-08-10
 
@@ -928,7 +940,7 @@ Patch release. One runtime fix, plus documentation and CI infrastructure.
 - **Added**: `azure-appconfiguration>=1.9.0` as a declared core dependency
   (previously relied on the provider's transitive edge).
 - **Added**: documentation site at
-  <https://theviziusgroup.github.io/azure-bootstrap/> — MkDocs Material,
+  <https://adammatthewsteinberger.github.io/vibey-bootstrap/> — MkDocs Material,
   generated API reference via mkdocstrings, deployed by `.github/workflows/docs.yml`
   on push to `main`. Assembled at build time from the repo-root markdown by
   `docs/gen_pages.py`; nothing is duplicated into the tree.
@@ -953,7 +965,7 @@ test surface are byte-identical to 2.1.0 (released to PyPI; that version is
 immutable, so the doc corrections ship as a patch). Changes:
 
 - README links rewritten from repo-relative to absolute
-  `https://github.com/TheViziusGroup/azure-bootstrap/blob/main/…` URLs so they
+  `https://github.com/adammatthewsteinberger/vibey-bootstrap/blob/main/…` URLs so they
   resolve on the PyPI project page (which renders the README with no repo base
   URL); relative links worked only on GitHub.
 - Refreshed stale metrics in README and CONTRIBUTING (469 tests / 87.48 %
@@ -965,7 +977,7 @@ immutable, so the doc corrections ship as a patch). Changes:
 ### [2.1.0] - 2026-05-21
 
 Logging **transport layer**. Strictly additive — `configure_logging()` and
-`TelemetryManager` unchanged. New `azure_bootstrap.transports` subpackage: a
+`TelemetryManager` unchanged. New `vibey_bootstrap.transports` subpackage: a
 registry (`register_transport` / `enable_transport` / `disable_transport` /
 `list_transports`) plus `configure_transports(console=…, app_insights=…,
 sumo_logic=…)`. A transport is a named `logging.Handler` factory; enable attaches
@@ -986,8 +998,8 @@ per-transport env flag (`CONSOLE_LOGGING_ENABLED` / `APP_INSIGHTS_LOGGING_ENABLE
   factory returns `None` when it's absent. Config via `SUMO_LOGIC_COLLECTOR_URL`
   (+ optional token/source/tuning vars).
 
-Also adds `JsonLogFormatter` (re-exported from `azure_bootstrap` and
-`azure_bootstrap.logging`), extras `transports` (stdlib-only) + `sumologic`
+Also adds `JsonLogFormatter` (re-exported from `vibey_bootstrap` and
+`vibey_bootstrap.logging`), extras `transports` (stdlib-only) + `sumologic`
 (`requests`), example `38_logging_transports.py`, and test-only
 `_reset_transports()` gated by
 `AZURE_BOOTSTRAP_ALLOW_RESET=1`. New top-level symbols: `configure_transports`,

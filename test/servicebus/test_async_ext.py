@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from azure_bootstrap.servicebus import ReplayGuard, service_bus_transport_type
+from vibey_bootstrap.servicebus import ReplayGuard, service_bus_transport_type
 
 
 def test_replay_guard_dedupes() -> None:

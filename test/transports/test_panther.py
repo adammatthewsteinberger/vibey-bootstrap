@@ -5,8 +5,8 @@ from __future__ import annotations
 import json
 import logging
 
-from azure_bootstrap.counters import counter_snapshot
-from azure_bootstrap.transports.panther import PantherHandler, make_panther_handler
+from vibey_bootstrap.counters import counter_snapshot
+from vibey_bootstrap.transports.panther import PantherHandler, make_panther_handler
 
 
 class _FakeResp:

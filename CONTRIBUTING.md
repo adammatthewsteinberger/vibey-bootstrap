@@ -1,6 +1,6 @@
-# Contributing to Azure Bootstrap Library
+# Contributing to vibey-bootstrap
 
-Thank you for contributing to the Azure Bootstrap Library! This document provides guidelines and standards for contributing to this project.
+Thank you for contributing to the vibey-bootstrap library! This document provides guidelines and standards for contributing to this project.
 
 ## Table of Contents
 
@@ -42,8 +42,8 @@ This library is used across 17+ production Azure Functions applications. Changes
 
 ```bash
 # Clone the repository
-git clone https://github.com/TheViziusGroup/azure-bootstrap
-cd azure-bootstrap
+git clone https://github.com/adammatthewsteinberger/vibey-bootstrap
+cd vibey-bootstrap
 
 # Create virtual environment
 python -m venv .venv
@@ -88,7 +88,7 @@ main (protected)
 - **Purpose**: Production-ready code only
 - **Protection**: Direct commits disabled, requires PR approval
 - **CI/CD**: Triggers automatic publish to PyPI, and deploys the
-  [documentation site](https://theviziusgroup.github.io/azure-bootstrap/) to
+  [documentation site](https://adammatthewsteinberger.github.io/vibey-bootstrap/) to
   GitHub Pages
 - **Tags**: All releases tagged here (e.g., `v1.0.0`)
 
@@ -210,7 +210,7 @@ git checkout -b release/v1.1.0
 
 # Update version numbers
 # - pyproject.toml: version = "1.1.0"
-# - azure_bootstrap/__init__.py: __version__ = "1.1.0"
+# - vibey_bootstrap/__init__.py: __version__ = "1.1.0"
 # - CLAUDE.md Version History: Add release notes
 
 git add .
@@ -288,13 +288,13 @@ BREAKING CHANGE: initialize_application now requires explicit secrets_repository
 
 ```bash
 # Format code
-black azure_bootstrap/ test/
+black vibey_bootstrap/ test/
 
 # Lint code
-ruff check azure_bootstrap/ test/
+ruff check vibey_bootstrap/ test/
 
 # Type check
-mypy azure_bootstrap/
+mypy vibey_bootstrap/
 ```
 
 #### Code Standards
@@ -320,7 +320,7 @@ mypy azure_bootstrap/
 
 ```bash
 # Run tests with coverage
-pytest --cov=azure_bootstrap --cov-report=term-missing --cov-report=html
+pytest --cov=vibey_bootstrap --cov-report=term-missing --cov-report=html
 
 # View HTML report
 open htmlcov/index.html
@@ -406,7 +406,7 @@ pip install --upgrade pip setuptools wheel
 
 ```bash
 # Check complexity
-radon cc azure_bootstrap/ -a -nb
+radon cc vibey_bootstrap/ -a -nb
 ```
 
 #### Maintainability Index
@@ -416,7 +416,7 @@ radon cc azure_bootstrap/ -a -nb
 
 ```bash
 # Check maintainability
-radon mi azure_bootstrap/
+radon mi vibey_bootstrap/
 ```
 
 ### 5. Documentation Standards
@@ -433,7 +433,7 @@ radon mi azure_bootstrap/
 #### Documentation Site
 
 Docstrings are not just for readers of the source — they are rendered into the
-[documentation site](https://theviziusgroup.github.io/azure-bootstrap/), which
+[documentation site](https://adammatthewsteinberger.github.io/vibey-bootstrap/), which
 is assembled at build time from the repo-root markdown plus every package's
 docstrings. Two consequences for contributors:
 
@@ -526,9 +526,9 @@ Runs on every `git push`:
 
 ```bash
 # Auto-fix formatting and imports
-black azure_bootstrap/ test/
-isort azure_bootstrap/ test/
-ruff check --fix azure_bootstrap/ test/
+black vibey_bootstrap/ test/
+isort vibey_bootstrap/ test/
+ruff check --fix vibey_bootstrap/ test/
 
 # Run all checks manually
 bash .githooks/pre-commit
@@ -611,8 +611,8 @@ git commit -m "feat: descriptive message"
 pytest
 
 # Check code quality
-black azure_bootstrap/ test/
-ruff check azure_bootstrap/ test/
+black vibey_bootstrap/ test/
+ruff check vibey_bootstrap/ test/
 ```
 
 ### 3. Before Submitting PR
@@ -623,7 +623,7 @@ ruff check azure_bootstrap/ test/
 - ✅ Coverage meets requirements: `pytest --cov`
 - ✅ Code formatted: `black .`
 - ✅ No lint errors: `ruff check .`
-- ✅ Type hints added: `mypy azure_bootstrap/`
+- ✅ Type hints added: `mypy vibey_bootstrap/`
 - ✅ Documentation updated
 - ✅ Version History in CLAUDE.md updated
 - ✅ Examples added/updated if needed
@@ -631,10 +631,10 @@ ruff check azure_bootstrap/ test/
 
 ```bash
 # Run full quality check
-black azure_bootstrap/ test/
-ruff check azure_bootstrap/ test/
-mypy azure_bootstrap/
-pytest --cov=azure_bootstrap --cov-report=term-missing
+black vibey_bootstrap/ test/
+ruff check vibey_bootstrap/ test/
+mypy vibey_bootstrap/
+pytest --cov=vibey_bootstrap --cov-report=term-missing
 ```
 
 ---
@@ -741,7 +741,7 @@ git push origin feature/your-feature
 
 2. **Update Version Numbers**
    - `pyproject.toml`: `version = "1.1.0"`
-   - `azure_bootstrap/__init__.py`: `__version__ = "1.1.0"`
+   - `vibey_bootstrap/__init__.py`: `__version__ = "1.1.0"`
 
 3. **Update Version History in CLAUDE.md**
    ```markdown
@@ -761,7 +761,7 @@ git push origin feature/your-feature
    ```bash
    pytest
    python -m build
-   pip install dist/azure_bootstrap-1.1.0-py3-none-any.whl
+   pip install dist/vibey_bootstrap-1.1.0-py3-none-any.whl
    ```
 
 5. **Merge to Main**
@@ -784,7 +784,7 @@ git push origin feature/your-feature
    - Verify package published to PyPI
    - Confirm the `Validate Installation` job installed the exact new version
    - Check the **Documentation** workflow deployed, and that
-     <https://theviziusgroup.github.io/azure-bootstrap/> shows the new version's
+     <https://adammatthewsteinberger.github.io/vibey-bootstrap/> shows the new version's
      changelog entry
 
 8. **Announce Release**

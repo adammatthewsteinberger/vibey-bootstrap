@@ -1,10 +1,10 @@
-"""Tests for ``azure_bootstrap.tracing.latency``."""
+"""Tests for ``vibey_bootstrap.tracing.latency``."""
 
 from __future__ import annotations
 
 import pytest
 
-from azure_bootstrap.tracing.latency import (
+from vibey_bootstrap.tracing.latency import (
     _HIST,
     _HIST_CAP,
     _record_latency,

@@ -6,9 +6,9 @@ import logging
 
 import pytest
 
-from azure_bootstrap.transports.nosql import make_nosql_handler
-from azure_bootstrap.transports.panther import make_panther_handler
-from azure_bootstrap.transports.sql import _validate_identifier, make_sql_handler
+from vibey_bootstrap.transports.nosql import make_nosql_handler
+from vibey_bootstrap.transports.panther import make_panther_handler
+from vibey_bootstrap.transports.sql import _validate_identifier, make_sql_handler
 
 
 def test_validate_identifier_rejects_bad_names() -> None:

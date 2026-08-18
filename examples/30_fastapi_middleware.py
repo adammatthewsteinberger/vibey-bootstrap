@@ -11,7 +11,7 @@
 - Fires an ERROR alert + re-raises on uncaught handler exceptions
   (deduped per ``http_crash:{path}:{type}``).
 
-Requires ``pip install azure-bootstrap[fastapi]``.
+Requires ``pip install vibey-bootstrap[fastapi]``.
 """
 
 from __future__ import annotations
@@ -21,14 +21,14 @@ import os
 os.environ.setdefault("USE_MOCK_BOOTSTRAP", "true")
 os.environ.setdefault("AZURE_BOOTSTRAP_ALLOW_RESET", "1")
 
-from azure_bootstrap.alerts import (
+from vibey_bootstrap.alerts import (
     drain_pending_alerts,
     register_dispatcher,
     reset_state,
 )
-from azure_bootstrap.counters import _reset_counters
-from azure_bootstrap.fastapi_middleware import install_middleware
-from azure_bootstrap.logging import configure_logging
+from vibey_bootstrap.counters import _reset_counters
+from vibey_bootstrap.fastapi_middleware import install_middleware
+from vibey_bootstrap.logging import configure_logging
 
 
 def main() -> None:
@@ -40,7 +40,7 @@ def main() -> None:
         from fastapi import FastAPI, HTTPException
         from fastapi.testclient import TestClient
     except ImportError:
-        print("fastapi not installed — run `pip install azure-bootstrap[fastapi]`")
+        print("fastapi not installed — run `pip install vibey-bootstrap[fastapi]`")
         return
 
     register_dispatcher(lambda *a: None, recipients=["ops@example.com"])

@@ -30,15 +30,15 @@ os.environ["ALERT_ESCALATE_AFTER"] = "3"
 os.environ["ALERT_ESCALATE_WINDOW_SECONDS"] = "10"
 os.environ["ALERT_MAX_PER_HOUR"] = "100"
 
-from azure_bootstrap.alerts import (
+from vibey_bootstrap.alerts import (
     AlertSeverity,
     alert_dev_team,
     drain_pending_alerts,
     register_dispatcher,
     reset_state,
 )
-from azure_bootstrap.counters import _reset_counters, counter_snapshot
-from azure_bootstrap.logging import configure_logging
+from vibey_bootstrap.counters import _reset_counters, counter_snapshot
+from vibey_bootstrap.logging import configure_logging
 
 
 def main() -> None:
