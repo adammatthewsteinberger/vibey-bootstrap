@@ -1,5 +1,5 @@
 #!/bin/sh
-# Installed by `vibey-gh install` — do not edit; edit the template in vibey-bootstrap.
+# Installed by `vibey-gh install` — do not edit; edit the template in vibey-gh.
 #
 # THE GATE. A repository that has adopted the vibey GitHub automation must keep it
 # installed and working. If the tooling is missing, or the fingerprints it enforces are
@@ -31,8 +31,10 @@ vibey_gh() {
     ./.venv/bin/vibey-gh "$@"
   elif [ -x "venv/bin/vibey-gh" ]; then
     ./venv/bin/vibey-gh "$@"
+  elif python3 -c "import vibey_gh.cli" >/dev/null 2>&1; then
+    python3 -m vibey_gh.cli "$@"
   elif python3 -c "import vibey_bootstrap.gh.cli" >/dev/null 2>&1; then
-    python3 -m vibey_bootstrap.gh.cli "$@"
+    python3 -m vibey_bootstrap.gh.cli "$@"   # pre-split layout
   else
     return 127
   fi
@@ -43,7 +45,7 @@ if ! vibey_gh trailer-key >/dev/null 2>&1; then
   echo
   echo "  This repository requires it for provenance and release automation."
   echo
-  echo "      pip install vibey-bootstrap"
+  echo "      pip install vibey-gh"
   echo "      vibey-gh install"
   echo
   echo "  Then push again. To bypass once: git push --no-verify"

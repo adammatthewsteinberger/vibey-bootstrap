@@ -4,7 +4,7 @@
 
 [fingerprint]
 sources = [
-  "vibey_bootstrap/gh/*.py",
+  "vibey_bootstrap/gh/*.py",   # now just the compatibility shim
   ".githooks/*.sh",
   ".github/workflows/*.yml",
 ]
