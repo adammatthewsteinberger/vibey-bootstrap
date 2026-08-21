@@ -10,7 +10,9 @@ sources = [
 ]
 
 [version]
-files         = ["pyproject.toml"]
+# BOTH sites, because they must never disagree: pyproject.toml is what the wheel
+# carries and vibey_bootstrap.__version__ is what an installed app reports.
+files         = ["pyproject.toml", "vibey_bootstrap/__init__.py"]
 content_paths = ["vibey_bootstrap/"]
 code_paths    = ["vibey_bootstrap/"]
 

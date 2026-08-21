@@ -349,3 +349,83 @@ def test_a_refused_push_is_raised_with_the_manual_command(pair):
         realign.realign(gh_cfg(work))
     assert "blocked by the ruleset" in str(raised.value)
     assert "git push --force-with-lease origin main:develop" in str(raised.value)
+
+
+# ---------------------------------------------------------------- TOML versions
+
+
+PYPROJECT = """[build-system]
+requires = ["hatchling"]
+
+[project]
+name = "demo"
+version = "1.2.3"
+description = "x"
+
+[tool.poetry]
+version = "9.9.9"
+"""
+
+
+def test_a_toml_version_is_read_from_the_project_table(tmp_path):
+    (tmp_path / "pyproject.toml").write_text(PYPROJECT)
+    cfg = cfg_with_versions(tmp_path, "pyproject.toml")
+    assert versioning.read_version(cfg) == "1.2.3"
+
+
+def test_a_toml_without_a_project_version_is_skipped(tmp_path):
+    (tmp_path / "a.toml").write_text('[tool.other]\nversion = "9.9.9"\n')
+    (tmp_path / "v.py").write_text('__version__ = "2.0.0"\n')
+    cfg = cfg_with_versions(tmp_path, "a.toml", "v.py")
+    assert versioning.read_version(cfg) == "2.0.0"
+
+
+def test_a_toml_that_does_not_parse_is_skipped(tmp_path):
+    (tmp_path / "broken.toml").write_text("[project\nname = ")
+    (tmp_path / "v.py").write_text('__version__ = "2.0.0"\n')
+    cfg = cfg_with_versions(tmp_path, "broken.toml", "v.py")
+    assert versioning.read_version(cfg) == "2.0.0"
+
+
+def test_a_toml_version_is_read_at_a_git_ref(repo):
+    (repo / "pyproject.toml").write_text(PYPROJECT)
+    (repo / "broken.toml").write_text("[project\n")
+    git(repo, "add", "-A")
+    git(repo, "commit", "-qm", "base")
+
+    cfg = cfg_with_versions(repo, "broken.toml", "pyproject.toml")
+    assert versioning.read_version_at(cfg, "HEAD") == "1.2.3"
+
+
+def test_bumping_a_toml_touches_only_the_project_table(tmp_path):
+    path = tmp_path / "pyproject.toml"
+    path.write_text(PYPROJECT)
+    cfg = cfg_with_versions(tmp_path, "pyproject.toml")
+
+    assert versioning.apply_version(cfg, "1.3.0") == ["pyproject.toml"]
+    patched = path.read_text()
+    assert 'version = "1.3.0"' in patched
+    assert 'version = "9.9.9"' in patched  # [tool.poetry] left alone
+    assert versioning.read_version(cfg) == "1.3.0"
+
+
+def test_bumping_a_toml_whose_project_table_is_last(tmp_path):
+    path = tmp_path / "pyproject.toml"
+    path.write_text('[project]\nname = "demo"\nversion = "1.2.3"\n')
+    cfg = cfg_with_versions(tmp_path, "pyproject.toml")
+    versioning.apply_version(cfg, "1.3.0")
+    assert versioning.read_version(cfg) == "1.3.0"
+
+
+def test_a_toml_with_no_project_table_cannot_be_bumped(tmp_path):
+    (tmp_path / "pyproject.toml").write_text("[tool.black]\nline-length = 100\n")
+    cfg = cfg_with_versions(tmp_path, "pyproject.toml")
+    with pytest.raises(RuntimeError, match="no \\[project\\] table"):
+        versioning.apply_version(cfg, "1.3.0")
+
+
+def test_a_project_table_carrying_no_version_cannot_be_bumped(tmp_path):
+    (tmp_path / "pyproject.toml").write_text('[project]\nname = "demo"\n\n[tool.x]\n')
+    cfg = cfg_with_versions(tmp_path, "pyproject.toml")
+    with pytest.raises(RuntimeError, match="expected one \\[project\\] version"):
+        versioning.apply_version(cfg, "1.3.0")
