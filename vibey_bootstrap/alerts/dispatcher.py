@@ -128,13 +128,16 @@ def alert_dev_team(
 ) -> None:
     """Emit a tiered alert. Best-effort — never raises."""
     try:
-        if isinstance(severity, str):
+        # AlertSeverity subclasses str, so it must be tested for FIRST — an
+        # ``isinstance(severity, str)`` check matches the enum too, which left the
+        # non-string branch unreachable.
+        if isinstance(severity, AlertSeverity):
+            sev = severity
+        else:
             try:
                 sev = AlertSeverity(severity)
             except ValueError:
                 sev = AlertSeverity.ERROR
-        else:
-            sev = severity
         ctx = dict(context) if context else {}
         key = dedup_key if dedup_key else subject
         now = time.monotonic()

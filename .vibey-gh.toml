@@ -1,0 +1,23 @@
+# vibey GitHub automation — see the `gh` subpackage of this library, which this
+# repository both provides and consumes. Dogfooding is not decoration: the tool is only
+# trustworthy if the project shipping it is held to the same rule.
+
+[fingerprint]
+sources = [
+  "vibey_bootstrap/gh/*.py",
+  ".githooks/*.sh",
+  ".github/workflows/*.yml",
+]
+
+[version]
+files         = ["pyproject.toml"]
+content_paths = ["vibey_bootstrap/"]
+code_paths    = ["vibey_bootstrap/"]
+
+[branches]
+integration = "develop"
+release     = "main"
+
+[merge_train]
+owner           = "adammatthewsteinberger"
+trusted_authors = ["adammatthewsteinberger", "claude[bot]", "github-actions[bot]", "vibey[bot]"]

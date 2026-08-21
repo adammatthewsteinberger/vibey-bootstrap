@@ -90,7 +90,7 @@ if ! run_check "Bandit (security)" "$PYTHON -m bandit -r vibey_bootstrap/ -ll -q
 fi
 
 # 6. pip-audit - Dependency security (scan installed packages)
-if ! run_check "pip-audit (dependency security)" "pip-audit"; then
+if ! run_check "pip-audit (dependency security)" "$PYTHON -m pip_audit"; then
     echo -e "${YELLOW}⚠️  Known vulnerabilities found in dependencies${NC}"
     echo -e "${YELLOW}💡 Consider updating vulnerable packages${NC}"
     echo ""
