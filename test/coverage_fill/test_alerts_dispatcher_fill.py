@@ -273,3 +273,23 @@ def test_events_that_fell_out_of_the_window_do_not_count_towards_the_threshold()
     history = deque([time.monotonic() - 5000.0, time.monotonic() - 4000.0])
     assert should_escalate(history, threshold=2, window_seconds=60.0) is False
     assert len(history) == 1  # both stale entries pruned, this one appended
+
+
+def test_installing_the_hooks_before_any_event_loop_exists_is_not_fatal(
+    monkeypatch, restore_excepthook
+):
+    """No loop yet: the sync hook still installs and the asyncio half is skipped.
+
+    Patched rather than relying on the interpreter, because the behaviour is
+    version-dependent — `asyncio.get_event_loop()` raises RuntimeError from 3.12 but
+    quietly creates a loop on 3.11, so on 3.11 this branch is otherwise unreachable.
+    """
+    monkeypatch.setattr(
+        asyncio, "get_event_loop", MagicMock(side_effect=RuntimeError("no current event loop"))
+    )
+    previous = MagicMock()
+    sys.excepthook = previous
+
+    install_global_exception_hooks()  # must not raise
+
+    assert sys.excepthook is not previous  # the sync half still went in
