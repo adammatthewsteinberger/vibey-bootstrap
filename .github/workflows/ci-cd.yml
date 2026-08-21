@@ -261,11 +261,6 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Wait for TestPyPI indexing
-        run: |
-          echo "Waiting 15 seconds for TestPyPI indexing..."
-          sleep 15
-
       - name: Install exact dev version from TestPyPI
         env:
           VERSION: ${{ needs.build-and-test.outputs.package-version }}
@@ -284,10 +279,29 @@ jobs:
           # It is safe here only because our own package is pinned exactly. Do
           # not copy this flag pair into a job installing unpinned first-party
           # packages.
-          pip install \
-            --index-url https://test.pypi.org/simple/ \
-            --extra-index-url https://pypi.org/simple/ \
-            "${PACKAGE_NAME}==${VERSION}"
+          #
+          # RETRY, and --no-cache-dir. TestPyPI serves the project PAGE from a different
+          # path than the SIMPLE INDEX that pip reads, and the index trails the page by
+          # up to a few minutes. A fixed sleep guesses at that lag and a single attempt
+          # turns the guess into a failed release — which is what happened to
+          # 4.2.0.dev20260821234555: the page showed it while pip still could not see it.
+          #
+          # --no-cache-dir matters just as much: pip caches the simple index, so once it
+          # has fetched a listing that lacks the new version, every retry in the same job
+          # replays that same stale listing and the loop can never succeed.
+          for attempt in $(seq 1 20); do
+            if pip install --no-cache-dir \
+                 --index-url https://test.pypi.org/simple/ \
+                 --extra-index-url https://pypi.org/simple/ \
+                 "${PACKAGE_NAME}==${VERSION}"; then
+              echo "installed ${VERSION} on attempt ${attempt}"
+              exit 0
+            fi
+            echo "not in the simple index yet (attempt ${attempt}/20); waiting 30s"
+            sleep 30
+          done
+          echo "::error::${PACKAGE_NAME}==${VERSION} never appeared in the TestPyPI simple index"
+          exit 1
 
       - name: Verify package imports and version
         env:
@@ -316,21 +330,27 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Wait for PyPI indexing
-        run: |
-          echo "Waiting 15 seconds for PyPI indexing..."
-          sleep 15
-
       - name: Install package from PyPI
         env:
           VERSION: ${{ needs.build-and-test.outputs.package-version }}
         run: |
           set -euo pipefail
           test -n "${VERSION}"
-          # Pinned: `pip install vibey-bootstrap` would happily install the
-          # PREVIOUS release if 15s wasn't enough for PyPI to index this one,
-          # and the job would pass while validating the wrong artifact.
-          pip install "${PACKAGE_NAME}==${VERSION}"
+          # Pinned, because `pip install vibey-bootstrap` would happily install the
+          # PREVIOUS release while this one is still indexing, and the job would pass
+          # having validated the wrong artifact. Retried with --no-cache-dir for the same
+          # reason as the TestPyPI job above: the simple index trails the project page,
+          # and pip caches the listing it already fetched.
+          for attempt in $(seq 1 20); do
+            if pip install --no-cache-dir "${PACKAGE_NAME}==${VERSION}"; then
+              echo "installed ${VERSION} on attempt ${attempt}"
+              exit 0
+            fi
+            echo "not in the simple index yet (attempt ${attempt}/20); waiting 30s"
+            sleep 30
+          done
+          echo "::error::${PACKAGE_NAME}==${VERSION} never appeared in the PyPI simple index"
+          exit 1
 
       - name: Verify package imports
         run: |
