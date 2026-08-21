@@ -70,7 +70,10 @@ def test_nosql_handler_mongomock_roundtrip() -> None:
 
     docs = list(collection.find({}, {"_id": 0, "message": 1}))
     messages = [d["message"] for d in docs]
-    assert messages == [f"doc-{i}" for i in range(5)]
+    # Sorted, not positional: batch_size=3 means the background thread ships the first
+    # batch while the main thread is still emitting, so the two batches can land in
+    # either order. Insertion order across batches is not a guarantee the handler makes.
+    assert sorted(messages) == [f"doc-{i}" for i in range(5)]
 
 
 def test_blob_handler_azurite_append(azurite_container) -> None:

@@ -67,6 +67,8 @@ dev = [
     "bandit>=1.7.5",
     "pip-audit>=2.6.0",
     "build>=1.0.0",
+    "hypothesis>=6.0",            # test/transports/test_buffered_shipper_hypothesis.py imports it
+    "pytest-asyncio>=0.23",       # test/v3/test_v3_hardening.py has async tests
 ]
 
 test = [
@@ -239,6 +241,9 @@ vibey_bootstrap = ["py.typed"]
 "vibey_bootstrap.contrib" = ["templates/**/*"]
 
 [tool.pytest.ini_options]
+# test/v3/test_v3_hardening.py defines async tests with no marker; without this
+# pytest-asyncio skips them as "async def functions are not natively supported".
+asyncio_mode = "auto"
 testpaths = ["test"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
@@ -372,7 +377,7 @@ exclude_lines = [
     "class .*\\bProtocol\\):",
     "@(abc\\.)?abstractmethod",
 ]
-fail_under = 85
+fail_under = 100
 
 [tool.bandit]
 exclude_dirs = [".venv", "test", "build", "dist"]
