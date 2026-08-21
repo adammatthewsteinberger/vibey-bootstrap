@@ -1,5 +1,5 @@
 #!/bin/sh
-# Installed by `vibey-gh install` — do not edit; edit the template in vibey-bootstrap.
+# Installed by `vibey-gh install` — do not edit; edit the template in vibey-gh.
 #
 # Appends the provenance trailer to any commit message that lacks it, so the rule holds
 # locally without anyone having to remember it. CI enforces the same trailer, so a commit
@@ -19,8 +19,10 @@ vibey_gh() {
     ./.venv/bin/vibey-gh "$@"
   elif [ -x "venv/bin/vibey-gh" ]; then
     ./venv/bin/vibey-gh "$@"
+  elif python3 -c "import vibey_gh.cli" >/dev/null 2>&1; then
+    python3 -m vibey_gh.cli "$@"
   elif python3 -c "import vibey_bootstrap.gh.cli" >/dev/null 2>&1; then
-    python3 -m vibey_bootstrap.gh.cli "$@"
+    python3 -m vibey_bootstrap.gh.cli "$@"   # pre-split layout
   else
     return 127
   fi
