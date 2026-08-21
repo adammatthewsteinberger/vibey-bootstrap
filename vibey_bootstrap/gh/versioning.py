@@ -19,11 +19,35 @@ from __future__ import annotations
 import json
 import re
 import subprocess
+import tomllib
 
 from vibey_bootstrap.gh.config import GhConfig
 
 VERSION_RE = re.compile(r'^(__version__\s*=\s*")([^"]+)(")', re.M)
 JSON_VERSION_KEYS = ("version",)
+# A TOML `version = "..."`, matched only inside the [project] table — pyproject has
+# other tables with a `version` key and bumping the wrong one is worse than not bumping.
+TOML_VERSION_RE = re.compile(r'^(version\s*=\s*")([^"]+)(")', re.M)
+
+
+def _toml_version(text: str) -> str | None:
+    """The [project] version, read with the parser rather than a regex."""
+    try:
+        data = tomllib.loads(text)
+    except tomllib.TOMLDecodeError:
+        return None
+    version = data.get("project", {}).get("version")
+    return str(version) if version is not None else None
+
+
+def _project_table(text: str) -> tuple[int, int]:
+    """(start, end) character offsets of the [project] table's body."""
+    match = re.search(r"^\[project\]\s*$", text, re.M)
+    if match is None:
+        raise RuntimeError("no [project] table")
+    start = match.end()
+    nxt = re.search(r"^\[", text[start:], re.M)
+    return start, start + (nxt.start() if nxt else len(text) - start)
 
 
 def _git(cfg: GhConfig, *args: str) -> str:
@@ -45,6 +69,10 @@ def read_version(cfg: GhConfig) -> str:
             for key in JSON_VERSION_KEYS:
                 if key in meta:
                     return str(meta[key])
+        elif path.suffix == ".toml":
+            version = _toml_version(path.read_text(encoding="utf-8"))
+            if version is not None:
+                return version
         else:
             match = VERSION_RE.search(path.read_text(encoding="utf-8"))
             if match:
@@ -68,6 +96,10 @@ def read_version_at(cfg: GhConfig, ref: str) -> str | None:
             for key in JSON_VERSION_KEYS:
                 if key in meta:
                     return str(meta[key])
+        elif rel.endswith(".toml"):
+            version = _toml_version(r.stdout)
+            if version is not None:
+                return version
         else:
             match = VERSION_RE.search(r.stdout)
             if match:
@@ -120,6 +152,13 @@ def apply_version(cfg: GhConfig, new: str) -> list[str]:
             target = data.get("metadata") if isinstance(data.get("metadata"), dict) else data
             target["version"] = new
             path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        elif path.suffix == ".toml":
+            text = path.read_text(encoding="utf-8")
+            start, end = _project_table(text)
+            patched, n = TOML_VERSION_RE.subn(rf"\g<1>{new}\g<3>", text[start:end], count=1)
+            if n != 1:
+                raise RuntimeError(f"{rel}: expected one [project] version, found {n}")
+            path.write_text(text[:start] + patched + text[end:], encoding="utf-8")
         else:
             text = path.read_text(encoding="utf-8")
             patched, n = VERSION_RE.subn(rf"\g<1>{new}\g<3>", text, count=1)
