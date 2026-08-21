@@ -34,10 +34,10 @@ def record(msg: str = "hi") -> logging.LogRecord:
 class Credential:
     """The duck type the Azure SDKs require; never actually asked for a token here."""
 
-    def get_token(self, *scopes, **kw):        # pragma: no cover - no request is made
+    def get_token(self, *scopes, **kw):  # pragma: no cover - no request is made
         raise AssertionError("no token is fetched in these tests")
 
-    def close(self) -> None:                   # pragma: no cover - not always called
+    def close(self) -> None:  # pragma: no cover - not always called
         pass
 
 
@@ -47,8 +47,13 @@ class Credential:
 @pytest.fixture
 def panther():
     with patch.object(panther_mod, "_build_session", return_value=MagicMock()):
-        h = PantherHandler(api_host="https://panther.example.com/", log_source_id="src",
-                           log_source_token="tok", flush_interval=3600.0, batch_size=1000)
+        h = PantherHandler(
+            api_host="https://panther.example.com/",
+            log_source_id="src",
+            log_source_token="tok",
+            flush_interval=3600.0,
+            batch_size=1000,
+        )
     try:
         yield h, h._session
     finally:
@@ -90,9 +95,10 @@ def test_close_survives_a_session_that_refuses_to_close():
     session = MagicMock()
     session.close.side_effect = RuntimeError("socket already gone")
     with patch.object(panther_mod, "_build_session", return_value=session):
-        h = PantherHandler(api_host="https://p", log_source_id="s", log_source_token="t",
-                           flush_interval=3600.0)
-    h.close()   # must not raise
+        h = PantherHandler(
+            api_host="https://p", log_source_id="s", log_source_token="t", flush_interval=3600.0
+        )
+    h.close()  # must not raise
     session.close.assert_called_once()
 
 
@@ -131,8 +137,8 @@ class TestPantherSearch:
     def test_a_successful_search_returns_its_events(self, client):
         c, session = client
         session.post.return_value = MagicMock(
-            status_code=200,
-            json=lambda: {"data": {"search": {"events": [{"id": "1"}]}}})
+            status_code=200, json=lambda: {"data": {"search": {"events": [{"id": "1"}]}}}
+        )
         assert c.search("field = 'x'", limit=5) == [{"id": "1"}]
         assert c._session.post.call_args.kwargs["headers"]["X-API-Key"] == "k"
 
@@ -149,7 +155,7 @@ class TestPantherSearch:
     def test_close_survives_a_session_that_refuses_to_close(self, client):
         c, session = client
         session.close.side_effect = RuntimeError("already closed")
-        c.close()   # must not raise
+        c.close()  # must not raise
 
     def test_the_factory_needs_both_a_host_and_a_key(self, monkeypatch):
         assert make_panther_search_client() is None
@@ -167,12 +173,16 @@ class TestPantherSearch:
 
 
 def test_adx_builds_its_ingest_client_once_from_the_supplied_credential():
-    h = AdxHandler(cluster_uri="https://cluster.kusto.windows.net", database="logs",
-                   credential=Credential(), flush_interval=3600.0)
+    h = AdxHandler(
+        cluster_uri="https://cluster.kusto.windows.net",
+        database="logs",
+        credential=Credential(),
+        flush_interval=3600.0,
+    )
     try:
         with patch("azure.kusto.ingest.KustoStreamingIngestClient") as client_cls:
             first = h._get_client()
-            assert h._get_client() is first       # cached, not rebuilt per flush
+            assert h._get_client() is first  # cached, not rebuilt per flush
         client_cls.assert_called_once()
     finally:
         h.close()
@@ -183,12 +193,16 @@ def test_adx_falls_back_to_the_managed_identity_credential(monkeypatch):
 
     credential = Credential()
     monkeypatch.setattr(identity, "build_credential", lambda: credential)
-    h = AdxHandler(cluster_uri="https://cluster.kusto.windows.net", database="logs",
-                   flush_interval=3600.0)
+    h = AdxHandler(
+        cluster_uri="https://cluster.kusto.windows.net", database="logs", flush_interval=3600.0
+    )
     try:
-        with patch("azure.kusto.ingest.KustoStreamingIngestClient") as client_cls, \
-                patch("azure.kusto.data.KustoConnectionStringBuilder"
-                      ".with_azure_token_credential") as kcsb:
+        with (
+            patch("azure.kusto.ingest.KustoStreamingIngestClient") as client_cls,
+            patch(
+                "azure.kusto.data.KustoConnectionStringBuilder" ".with_azure_token_credential"
+            ) as kcsb,
+        ):
             h._get_client()
         assert kcsb.call_args.args[1] is credential
         client_cls.assert_called_once()
@@ -197,8 +211,12 @@ def test_adx_falls_back_to_the_managed_identity_credential(monkeypatch):
 
 
 def test_an_adx_ingest_failure_is_reported_not_raised():
-    h = AdxHandler(cluster_uri="https://c.kusto.windows.net", database="logs",
-                   credential=Credential(), flush_interval=3600.0)
+    h = AdxHandler(
+        cluster_uri="https://c.kusto.windows.net",
+        database="logs",
+        credential=Credential(),
+        flush_interval=3600.0,
+    )
     try:
         client = MagicMock()
         client.ingest_from_stream.side_effect = RuntimeError("cluster is throttling")
@@ -210,8 +228,13 @@ def test_an_adx_ingest_failure_is_reported_not_raised():
 
 
 def test_adx_ships_the_batch_as_multijson():
-    h = AdxHandler(cluster_uri="https://c.kusto.windows.net", database="logs", table="Audit",
-                   credential=Credential(), flush_interval=3600.0)
+    h = AdxHandler(
+        cluster_uri="https://c.kusto.windows.net",
+        database="logs",
+        table="Audit",
+        credential=Credential(),
+        flush_interval=3600.0,
+    )
     try:
         h._client = MagicMock()
         _reset_counters()
@@ -231,17 +254,25 @@ class TestAdxFactory:
     def test_without_the_kusto_extra_the_transport_disables_itself(self, monkeypatch, caplog):
         monkeypatch.setenv("ADX_CLUSTER_URI", "https://c.kusto.windows.net")
         monkeypatch.setenv("ADX_DATABASE", "logs")
-        with patch.object(adx_mod, "AdxHandler", side_effect=ImportError("no azure-kusto")), \
-                caplog.at_level(logging.DEBUG):
+        with (
+            patch.object(adx_mod, "AdxHandler", side_effect=ImportError("no azure-kusto")),
+            caplog.at_level(logging.DEBUG),
+        ):
             assert make_adx_handler() is None
         assert "adxlog" in caplog.text
 
 
-@pytest.mark.parametrize("resolver, default, raw, expected", [
-    (adx_mod._int_env, 200, "junk", 200), (adx_mod._float_env, 5.0, "junk", 5.0),
-    (eh_mod._int_env, 100, "junk", 100), (eh_mod._float_env, 5.0, "junk", 5.0),
-    (panther_mod._int_env, 500, "junk", 500), (panther_mod._float_env, 5.0, "junk", 5.0),
-])
+@pytest.mark.parametrize(
+    "resolver, default, raw, expected",
+    [
+        (adx_mod._int_env, 200, "junk", 200),
+        (adx_mod._float_env, 5.0, "junk", 5.0),
+        (eh_mod._int_env, 100, "junk", 100),
+        (eh_mod._float_env, 5.0, "junk", 5.0),
+        (panther_mod._int_env, 500, "junk", 500),
+        (panther_mod._float_env, 5.0, "junk", 5.0),
+    ],
+)
 def test_cloud_env_helpers_fall_back_on_junk(monkeypatch, resolver, default, raw, expected):
     monkeypatch.setenv("X_CLOUD", raw)
     assert resolver("X_CLOUD", default) == expected
@@ -251,8 +282,12 @@ def test_cloud_env_helpers_fall_back_on_junk(monkeypatch, resolver, default, raw
 
 
 def test_event_hubs_builds_its_producer_once_from_the_supplied_credential():
-    h = EventHubsHandler(fully_qualified_namespace="ns.servicebus.windows.net",
-                         eventhub_name="logs", credential=Credential(), flush_interval=3600.0)
+    h = EventHubsHandler(
+        fully_qualified_namespace="ns.servicebus.windows.net",
+        eventhub_name="logs",
+        credential=Credential(),
+        flush_interval=3600.0,
+    )
     try:
         with patch("azure.eventhub.EventHubProducerClient") as producer_cls:
             first = h._get_producer()
@@ -268,8 +303,11 @@ def test_event_hubs_falls_back_to_the_managed_identity_credential(monkeypatch):
 
     credential = Credential()
     monkeypatch.setattr(identity, "build_credential", lambda: credential)
-    h = EventHubsHandler(fully_qualified_namespace="ns.servicebus.windows.net",
-                         eventhub_name="logs", flush_interval=3600.0)
+    h = EventHubsHandler(
+        fully_qualified_namespace="ns.servicebus.windows.net",
+        eventhub_name="logs",
+        flush_interval=3600.0,
+    )
     try:
         with patch("azure.eventhub.EventHubProducerClient") as producer_cls:
             h._get_producer()
@@ -286,15 +324,21 @@ class TestEventHubsFactory:
     def test_without_the_eventhubs_extra_the_transport_disables_itself(self, monkeypatch, caplog):
         monkeypatch.setenv("EVENTHUB_FQNS", "ns.servicebus.windows.net")
         monkeypatch.setenv("EVENTHUB_NAME", "logs")
-        with patch.object(eh_mod, "EventHubsHandler", side_effect=ImportError("no azure-eventhub")), \
-                caplog.at_level(logging.DEBUG):
+        with (
+            patch.object(eh_mod, "EventHubsHandler", side_effect=ImportError("no azure-eventhub")),
+            caplog.at_level(logging.DEBUG),
+        ):
             assert make_event_hubs_handler() is None
         assert "eventhubslog" in caplog.text
 
 
 def test_adx_ships_nothing_for_an_empty_batch():
-    h = AdxHandler(cluster_uri="https://c.kusto.windows.net", database="logs",
-                   credential=Credential(), flush_interval=3600.0)
+    h = AdxHandler(
+        cluster_uri="https://c.kusto.windows.net",
+        database="logs",
+        credential=Credential(),
+        flush_interval=3600.0,
+    )
     try:
         h._client = MagicMock()
         assert h._ship([]).count == 0
@@ -304,8 +348,12 @@ def test_adx_ships_nothing_for_an_empty_batch():
 
 
 def test_event_hubs_sends_one_batch_per_flush():
-    h = EventHubsHandler(fully_qualified_namespace="ns.servicebus.windows.net",
-                         eventhub_name="logs", credential=Credential(), flush_interval=3600.0)
+    h = EventHubsHandler(
+        fully_qualified_namespace="ns.servicebus.windows.net",
+        eventhub_name="logs",
+        credential=Credential(),
+        flush_interval=3600.0,
+    )
     try:
         producer = MagicMock()
         h._producer = producer
@@ -319,8 +367,12 @@ def test_event_hubs_sends_one_batch_per_flush():
 
 
 def test_event_hubs_ships_nothing_for_an_empty_batch():
-    h = EventHubsHandler(fully_qualified_namespace="ns.servicebus.windows.net",
-                         eventhub_name="logs", credential=Credential(), flush_interval=3600.0)
+    h = EventHubsHandler(
+        fully_qualified_namespace="ns.servicebus.windows.net",
+        eventhub_name="logs",
+        credential=Credential(),
+        flush_interval=3600.0,
+    )
     try:
         h._producer = MagicMock()
         assert h._ship([]).count == 0
@@ -330,8 +382,12 @@ def test_event_hubs_ships_nothing_for_an_empty_batch():
 
 
 def test_an_event_hubs_send_failure_is_reported_not_raised():
-    h = EventHubsHandler(fully_qualified_namespace="ns.servicebus.windows.net",
-                         eventhub_name="logs", credential=Credential(), flush_interval=3600.0)
+    h = EventHubsHandler(
+        fully_qualified_namespace="ns.servicebus.windows.net",
+        eventhub_name="logs",
+        credential=Credential(),
+        flush_interval=3600.0,
+    )
     try:
         producer = MagicMock()
         producer.send_batch.side_effect = RuntimeError("namespace unreachable")
@@ -343,18 +399,26 @@ def test_an_event_hubs_send_failure_is_reported_not_raised():
 
 
 def test_closing_event_hubs_closes_the_producer_and_survives_it_failing():
-    h = EventHubsHandler(fully_qualified_namespace="ns.servicebus.windows.net",
-                         eventhub_name="logs", credential=Credential(), flush_interval=3600.0)
+    h = EventHubsHandler(
+        fully_qualified_namespace="ns.servicebus.windows.net",
+        eventhub_name="logs",
+        credential=Credential(),
+        flush_interval=3600.0,
+    )
     producer = MagicMock()
     producer.close.side_effect = RuntimeError("link already detached")
     h._producer = producer
-    h.close()   # must not raise
+    h.close()  # must not raise
     producer.close.assert_called_once()
 
 
 def test_closing_event_hubs_that_never_produced_anything_is_a_no_op():
-    h = EventHubsHandler(fully_qualified_namespace="ns.servicebus.windows.net",
-                         eventhub_name="logs", credential=Credential(), flush_interval=3600.0)
+    h = EventHubsHandler(
+        fully_qualified_namespace="ns.servicebus.windows.net",
+        eventhub_name="logs",
+        credential=Credential(),
+        flush_interval=3600.0,
+    )
     h.close()
     assert h._producer is None
 
@@ -383,7 +447,7 @@ def test_the_panther_session_retries_the_statuses_that_are_worth_retrying():
         assert retry.total == 5
         assert set(retry.status_forcelist) == {408, 429, 500, 502, 503, 504}
         assert retry.allowed_methods == frozenset(["POST"])
-        assert retry.raise_on_status is False      # a 500 is a ShipResult, not an exception
+        assert retry.raise_on_status is False  # a 500 is a ShipResult, not an exception
     finally:
         session.close()
 
@@ -412,7 +476,9 @@ def test_without_requests_the_panther_transport_disables_itself(monkeypatch, cap
     monkeypatch.setenv("PANTHER_API_HOST", "https://panther.example.com")
     monkeypatch.setenv("PANTHER_LOG_SOURCE_ID", "src")
     monkeypatch.setenv("PANTHER_LOG_SOURCE_TOKEN", "tok")
-    with patch.object(panther_mod, "PantherHandler", side_effect=ImportError("no requests")), \
-            caplog.at_level(logging.DEBUG):
+    with (
+        patch.object(panther_mod, "PantherHandler", side_effect=ImportError("no requests")),
+        caplog.at_level(logging.DEBUG),
+    ):
         assert make_panther_handler() is None
     assert "[panther] extra" in caplog.text

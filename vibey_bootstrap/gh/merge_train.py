@@ -17,8 +17,9 @@ from __future__ import annotations
 import json
 import subprocess
 from dataclasses import dataclass
+from typing import Any
 
-from vibey_bootstrap.gh.config import GhConfig, load_config, normalise_actor
+from vibey_bootstrap.gh.config import GhConfig, normalise_actor
 
 
 @dataclass
@@ -26,14 +27,16 @@ class Verdict:
     number: int
     title: str
     author: str
-    reason: str | None          # None means ready to merge
+    reason: str | None  # None means ready to merge
 
     @property
     def ready(self) -> bool:
         return self.reason is None
 
 
-def _gh_json(*args: str) -> object:
+def _gh_json(*args: str) -> Any:
+    """Parsed JSON from `gh`. Any, not object: the shape differs per subcommand and the
+    callers below index into it."""
     r = subprocess.run(["gh", *args], capture_output=True, text=True)
     if r.returncode:
         raise RuntimeError(f"gh {' '.join(args)}: {r.stderr.strip()}")
@@ -46,8 +49,9 @@ def judge(pr: dict, cfg: GhConfig) -> Verdict:
     review = pr.get("reviewDecision") or ""
 
     pending = [c for c in rollup if c.get("status") not in (None, "COMPLETED")]
-    failing = [c for c in rollup
-               if c.get("conclusion") not in (None, "SUCCESS", "NEUTRAL", "SKIPPED")]
+    failing = [
+        c for c in rollup if c.get("conclusion") not in (None, "SUCCESS", "NEUTRAL", "SKIPPED")
+    ]
 
     reason = None
     if pr.get("isDraft"):
@@ -70,13 +74,29 @@ def judge(pr: dict, cfg: GhConfig) -> Verdict:
 
 
 def open_pull_requests(cfg: GhConfig) -> list[dict]:
-    numbers = _gh_json("pr", "list", "--base", cfg.integration_branch, "--state", "open",
-                       "--json", "number", "--jq", "sort_by(.number)")
-    out = []
+    numbers = _gh_json(
+        "pr",
+        "list",
+        "--base",
+        cfg.integration_branch,
+        "--state",
+        "open",
+        "--json",
+        "number",
+        "--jq",
+        "sort_by(.number)",
+    )
+    out: list[dict] = []
     for entry in numbers or []:
-        out.append(_gh_json("pr", "view", str(entry["number"]), "--json",
-                            "number,title,isDraft,mergeable,reviewDecision,"
-                            "statusCheckRollup,author"))
+        out.append(
+            _gh_json(
+                "pr",
+                "view",
+                str(entry["number"]),
+                "--json",
+                "number,title,isDraft,mergeable,reviewDecision," "statusCheckRollup,author",
+            )
+        )
     return out
 
 

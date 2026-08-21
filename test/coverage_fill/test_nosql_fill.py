@@ -30,8 +30,7 @@ def handler():
     """A handler wired to a mock collection, with the flush thread effectively parked."""
     collection, client = MagicMock(), MagicMock()
     with patch.object(nosql, "_connect", return_value=(client, collection)):
-        h = NoSqlHandler(uri="mongodb://x", database="logs",
-                         flush_interval=3600.0, batch_size=1000)
+        h = NoSqlHandler(uri="mongodb://x", database="logs", flush_interval=3600.0, batch_size=1000)
     try:
         yield h, collection, client
     finally:
@@ -72,7 +71,7 @@ def test_ship_discards_unparsable_lines_and_ships_the_rest(handler):
     result = h._ship(["{not json", json.dumps({"ts": "2024-01-02T03:04:05+00:00", "m": 1})])
     assert result.ok and result.count == 1
     docs = collection.insert_many.call_args.args[0]
-    assert docs[0]["ts"].year == 2024        # the ISO string became a real datetime
+    assert docs[0]["ts"].year == 2024  # the ISO string became a real datetime
 
 
 def test_a_batch_of_nothing_but_junk_ships_nothing(handler):
@@ -92,8 +91,7 @@ def test_a_failed_insert_is_reported_not_raised(handler):
 def test_the_ttl_index_is_created_once():
     collection, client = MagicMock(), MagicMock()
     with patch.object(nosql, "_connect", return_value=(client, collection)):
-        h = NoSqlHandler(uri="mongodb://x", database="logs",
-                         ttl_seconds=60, flush_interval=3600.0)
+        h = NoSqlHandler(uri="mongodb://x", database="logs", ttl_seconds=60, flush_interval=3600.0)
     try:
         h._ship([json.dumps({"m": 1})])
         h._ship([json.dumps({"m": 2})])
@@ -107,8 +105,7 @@ def test_an_index_the_server_rejects_is_not_retried_every_flush():
     collection, client = MagicMock(), MagicMock()
     collection.create_index.side_effect = RuntimeError("no index for you")
     with patch.object(nosql, "_connect", return_value=(client, collection)):
-        h = NoSqlHandler(uri="mongodb://x", database="logs",
-                         ttl_seconds=60, flush_interval=3600.0)
+        h = NoSqlHandler(uri="mongodb://x", database="logs", ttl_seconds=60, flush_interval=3600.0)
     try:
         h._ship([json.dumps({"m": 1})])
         h._ship([json.dumps({"m": 2})])
@@ -122,7 +119,7 @@ def test_extra_attributes_are_carried_across_and_stringified(handler):
     doc = h._record_to_doc(record("hi", tenant="acme", attempt=3, payload={"a": 1}))
     assert doc["extra"]["tenant"] == "acme"
     assert doc["extra"]["attempt"] == 3
-    assert doc["extra"]["payload"] == "{'a': 1}"          # not JSON-able, so str()
+    assert doc["extra"]["payload"] == "{'a': 1}"  # not JSON-able, so str()
     assert "_private" not in doc["extra"]
 
 
@@ -173,8 +170,10 @@ class TestTheFactory:
         monkeypatch.setenv("NOSQL_LOG_DATABASE", "logs")
         monkeypatch.setenv("NOSQL_LOG_TTL_SECONDS", "forever")
         monkeypatch.setenv("NOSQL_LOG_FLUSH_INTERVAL", "3600")
-        with caplog.at_level(logging.WARNING), \
-                patch.object(nosql, "_connect", return_value=(MagicMock(), MagicMock())):
+        with (
+            caplog.at_level(logging.WARNING),
+            patch.object(nosql, "_connect", return_value=(MagicMock(), MagicMock())),
+        ):
             h = make_nosql_handler()
         try:
             assert h.ttl_seconds is None
@@ -210,14 +209,13 @@ def test_float_env_falls_back_on_anything_it_cannot_parse(monkeypatch, raw, expe
 def test_a_full_batch_wakes_the_flush_thread_immediately():
     collection, client = MagicMock(), MagicMock()
     with patch.object(nosql, "_connect", return_value=(client, collection)):
-        h = NoSqlHandler(uri="mongodb://x", database="logs",
-                         batch_size=2, flush_interval=3600.0)
+        h = NoSqlHandler(uri="mongodb://x", database="logs", batch_size=2, flush_interval=3600.0)
     try:
         h._flush_now.clear()
         h.emit(record("one"))
-        assert not h._flush_now.is_set()      # below the batch size: wait for the interval
+        assert not h._flush_now.is_set()  # below the batch size: wait for the interval
         h.emit(record("two"))
-        assert h._flush_now.is_set()          # at it: ship now rather than in an hour
+        assert h._flush_now.is_set()  # at it: ship now rather than in an hour
     finally:
         h.close()
 

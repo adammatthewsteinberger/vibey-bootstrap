@@ -79,7 +79,7 @@ def test_an_annotation_that_cannot_be_resolved_is_scrubbed_directly():
     annot.get_object.side_effect = RuntimeError("broken xref")
     annot.__contains__ = lambda self, key: False
     page = {"/Annots": [annot]}
-    sanitize_pdf_for_passthrough(reader(pages=[page]))   # must not raise
+    sanitize_pdf_for_passthrough(reader(pages=[page]))  # must not raise
 
 
 def test_a_page_that_cannot_be_read_does_not_stop_the_next_one():
@@ -93,8 +93,9 @@ def test_a_page_that_cannot_be_read_does_not_stop_the_next_one():
 
 
 def test_a_scrub_that_fails_outright_passes_the_document_through(monkeypatch, caplog):
-    monkeypatch.setattr(pdf_safety, "bump_counter",
-                        MagicMock(side_effect=RuntimeError("counters are down")))
+    monkeypatch.setattr(
+        pdf_safety, "bump_counter", MagicMock(side_effect=RuntimeError("counters are down"))
+    )
     r = reader(root={"/OpenAction": 1})
     with caplog.at_level(logging.ERROR):
         assert sanitize_pdf_for_passthrough(r) is r
@@ -144,9 +145,12 @@ def test_a_full_configuration_instruments_functions_and_gets_a_tracer(manager, m
 
 def test_a_configuration_failure_still_leaves_logging_working(manager, monkeypatch):
     monkeypatch.setattr(telemetry_mod, "TELEMETRY_AVAILABLE", True)
-    monkeypatch.setattr(telemetry_mod, "configure_azure_monitor",
-                        MagicMock(side_effect=RuntimeError("bad connection string")),
-                        raising=False)
+    monkeypatch.setattr(
+        telemetry_mod,
+        "configure_azure_monitor",
+        MagicMock(side_effect=RuntimeError("bad connection string")),
+        raising=False,
+    )
     assert manager.configure(connection_string="InstrumentationKey=k") is True
     assert manager._configured is True
 
@@ -155,14 +159,17 @@ def test_a_successful_upgrade_from_config_is_reported(manager, monkeypatch):
     monkeypatch.delenv("APPLICATIONINSIGHTS_CONNECTION_STRING", raising=False)
     repo = MagicMock()
     repo.get_secret_value.return_value = "InstrumentationKey=k"
-    monkeypatch.setattr(manager, "configure",
-                        MagicMock(side_effect=lambda **kw: setattr(manager, "tracer", object())
-                                  or True))
+    monkeypatch.setattr(
+        manager,
+        "configure",
+        MagicMock(side_effect=lambda **kw: setattr(manager, "tracer", object()) or True),
+    )
     assert manager.try_upgrade_from_config(repo) is True
 
 
-def test_the_transition_message_names_app_insights_once_a_tracer_exists(manager, monkeypatch,
-                                                                        caplog):
+def test_the_transition_message_names_app_insights_once_a_tracer_exists(
+    manager, monkeypatch, caplog
+):
     from vibey_bootstrap.services.bootstrap_logging import BootstrapLogger
 
     monkeypatch.setattr(BootstrapLogger, "is_bootstrap_configured", staticmethod(lambda: True))
@@ -182,8 +189,9 @@ def test_a_span_is_created_only_when_telemetry_is_really_available(manager, monk
 
 def test_the_module_degrades_when_azure_monitor_is_not_installed(caplog):
     """Reimport the module with the optional imports made to fail."""
-    real_import = __builtins__["__import__"] if isinstance(__builtins__, dict) \
-        else __builtins__.__import__
+    real_import = (
+        __builtins__["__import__"] if isinstance(__builtins__, dict) else __builtins__.__import__
+    )
 
     def refuse(name, *a, **kw):
         if name.startswith("azure.monitor") or name.startswith("opentelemetry"):
@@ -209,8 +217,7 @@ def test_the_module_uses_the_functions_instrumentor_when_it_is_installed():
 
     saved = sys.modules.pop("vibey_bootstrap.services.telemetry")
     try:
-        with patch.dict(sys.modules,
-                        {"opentelemetry.instrumentation.azure_functions": stub}):
+        with patch.dict(sys.modules, {"opentelemetry.instrumentation.azure_functions": stub}):
             reimported = importlib.import_module("vibey_bootstrap.services.telemetry")
             assert reimported.AZURE_FUNCTIONS_INSTRUMENTOR_AVAILABLE is True
             assert reimported.AzureFunctionsInstrumentor is instrumentor

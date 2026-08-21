@@ -64,7 +64,10 @@ def insert_header(text: str, cfg: GhConfig) -> str:
 def commits_missing_trailer(rev_range: str, cfg: GhConfig) -> list[str]:
     result = subprocess.run(
         ["git", "log", "--no-merges", "--format=%H%x1f%s%x1f%b%x1e", rev_range],
-        cwd=cfg.root, capture_output=True, text=True)
+        cwd=cfg.root,
+        capture_output=True,
+        text=True,
+    )
     if result.returncode != 0:
         raise RuntimeError(f"cannot read {rev_range}: {result.stderr.strip()}")
 
@@ -77,16 +80,14 @@ def commits_missing_trailer(rev_range: str, cfg: GhConfig) -> list[str]:
     return missing
 
 
-def check(cfg: GhConfig | None = None, rev_range: str | None = None,
-          apply: bool = False) -> Report:
+def check(cfg: GhConfig | None = None, rev_range: str | None = None, apply: bool = False) -> Report:
     cfg = cfg or load_config()
     files = sources(cfg)
 
     missing = [p for p in files if not has_header(p.read_text(encoding="utf-8"), cfg)]
     if apply:
         for path in missing:
-            path.write_text(insert_header(path.read_text(encoding="utf-8"), cfg),
-                            encoding="utf-8")
+            path.write_text(insert_header(path.read_text(encoding="utf-8"), cfg), encoding="utf-8")
         missing = []
 
     trailers = commits_missing_trailer(rev_range, cfg) if rev_range else []

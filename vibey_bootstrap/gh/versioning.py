@@ -19,9 +19,8 @@ from __future__ import annotations
 import json
 import re
 import subprocess
-from pathlib import Path
 
-from vibey_bootstrap.gh.config import GhConfig, load_config
+from vibey_bootstrap.gh.config import GhConfig
 
 VERSION_RE = re.compile(r'^(__version__\s*=\s*")([^"]+)(")', re.M)
 JSON_VERSION_KEYS = ("version",)
@@ -55,8 +54,9 @@ def read_version(cfg: GhConfig) -> str:
 
 def read_version_at(cfg: GhConfig, ref: str) -> str | None:
     for rel in cfg.version_files:
-        r = subprocess.run(["git", "show", f"{ref}:{rel}"], cwd=cfg.root,
-                           capture_output=True, text=True)
+        r = subprocess.run(
+            ["git", "show", f"{ref}:{rel}"], cwd=cfg.root, capture_output=True, text=True
+        )
         if r.returncode:
             continue
         if rel.endswith(".json"):
@@ -87,18 +87,24 @@ def decide(cfg: GhConfig, since: str) -> tuple[str | None, str]:
 
     working = read_version(cfg)
     if working != released:
-        return None, (f"already at {working} while {since} is {released} — "
-                      "a deliberate bump is in place, leaving it alone")
+        return None, (
+            f"already at {working} while {since} is {released} — "
+            "a deliberate bump is in place, leaving it alone"
+        )
 
-    changed = [l for l in _git(cfg, "diff", "--name-only", since, "HEAD").splitlines() if l]
+    changed = [
+        line for line in _git(cfg, "diff", "--name-only", since, "HEAD").splitlines() if line
+    ]
     if not changed:
         return None, f"no changes since {since}"
     if any(f.startswith(p) for f in changed for p in cfg.content_paths):
         return bump(working, "minor"), "packaged content changed"
     if any(f.startswith(p) for f in changed for p in cfg.code_paths):
         return bump(working, "patch"), "only internal code changed"
-    return None, (f"{len(changed)} file(s) changed but none reach an installed user "
-                  "(docs, workflows, tooling) — nothing to release")
+    return None, (
+        f"{len(changed)} file(s) changed but none reach an installed user "
+        "(docs, workflows, tooling) — nothing to release"
+    )
 
 
 def apply_version(cfg: GhConfig, new: str) -> list[str]:
@@ -116,7 +122,7 @@ def apply_version(cfg: GhConfig, new: str) -> list[str]:
             path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         else:
             text = path.read_text(encoding="utf-8")
-            patched, n = VERSION_RE.subn(rf'\g<1>{new}\g<3>', text, count=1)
+            patched, n = VERSION_RE.subn(rf"\g<1>{new}\g<3>", text, count=1)
             if n != 1:
                 raise RuntimeError(f"{rel}: expected one __version__ line, found {n}")
             path.write_text(patched, encoding="utf-8")

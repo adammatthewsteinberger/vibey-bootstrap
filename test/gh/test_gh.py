@@ -20,6 +20,7 @@ from vibey_bootstrap.gh.config import GhConfig, load_config, normalise_actor
 
 # --------------------------------------------------------------------------- helpers
 
+
 def git(cwd: Path, *args: str) -> str:
     r = subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True)
     assert r.returncode == 0, r.stderr
@@ -42,14 +43,19 @@ def repo(tmp_path: Path) -> Path:
 
 
 def cfg_for(root: Path, **kw) -> GhConfig:
-    base = dict(root=root, sources=("src/*.py",),
-                version_files=("src/__init__.py", "manifest.json"),
-                content_paths=("content/",), code_paths=("src/",))
+    base = dict(
+        root=root,
+        sources=("src/*.py",),
+        version_files=("src/__init__.py", "manifest.json"),
+        content_paths=("content/",),
+        code_paths=("src/",),
+    )
     base.update(kw)
     return GhConfig(**base)
 
 
 # --------------------------------------------------------------------------- config
+
 
 def test_defaults_apply_without_a_config_file(tmp_path):
     cfg = load_config(tmp_path)
@@ -60,7 +66,8 @@ def test_defaults_apply_without_a_config_file(tmp_path):
 def test_config_file_overrides_defaults(tmp_path):
     (tmp_path / ".vibey-gh.toml").write_text(
         '[fingerprint]\ntext = "X"\ntrailer = "By: X"\nsources = ["a/*.py"]\n'
-        '[branches]\nintegration = "trunk"\n')
+        '[branches]\nintegration = "trunk"\n'
+    )
     cfg = load_config(tmp_path)
     assert cfg.header == "# X"
     assert cfg.trailer_key == "By"
@@ -68,18 +75,22 @@ def test_config_file_overrides_defaults(tmp_path):
     assert cfg.integration_branch == "trunk"
 
 
-@pytest.mark.parametrize("given,expected", [
-    ("app/claude", "claude"),
-    ("claude[bot]", "claude"),
-    ("app/github-actions", "github-actions"),
-    ("adammatthewsteinberger", "adammatthewsteinberger"),
-])
+@pytest.mark.parametrize(
+    "given,expected",
+    [
+        ("app/claude", "claude"),
+        ("claude[bot]", "claude"),
+        ("app/github-actions", "github-actions"),
+        ("adammatthewsteinberger", "adammatthewsteinberger"),
+    ],
+)
 def test_bot_logins_normalise_to_one_spelling(given, expected):
     """gh writes `app/claude`; the rest of GitHub writes `claude[bot]`."""
     assert normalise_actor(given) == expected
 
 
 # ---------------------------------------------------------------------- fingerprints
+
 
 def test_header_is_detected_and_inserted(repo):
     cfg = cfg_for(repo)
@@ -93,7 +104,7 @@ def test_header_is_detected_and_inserted(repo):
 def test_header_goes_after_a_shebang(repo):
     cfg = cfg_for(repo)
     target = repo / "src" / "__init__.py"
-    target.write_text("#!/usr/bin/env python3\n__version__ = \"1.2.3\"\n")
+    target.write_text('#!/usr/bin/env python3\n__version__ = "1.2.3"\n')
     fingerprints.check(cfg, apply=True)
     lines = target.read_text().splitlines()
     assert lines[0].startswith("#!")
@@ -112,11 +123,15 @@ def test_missing_commit_trailer_is_reported(repo):
 
 # ------------------------------------------------------------------------ versioning
 
-@pytest.mark.parametrize("version,level,expected", [
-    ("1.2.3", "minor", "1.3.0"),
-    ("1.2.3", "patch", "1.2.4"),
-    ("2.17.0", "minor", "2.18.0"),
-])
+
+@pytest.mark.parametrize(
+    "version,level,expected",
+    [
+        ("1.2.3", "minor", "1.3.0"),
+        ("1.2.3", "patch", "1.2.4"),
+        ("2.17.0", "minor", "2.18.0"),
+    ],
+)
 def test_bump(version, level, expected):
     assert versioning.bump(version, level) == expected
 
@@ -135,12 +150,15 @@ def test_apply_version_writes_every_configured_file(repo):
     assert json.loads((repo / "manifest.json").read_text())["metadata"]["version"] == "9.9.9"
 
 
-@pytest.mark.parametrize("change,expected,note", [
-    ("content", "1.3.0", "packaged content changed -> minor"),
-    ("code", "1.2.4", "only internal code -> patch"),
-    ("docs", None, "nothing an installed user receives -> none"),
-    (None, None, "no changes at all -> none"),
-])
+@pytest.mark.parametrize(
+    "change,expected,note",
+    [
+        ("content", "1.3.0", "packaged content changed -> minor"),
+        ("code", "1.2.4", "only internal code -> patch"),
+        ("docs", None, "nothing an installed user receives -> none"),
+        (None, None, "no changes at all -> none"),
+    ],
+)
 def test_version_decision_table(repo, change, expected, note):
     cfg = cfg_for(repo)
     git(repo, "branch", "-q", "base")
@@ -178,30 +196,49 @@ def test_dev_version_is_pep440_and_ordered(repo):
 
 # ----------------------------------------------------------------------- merge train
 
+
 def _pr(**kw):
-    pr = dict(number=1, title="t", isDraft=False, mergeable="MERGEABLE", reviewDecision=None,
-              statusCheckRollup=[{"status": "COMPLETED", "conclusion": "SUCCESS"}],
-              author={"login": "owner"})
+    pr = dict(
+        number=1,
+        title="t",
+        isDraft=False,
+        mergeable="MERGEABLE",
+        reviewDecision=None,
+        statusCheckRollup=[{"status": "COMPLETED", "conclusion": "SUCCESS"}],
+        author={"login": "owner"},
+    )
     pr.update(kw)
     return pr
 
 
-@pytest.mark.parametrize("pr,ready,fragment", [
-    (_pr(), True, None),
-    (_pr(author={"login": "app/claude"}), True, None),
-    (_pr(author={"login": "claude[bot]"}), True, None),
-    (_pr(isDraft=True), False, "draft"),
-    (_pr(mergeable="CONFLICTING"), False, "conflicts"),
-    (_pr(reviewDecision="CHANGES_REQUESTED"), False, "changes requested"),
-    (_pr(statusCheckRollup=[{"status": "IN_PROGRESS", "conclusion": None}]), False, "still running"),
-    (_pr(statusCheckRollup=[{"status": "COMPLETED", "conclusion": "FAILURE"}]), False, "failing"),
-    (_pr(statusCheckRollup=[]), True, None),
-    (_pr(author={"login": "outsider"}), False, "not approved"),
-    (_pr(author={"login": "outsider"}, reviewDecision="APPROVED"), True, None),
-])
+@pytest.mark.parametrize(
+    "pr,ready,fragment",
+    [
+        (_pr(), True, None),
+        (_pr(author={"login": "app/claude"}), True, None),
+        (_pr(author={"login": "claude[bot]"}), True, None),
+        (_pr(isDraft=True), False, "draft"),
+        (_pr(mergeable="CONFLICTING"), False, "conflicts"),
+        (_pr(reviewDecision="CHANGES_REQUESTED"), False, "changes requested"),
+        (
+            _pr(statusCheckRollup=[{"status": "IN_PROGRESS", "conclusion": None}]),
+            False,
+            "still running",
+        ),
+        (
+            _pr(statusCheckRollup=[{"status": "COMPLETED", "conclusion": "FAILURE"}]),
+            False,
+            "failing",
+        ),
+        (_pr(statusCheckRollup=[]), True, None),
+        (_pr(author={"login": "outsider"}), False, "not approved"),
+        (_pr(author={"login": "outsider"}, reviewDecision="APPROVED"), True, None),
+    ],
+)
 def test_readiness_gate(tmp_path, pr, ready, fragment):
-    cfg = cfg_for(tmp_path, owner="owner",
-                  trusted_authors=("owner", "claude[bot]", "github-actions[bot]"))
+    cfg = cfg_for(
+        tmp_path, owner="owner", trusted_authors=("owner", "claude[bot]", "github-actions[bot]")
+    )
     verdict = merge_train.judge(pr, cfg)
     assert verdict.ready is ready
     if fragment:
@@ -209,6 +246,7 @@ def test_readiness_gate(tmp_path, pr, ready, fragment):
 
 
 # -------------------------------------------------------------------------- install
+
 
 def test_install_places_hooks_and_reports_missing(repo):
     cfg = cfg_for(repo)
@@ -243,15 +281,20 @@ def test_ci_mode_ignores_local_hooks_path(repo):
 
 # --------------------------------------------------------------------------- realign
 
+
 def test_realign_refuses_when_the_branches_differ(repo, monkeypatch):
     cfg = cfg_for(repo, integration_branch="develop", release_branch="main")
-    monkeypatch.setattr(realign, "_git",
-                        lambda c, *a: subprocess.CompletedProcess(a, 1 if a[0] == "diff" else 0, "", ""))
+    monkeypatch.setattr(
+        realign,
+        "_git",
+        lambda c, *a: subprocess.CompletedProcess(a, 1 if a[0] == "diff" else 0, "", ""),
+    )
     changed, message = realign.realign(cfg)
     assert changed is False and "left untouched" in message
 
 
 # ------------------------------------------------------------------------------ cli
+
 
 def test_cli_check_reports_failure_then_success(repo, monkeypatch, capsys):
     (repo / ".vibey-gh.toml").write_text('[fingerprint]\nsources = ["src/*.py"]\n')

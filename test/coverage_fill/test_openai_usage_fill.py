@@ -40,7 +40,7 @@ def test_a_pricing_override_is_read_from_the_environment(monkeypatch):
 def test_a_malformed_pricing_override_falls_through_to_the_table(monkeypatch):
     monkeypatch.setenv("AI_PRICING_GPT_4O_INPUT_PER_1K", "free")
     monkeypatch.setenv("AI_PRICING_GPT_4O_OUTPUT_PER_1K", "cheap")
-    assert ai._pricing_for("gpt-4o") != (0.0, 0.0)     # the built-in table, not the junk
+    assert ai._pricing_for("gpt-4o") != (0.0, 0.0)  # the built-in table, not the junk
 
 
 def test_an_unknown_deployment_gets_the_fallback_price():
@@ -49,7 +49,7 @@ def test_an_unknown_deployment_gets_the_fallback_price():
 
 def test_recording_usage_that_cannot_be_priced_is_swallowed(monkeypatch):
     monkeypatch.setattr(ai, "_compute_cost", MagicMock(side_effect=RuntimeError("bad table")))
-    ai.record_usage("gpt-4o", 100, 50)                 # must not raise
+    ai.record_usage("gpt-4o", 100, 50)  # must not raise
     assert "ai.calls" not in counter_snapshot()
 
 
@@ -57,15 +57,16 @@ def test_recording_usage_that_cannot_be_priced_is_swallowed(monkeypatch):
 
 
 def test_a_rate_limit_event_is_counted_even_when_alerting_is_broken(monkeypatch):
-    monkeypatch.setattr(alerts, "alert_dev_team",
-                        MagicMock(side_effect=RuntimeError("alerting is down")))
+    monkeypatch.setattr(
+        alerts, "alert_dev_team", MagicMock(side_effect=RuntimeError("alerting is down"))
+    )
     ai.record_rate_limit_event("gpt-4o", source="header")
     assert counter_snapshot()["ai.rate_limit_events"] == 1
 
 
 def test_a_rate_limit_event_survives_its_own_bookkeeping_failing(monkeypatch):
     monkeypatch.setattr(ai, "bump_counter", MagicMock(side_effect=RuntimeError("counters down")))
-    ai.record_rate_limit_event("gpt-4o", source="header")   # must not raise
+    ai.record_rate_limit_event("gpt-4o", source="header")  # must not raise
 
 
 # ── TPM limits ─────────────────────────────────────────────────────────────
@@ -101,10 +102,11 @@ def test_acquire_returns_immediately_when_there_is_headroom(monkeypatch):
 
 def test_acquire_lets_the_call_through_once_max_wait_is_exceeded(monkeypatch):
     monkeypatch.setenv("AI_TPM_LIMIT", "10")
-    ai.record_usage("gpt-4o", 100, 100)          # already far over the cap
+    ai.record_usage("gpt-4o", 100, 100)  # already far over the cap
     sent: list[str] = []
-    monkeypatch.setattr(alerts, "alert_dev_team",
-                        lambda severity, subject, **kw: sent.append(subject))
+    monkeypatch.setattr(
+        alerts, "alert_dev_team", lambda severity, subject, **kw: sent.append(subject)
+    )
 
     ai.acquire("gpt-4o", estimated_tokens=50, timeout=0.0)
 
@@ -115,14 +117,15 @@ def test_acquire_lets_the_call_through_once_max_wait_is_exceeded(monkeypatch):
 def test_acquire_lets_the_call_through_even_when_the_alert_fails(monkeypatch):
     monkeypatch.setenv("AI_TPM_LIMIT", "10")
     ai.record_usage("gpt-4o", 100, 100)
-    monkeypatch.setattr(alerts, "alert_dev_team",
-                        MagicMock(side_effect=RuntimeError("alerting is down")))
-    ai.acquire("gpt-4o", estimated_tokens=50, timeout=0.0)   # must not raise
+    monkeypatch.setattr(
+        alerts, "alert_dev_team", MagicMock(side_effect=RuntimeError("alerting is down"))
+    )
+    ai.acquire("gpt-4o", estimated_tokens=50, timeout=0.0)  # must not raise
 
 
 def test_acquire_waits_then_gives_up_recording_the_wait_only_once(monkeypatch):
     monkeypatch.setenv("AI_TPM_LIMIT", "10")
-    monkeypatch.setattr(ai.time, "sleep", MagicMock())        # do not actually wait
+    monkeypatch.setattr(ai.time, "sleep", MagicMock())  # do not actually wait
     ai.record_usage("gpt-4o", 100, 100)
 
     ai.acquire("gpt-4o", estimated_tokens=50, timeout=0.3)
@@ -134,9 +137,10 @@ def test_acquire_waits_then_gives_up_recording_the_wait_only_once(monkeypatch):
 
 def test_acquire_never_propagates_a_failure_from_its_own_machinery(monkeypatch):
     monkeypatch.setenv("AI_TPM_LIMIT", "10")
-    monkeypatch.setattr(ai, "_tokens_in_window",
-                        MagicMock(side_effect=RuntimeError("state is corrupt")))
-    ai.acquire("gpt-4o", estimated_tokens=50)                 # must not raise
+    monkeypatch.setattr(
+        ai, "_tokens_in_window", MagicMock(side_effect=RuntimeError("state is corrupt"))
+    )
+    ai.acquire("gpt-4o", estimated_tokens=50)  # must not raise
 
 
 # ── pruning + snapshot ─────────────────────────────────────────────────────
@@ -145,8 +149,9 @@ def test_acquire_never_propagates_a_failure_from_its_own_machinery(monkeypatch):
 def test_entries_older_than_a_day_are_pruned_from_the_snapshot(monkeypatch):
     ai.record_usage("gpt-4o", 100, 100)
     entry = ai._state.recent[0]
-    ai._state.recent[0] = type(entry)(**{**entry.__dict__,
-                                         "ts": time.monotonic() - ai._DAILY_WINDOW_SECONDS - 10})
+    ai._state.recent[0] = type(entry)(
+        **{**entry.__dict__, "ts": time.monotonic() - ai._DAILY_WINDOW_SECONDS - 10}
+    )
     ai._prune_old()
     assert not ai._state.recent
 
@@ -160,14 +165,16 @@ def test_a_threshold_alert_fires_once_then_waits_out_its_cooldown():
 
 
 def test_a_threshold_alert_reports_fired_even_when_alerting_is_broken(monkeypatch):
-    monkeypatch.setattr(alerts, "alert_dev_team",
-                        MagicMock(side_effect=RuntimeError("alerting is down")))
+    monkeypatch.setattr(
+        alerts, "alert_dev_team", MagicMock(side_effect=RuntimeError("alerting is down"))
+    )
     assert ai._fire_threshold_alert("k", subject="s", context={}) is True
 
 
-@pytest.mark.parametrize("env", ["AI_COST_ALERT_HOURLY_DOLLARS",
-                                 "AI_COST_ALERT_DAILY_DOLLARS",
-                                 "AI_HIGH_USAGE_TOKENS_HOURLY"])
+@pytest.mark.parametrize(
+    "env",
+    ["AI_COST_ALERT_HOURLY_DOLLARS", "AI_COST_ALERT_DAILY_DOLLARS", "AI_HIGH_USAGE_TOKENS_HOURLY"],
+)
 def test_a_malformed_threshold_disables_only_that_threshold(monkeypatch, env):
     monkeypatch.setenv(env, "a lot")
     ai.record_usage("gpt-4o", 1_000_000, 1_000_000)

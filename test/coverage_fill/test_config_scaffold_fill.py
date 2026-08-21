@@ -45,11 +45,16 @@ def test_refreshed_values_land_in_the_environment(monkeypatch, caplog):
     from vibey_bootstrap.services import application_bootstrap
 
     repo = MagicMock()
-    repo.get_value.side_effect = lambda name: {"GOOD": "yes", "ABSENT": None,
-                                               "BROKEN": None}.get(name)
-    repo.get_value = MagicMock(side_effect=lambda name: {
-        "GOOD": "yes", "ABSENT": None}.get(name) if name != "BROKEN"
-        else (_ for _ in ()).throw(RuntimeError("App Config is unreachable")))
+    repo.get_value.side_effect = lambda name: {"GOOD": "yes", "ABSENT": None, "BROKEN": None}.get(
+        name
+    )
+    repo.get_value = MagicMock(
+        side_effect=lambda name: (
+            {"GOOD": "yes", "ABSENT": None}.get(name)
+            if name != "BROKEN"
+            else (_ for _ in ()).throw(RuntimeError("App Config is unreachable"))
+        )
+    )
     monkeypatch.setattr(application_bootstrap, "get_last_initialized_repo", lambda: repo)
     monkeypatch.delenv("GOOD", raising=False)
 
@@ -82,8 +87,10 @@ def repo() -> EnhancedConfigRepository:
 def test_a_local_environment_value_survives_a_key_vault_load(repo, monkeypatch, caplog):
     monkeypatch.setenv("SHARED_KEY", "local override")
     secrets = MagicMock()
-    secrets.list_secrets.return_value = {"SHARED_KEY": "from key vault",
-                                         "NEW_KEY": "from key vault"}
+    secrets.list_secrets.return_value = {
+        "SHARED_KEY": "from key vault",
+        "NEW_KEY": "from key vault",
+    }
     repo.secrets_repository = secrets
 
     with caplog.at_level(logging.DEBUG):
@@ -164,8 +171,20 @@ def test_the_cli_scaffolds_with_substitutions(monkeypatch, tmp_path, capsys):
     (root / "app.yaml.template").write_text("name: {{APP}} env: {{ ENV }}\n")
     monkeypatch.setattr(scaffold_mod, "_templates_root", lambda: root)
 
-    code = main(["scaffold", "app.yaml.template", "--out", str(tmp_path / "out"),
-                 "--var", "APP=billing", "--var", "ENV=prod", "--var", "=ignored"])
+    code = main(
+        [
+            "scaffold",
+            "app.yaml.template",
+            "--out",
+            str(tmp_path / "out"),
+            "--var",
+            "APP=billing",
+            "--var",
+            "ENV=prod",
+            "--var",
+            "=ignored",
+        ]
+    )
     assert code == 0
     assert "scaffolded" in capsys.readouterr().out
     assert (tmp_path / "out" / "app.yaml").read_text() == "name: billing env: prod\n"

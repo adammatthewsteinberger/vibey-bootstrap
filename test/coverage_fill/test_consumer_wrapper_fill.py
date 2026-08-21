@@ -82,12 +82,13 @@ def test_an_unknown_settle_action_is_logged_rather_than_raised(caplog):
 
 
 def test_a_settle_failure_survives_alerting_that_is_also_broken(monkeypatch, caplog):
-    monkeypatch.setattr(alerts, "alert_dev_team",
-                        MagicMock(side_effect=RuntimeError("alerting is down")))
+    monkeypatch.setattr(
+        alerts, "alert_dev_team", MagicMock(side_effect=RuntimeError("alerting is down"))
+    )
     receiver = MagicMock()
     receiver.complete_message.side_effect = RuntimeError("message lock lost")
     with caplog.at_level(logging.WARNING):
-        _settle(receiver, MagicMock(), action="complete")   # must not raise
+        _settle(receiver, MagicMock(), action="complete")  # must not raise
     assert "lock likely lost" in caplog.text
 
 
@@ -100,8 +101,9 @@ def test_a_lock_renewer_that_will_not_register_does_not_stop_processing(caplog):
     receiver, processor = MagicMock(), MagicMock()
 
     with caplog.at_level(logging.WARNING):
-        result = handle_message(receiver, message(b'{"correlation_id": "x"}'), processor,
-                                lock_renewer=renewer)
+        result = handle_message(
+            receiver, message(b'{"correlation_id": "x"}'), processor, lock_renewer=renewer
+        )
     assert result == (True, False)
     assert "lock_renewer registration failed" in caplog.text
 
@@ -111,7 +113,10 @@ def test_the_lock_renewer_is_closed_even_when_closing_it_fails():
     renewer.close.side_effect = RuntimeError("already closed")
     receiver, processor = MagicMock(), MagicMock()
 
-    assert handle_message(receiver, message(b"{}"), processor, lock_renewer=renewer) == (True, False)
+    assert handle_message(receiver, message(b"{}"), processor, lock_renewer=renewer) == (
+        True,
+        False,
+    )
     renewer.close.assert_called_once()
 
 
@@ -130,16 +135,22 @@ def test_extra_correlation_fields_are_bound_only_when_they_are_non_empty_strings
 
     def capture(payload):
         from vibey_bootstrap.logging.correlation import get_correlation_id
+
         seen["cid"] = get_correlation_id()
 
     processor = MagicMock()
     processor.process.side_effect = capture
-    body = json.dumps({"correlation_id": "cid-1", "tenant": "acme",
-                       "empty": "", "numeric": 7}).encode()
+    body = json.dumps(
+        {"correlation_id": "cid-1", "tenant": "acme", "empty": "", "numeric": 7}
+    ).encode()
 
     with patch.object(cw, "correlation_scope", wraps=cw.correlation_scope) as scope:
-        handle_message(MagicMock(), message(body), processor,
-                       extra_correlation_fields=("tenant", "empty", "numeric", "absent"))
+        handle_message(
+            MagicMock(),
+            message(body),
+            processor,
+            extra_correlation_fields=("tenant", "empty", "numeric", "absent"),
+        )
 
     assert scope.call_args.kwargs == {"tenant": "acme"}
     assert seen["cid"] == "cid-1"
@@ -149,8 +160,9 @@ def test_extra_correlation_fields_are_bound_only_when_they_are_non_empty_strings
 
 
 def test_a_dead_letter_still_happens_when_alerting_is_broken(monkeypatch):
-    monkeypatch.setattr(alerts, "alert_dev_team",
-                        MagicMock(side_effect=RuntimeError("alerting is down")))
+    monkeypatch.setattr(
+        alerts, "alert_dev_team", MagicMock(side_effect=RuntimeError("alerting is down"))
+    )
     receiver, processor = MagicMock(), MagicMock()
     processor.process.side_effect = InvalidMessageError("permanently bad payload")
 
@@ -160,8 +172,9 @@ def test_a_dead_letter_still_happens_when_alerting_is_broken(monkeypatch):
 
 
 def test_an_abandon_still_happens_when_alerting_is_broken(monkeypatch):
-    monkeypatch.setattr(alerts, "alert_dev_team",
-                        MagicMock(side_effect=RuntimeError("alerting is down")))
+    monkeypatch.setattr(
+        alerts, "alert_dev_team", MagicMock(side_effect=RuntimeError("alerting is down"))
+    )
     receiver, processor = MagicMock(), MagicMock()
     processor.process.side_effect = NetworkError("the database blinked")
 

@@ -36,19 +36,28 @@ def clean_state():
 
 def a_record(subject: str = "boom", **ctx) -> AlertRecord:
     now = time.monotonic()
-    return AlertRecord(severity=AlertSeverity.CRITICAL, subject=subject, context=ctx,
-                       dedup_key=subject, first_seen=now, last_seen=now)
+    return AlertRecord(
+        severity=AlertSeverity.CRITICAL,
+        subject=subject,
+        context=ctx,
+        dedup_key=subject,
+        first_seen=now,
+        last_seen=now,
+    )
 
 
 # ── env resolvers: a malformed value must not take the dispatcher down ──────
 
 
-@pytest.mark.parametrize("env, resolver, default", [
-    ("ALERT_DEDUP_WINDOW_SECONDS", dispatcher._dedup_window, 600.0),
-    ("ALERT_MAX_PER_HOUR", dispatcher._max_per_hour, 30),
-    ("ALERT_ESCALATE_AFTER", dispatcher._escalation_threshold, 5),
-    ("ALERT_ESCALATE_WINDOW_SECONDS", dispatcher._escalation_window, 900.0),
-])
+@pytest.mark.parametrize(
+    "env, resolver, default",
+    [
+        ("ALERT_DEDUP_WINDOW_SECONDS", dispatcher._dedup_window, 600.0),
+        ("ALERT_MAX_PER_HOUR", dispatcher._max_per_hour, 30),
+        ("ALERT_ESCALATE_AFTER", dispatcher._escalation_threshold, 5),
+        ("ALERT_ESCALATE_WINDOW_SECONDS", dispatcher._escalation_window, 900.0),
+    ],
+)
 def test_an_unparsable_setting_falls_back_to_its_default(monkeypatch, env, resolver, default):
     monkeypatch.setenv(env, "not-a-number")
     assert resolver() == default
@@ -74,7 +83,7 @@ def test_an_unknown_severity_string_is_treated_as_an_error():
 def test_a_known_severity_string_is_honoured():
     register_dispatcher(MagicMock(), ["ops@example.com"])
     alert_dev_team("warn", "just a warning")
-    assert drain_pending_alerts() == []          # WARN is log-only
+    assert drain_pending_alerts() == []  # WARN is log-only
 
 
 def test_the_dedup_table_is_pruned_once_it_grows_too_large(monkeypatch):
@@ -93,10 +102,11 @@ def test_the_dedup_table_is_pruned_once_it_grows_too_large(monkeypatch):
 
 
 def test_a_dispatch_that_blows_up_internally_is_swallowed(monkeypatch, caplog):
-    monkeypatch.setattr(dispatcher, "_redact",
-                        MagicMock(side_effect=RuntimeError("redaction exploded")))
+    monkeypatch.setattr(
+        dispatcher, "_redact", MagicMock(side_effect=RuntimeError("redaction exploded"))
+    )
     with caplog.at_level(logging.ERROR):
-        alert_dev_team(AlertSeverity.CRITICAL, "boom")   # must not raise
+        alert_dev_team(AlertSeverity.CRITICAL, "boom")  # must not raise
     assert "dispatch failed" in caplog.text
 
 
@@ -117,10 +127,11 @@ def test_stale_send_timestamps_are_evicted_before_the_rate_limit_is_judged(monke
 
 def test_send_critical_swallows_a_failure_in_its_own_machinery(monkeypatch, caplog):
     register_dispatcher(MagicMock(), ["ops@example.com"])
-    monkeypatch.setattr(dispatcher, "_render_alert_html",
-                        MagicMock(side_effect=RuntimeError("template exploded")))
+    monkeypatch.setattr(
+        dispatcher, "_render_alert_html", MagicMock(side_effect=RuntimeError("template exploded"))
+    )
     with caplog.at_level(logging.ERROR):
-        dispatcher._send_critical(a_record())        # must not raise
+        dispatcher._send_critical(a_record())  # must not raise
     assert "_send_critical failed" in caplog.text
 
 
@@ -149,9 +160,10 @@ def test_the_sync_hook_alerts_and_still_chains_to_its_predecessor(restore_except
 def test_the_sync_hook_survives_both_halves_failing(monkeypatch, restore_excepthook):
     sys.excepthook = MagicMock(side_effect=RuntimeError("previous hook is broken too"))
     install_global_exception_hooks()
-    monkeypatch.setattr(dispatcher, "alert_dev_team",
-                        MagicMock(side_effect=RuntimeError("alerting is broken")))
-    sys.excepthook(ValueError, ValueError("x"), None)     # must not raise
+    monkeypatch.setattr(
+        dispatcher, "alert_dev_team", MagicMock(side_effect=RuntimeError("alerting is broken"))
+    )
+    sys.excepthook(ValueError, ValueError("x"), None)  # must not raise
 
 
 async def test_the_asyncio_handler_alerts_and_chains(monkeypatch):
@@ -161,8 +173,7 @@ async def test_the_asyncio_handler_alerts_and_chains(monkeypatch):
     assert handler is not None
 
     seen: list[dict] = []
-    monkeypatch.setattr(dispatcher, "alert_dev_team",
-                        lambda *a, **k: seen.append(k))
+    monkeypatch.setattr(dispatcher, "alert_dev_team", lambda *a, **k: seen.append(k))
     monkeypatch.setattr(loop, "default_exception_handler", MagicMock())
 
     handler(loop, {"exception": KeyError("missing"), "message": "task blew up"})
@@ -190,11 +201,15 @@ async def test_the_asyncio_handler_survives_both_halves_failing(monkeypatch):
     install_global_exception_hooks()
     loop = asyncio.get_running_loop()
     handler = loop.get_exception_handler()
-    monkeypatch.setattr(dispatcher, "alert_dev_team",
-                        MagicMock(side_effect=RuntimeError("alerting is broken")))
-    monkeypatch.setattr(loop, "default_exception_handler",
-                        MagicMock(side_effect=RuntimeError("chained handler is broken")))
-    handler(loop, {"exception": KeyError("missing")})     # must not raise
+    monkeypatch.setattr(
+        dispatcher, "alert_dev_team", MagicMock(side_effect=RuntimeError("alerting is broken"))
+    )
+    monkeypatch.setattr(
+        loop,
+        "default_exception_handler",
+        MagicMock(side_effect=RuntimeError("chained handler is broken")),
+    )
+    handler(loop, {"exception": KeyError("missing")})  # must not raise
     loop.set_exception_handler(None)
 
 
@@ -211,11 +226,11 @@ def test_a_deduped_alert_gains_context_it_did_not_have_without_losing_what_it_di
 
     rec = dispatcher._state.dedup["same subject"]
     assert rec.count == 2
-    assert rec.context == {"tenant": "acme", "region": "eu"}   # first writer wins
+    assert rec.context == {"tenant": "acme", "region": "eu"}  # first writer wins
 
 
 def test_a_critical_with_nowhere_to_send_it_is_kept_for_the_digest():
-    register_dispatcher(MagicMock(), [])           # a sender, but no recipients
+    register_dispatcher(MagicMock(), [])  # a sender, but no recipients
     alert_dev_team(AlertSeverity.CRITICAL, "nobody to tell")
     assert [r.subject for r in drain_pending_alerts()] == ["nobody to tell"]
 
@@ -225,7 +240,7 @@ def test_the_dispatcher_survives_even_its_own_error_logging_failing(monkeypatch)
     broken.exception.side_effect = RuntimeError("logging is down too")
     monkeypatch.setattr(dispatcher, "_logger", broken)
     monkeypatch.setattr(dispatcher, "_redact", MagicMock(side_effect=RuntimeError("boom")))
-    alert_dev_team(AlertSeverity.CRITICAL, "everything is broken")   # must not raise
+    alert_dev_team(AlertSeverity.CRITICAL, "everything is broken")  # must not raise
 
 
 def test_send_critical_survives_even_its_own_error_logging_failing(monkeypatch):
@@ -234,7 +249,7 @@ def test_send_critical_survives_even_its_own_error_logging_failing(monkeypatch):
     broken.exception.side_effect = RuntimeError("logging is down too")
     monkeypatch.setattr(dispatcher, "_logger", broken)
     monkeypatch.setattr(dispatcher, "_render_alert_html", MagicMock(side_effect=RuntimeError("x")))
-    dispatcher._send_critical(a_record())          # must not raise
+    dispatcher._send_critical(a_record())  # must not raise
 
 
 # ── the escalation ladder ──────────────────────────────────────────────────
@@ -247,7 +262,7 @@ def test_a_threshold_of_zero_disables_escalation_entirely():
 
     history: deque[float] = deque()
     assert should_escalate(history, threshold=0, window_seconds=900.0) is False
-    assert not history          # and nothing was recorded
+    assert not history  # and nothing was recorded
 
 
 def test_events_that_fell_out_of_the_window_do_not_count_towards_the_threshold():
@@ -257,4 +272,4 @@ def test_events_that_fell_out_of_the_window_do_not_count_towards_the_threshold()
 
     history = deque([time.monotonic() - 5000.0, time.monotonic() - 4000.0])
     assert should_escalate(history, threshold=2, window_seconds=60.0) is False
-    assert len(history) == 1     # both stale entries pruned, this one appended
+    assert len(history) == 1  # both stale entries pruned, this one appended

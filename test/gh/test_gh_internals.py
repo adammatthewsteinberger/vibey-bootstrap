@@ -92,8 +92,9 @@ def test_missing_hooks_and_workflows_are_both_reported(repo):
 
 def test_install_can_leave_core_hookspath_alone(repo):
     install.install(GhConfig(root=repo), hooks_path=False)
-    got = subprocess.run(["git", "config", "--get", "core.hooksPath"],
-                         cwd=repo, capture_output=True, text=True)
+    got = subprocess.run(
+        ["git", "config", "--get", "core.hooksPath"], cwd=repo, capture_output=True, text=True
+    )
     assert got.stdout.strip() == ""
 
 
@@ -109,8 +110,9 @@ def test_an_unreadable_rev_range_is_an_error_not_a_silent_pass(repo):
 
 
 def cfg_with_versions(root: Path, *files: str) -> GhConfig:
-    return GhConfig(root=root, version_files=files, content_paths=("content/",),
-                    code_paths=("src/",))
+    return GhConfig(
+        root=root, version_files=files, content_paths=("content/",), code_paths=("src/",)
+    )
 
 
 def test_read_version_skips_absent_files_and_reads_json_metadata(tmp_path):
@@ -125,7 +127,7 @@ def test_read_version_accepts_a_flat_json_version(tmp_path):
 
 
 def test_read_version_raises_when_no_file_carries_one(tmp_path):
-    (tmp_path / "v.py") .write_text("# nothing here\n")
+    (tmp_path / "v.py").write_text("# nothing here\n")
     with pytest.raises(RuntimeError, match="no version found"):
         versioning.read_version(cfg_with_versions(tmp_path, "v.py", "absent.json"))
 
@@ -158,8 +160,9 @@ def test_read_version_at_walks_past_junk_to_the_file_that_has_one(repo):
 
 def test_apply_version_skips_absent_files_and_rejects_a_file_without_a_version(tmp_path):
     (tmp_path / "m.json").write_text(json.dumps({"version": "1.0.0"}))
-    assert versioning.apply_version(cfg_with_versions(tmp_path, "gone.py", "m.json"),
-                                    "1.1.0") == ["m.json"]
+    assert versioning.apply_version(cfg_with_versions(tmp_path, "gone.py", "m.json"), "1.1.0") == [
+        "m.json"
+    ]
     assert json.loads((tmp_path / "m.json").read_text())["version"] == "1.1.0"
 
     (tmp_path / "v.py").write_text("# no version line\n")
@@ -187,7 +190,7 @@ def fake_gh(tmp_path: Path, monkeypatch) -> Path:
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()
     gh = bin_dir / "gh"
-    gh.write_text(f'''#!/usr/bin/env python3
+    gh.write_text(f"""#!/usr/bin/env python3
 import json, pathlib, sys
 here = pathlib.Path({str(bin_dir)!r})
 with (here / "calls.txt").open("a") as fh:
@@ -200,7 +203,7 @@ if entry is None:
 sys.stdout.write(entry.get("out", ""))
 sys.stderr.write(entry.get("err", ""))
 raise SystemExit(entry.get("code", 0))
-''')
+""")
     gh.chmod(0o755)
     (bin_dir / "answers.json").write_text("{}")
     monkeypatch.setenv("PATH", f"{bin_dir}{os.pathsep}{os.environ['PATH']}")
@@ -219,20 +222,25 @@ def calls(bin_dir: Path) -> list[str]:
 def test_open_pull_requests_lists_then_views_each_one(fake_gh):
     cfg = GhConfig(root=Path.cwd(), integration_branch="develop")
     listing = "pr list --base develop --state open --json number --jq sort_by(.number)"
-    script(fake_gh, {
-        listing: {"out": json.dumps([{"number": 4}, {"number": 7}])},
-        "pr view 4 --json number,title,isDraft,mergeable,reviewDecision,"
-        "statusCheckRollup,author": {"out": json.dumps({"number": 4, "title": "four"})},
-        "pr view 7 --json number,title,isDraft,mergeable,reviewDecision,"
-        "statusCheckRollup,author": {"out": json.dumps({"number": 7, "title": "seven"})},
-    })
+    script(
+        fake_gh,
+        {
+            listing: {"out": json.dumps([{"number": 4}, {"number": 7}])},
+            "pr view 4 --json number,title,isDraft,mergeable,reviewDecision,"
+            "statusCheckRollup,author": {"out": json.dumps({"number": 4, "title": "four"})},
+            "pr view 7 --json number,title,isDraft,mergeable,reviewDecision,"
+            "statusCheckRollup,author": {"out": json.dumps({"number": 7, "title": "seven"})},
+        },
+    )
     assert [pr["title"] for pr in merge_train.open_pull_requests(cfg)] == ["four", "seven"]
 
 
 def test_an_empty_listing_yields_no_pull_requests(fake_gh):
     cfg = GhConfig(root=Path.cwd(), integration_branch="develop")
-    script(fake_gh, {"pr list --base develop --state open --json number --jq sort_by(.number)":
-                     {"out": ""}})
+    script(
+        fake_gh,
+        {"pr list --base develop --state open --json number --jq sort_by(.number)": {"out": ""}},
+    )
     assert merge_train.open_pull_requests(cfg) == []
 
 

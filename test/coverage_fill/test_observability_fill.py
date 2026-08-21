@@ -60,8 +60,8 @@ def test_recording_progress_survives_a_broken_state_lock(monkeypatch):
     broken = MagicMock()
     broken.__enter__ = MagicMock(side_effect=RuntimeError("lock is wedged"))
     monkeypatch.setattr(hb, "_state_lock", broken)
-    hb.record_message_settled()        # must not raise
-    hb.record_consumer_iteration()     # must not raise
+    hb.record_message_settled()  # must not raise
+    hb.record_consumer_iteration()  # must not raise
 
 
 def test_recording_an_iteration_logs_at_debug(caplog):
@@ -92,8 +92,9 @@ def test_a_heartbeat_tick_that_fails_alerts_and_keeps_ticking(caplog):
 
 
 def test_a_heartbeat_tick_survives_alerting_that_is_also_broken(monkeypatch, caplog):
-    monkeypatch.setattr(alerts, "alert_dev_team",
-                        MagicMock(side_effect=RuntimeError("alerting is down")))
+    monkeypatch.setattr(
+        alerts, "alert_dev_team", MagicMock(side_effect=RuntimeError("alerting is down"))
+    )
     ticks = threading.Event()
 
     def broken_snapshot():
@@ -117,8 +118,7 @@ def test_a_silent_consumer_raises_the_watchdog(monkeypatch):
     monkeypatch.setattr(hb, "_last_watchdog_alert_at", 0.0, raising=False)
 
     stop = threading.Event()
-    thread = hb.start_consumer_watchdog(stop, interval_seconds=0.05,
-                                        silence_threshold_seconds=1.0)
+    thread = hb.start_consumer_watchdog(stop, interval_seconds=0.05, silence_threshold_seconds=1.0)
     deadline = time.monotonic() + 3.0
     while hb._last_watchdog_alert_at == 0.0 and time.monotonic() < deadline:
         time.sleep(0.02)
@@ -157,8 +157,9 @@ def test_a_client_secret_credential_needs_all_three_parts(monkeypatch):
         build_credential(client_secret="s", prefer=CredentialKind.CLIENT_SECRET)
 
 
-@pytest.mark.parametrize("raw, enabled", [("1", True), ("TRUE", True), ("on", True),
-                                          ("", False), ("no", False)])
+@pytest.mark.parametrize(
+    "raw, enabled", [("1", True), ("TRUE", True), ("on", True), ("", False), ("no", False)]
+)
 def test_the_mock_switch_reads_the_usual_truthy_spellings(monkeypatch, raw, enabled):
     monkeypatch.setenv("USE_MOCK_BOOTSTRAP", raw)
     assert identity._mock_enabled() is enabled
@@ -171,8 +172,9 @@ def test_credential_health_short_circuits_in_mock_mode(monkeypatch):
 
 def test_credential_health_reports_a_credential_that_cannot_be_built(monkeypatch):
     monkeypatch.setenv("USE_MOCK_BOOTSTRAP", "0")
-    monkeypatch.setattr(identity, "build_credential",
-                        MagicMock(side_effect=RuntimeError("no identity endpoint")))
+    monkeypatch.setattr(
+        identity, "build_credential", MagicMock(side_effect=RuntimeError("no identity endpoint"))
+    )
     result = identity.credential_health()
     assert result["status"] == "error"
     assert "no identity endpoint" in result["message"]
@@ -181,8 +183,9 @@ def test_credential_health_reports_a_credential_that_cannot_be_built(monkeypatch
 def test_credential_health_reports_latency_on_a_successful_token(monkeypatch):
     monkeypatch.setenv("USE_MOCK_BOOTSTRAP", "0")
     token = MagicMock(expires_on=1_800_000_000)
-    monkeypatch.setattr(identity, "build_credential",
-                        lambda: MagicMock(get_token=MagicMock(return_value=token)))
+    monkeypatch.setattr(
+        identity, "build_credential", lambda: MagicMock(get_token=MagicMock(return_value=token))
+    )
 
     result = identity.credential_health(("https://vault.azure.net/.default",))
     assert result["status"] == "ok"
@@ -240,14 +243,16 @@ def test_masking_a_signature_it_cannot_bind_yields_nothing():
 
 
 def test_the_error_alert_never_breaks_the_raising_path(monkeypatch):
-    monkeypatch.setattr(alerts, "alert_dev_team",
-                        MagicMock(side_effect=RuntimeError("alerting is down")))
+    monkeypatch.setattr(
+        alerts, "alert_dev_team", MagicMock(side_effect=RuntimeError("alerting is down"))
+    )
     tracing._maybe_alert_error("op", ValueError("x"), "error", logging.getLogger(__name__))
 
 
 def test_the_slow_alert_never_breaks_the_calling_path(monkeypatch):
-    monkeypatch.setattr(alerts, "alert_dev_team",
-                        MagicMock(side_effect=RuntimeError("alerting is down")))
+    monkeypatch.setattr(
+        alerts, "alert_dev_team", MagicMock(side_effect=RuntimeError("alerting is down"))
+    )
     tracing._slow_alert("op", 9.0, 1.0)
 
 
@@ -286,6 +291,7 @@ async def test_a_slow_async_call_raises_the_slow_alert():
         return 1
 
     import vibey_bootstrap.tracing.decorators as d
+
     original = d._slow_alert
     d._slow_alert = lambda *a: fired.append(a)
     try:

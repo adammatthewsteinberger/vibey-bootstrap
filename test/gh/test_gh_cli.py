@@ -23,6 +23,7 @@ from vibey_bootstrap.gh.merge_train import Verdict
 def repo(tmp_path: Path, monkeypatch) -> Path:
     def git(*a):
         subprocess.run(["git", *a], cwd=tmp_path, capture_output=True, check=True)
+
     git("init", "-q", ".")
     git("config", "user.email", "t@example.com")
     git("config", "user.name", "t")
@@ -35,7 +36,8 @@ def repo(tmp_path: Path, monkeypatch) -> Path:
         '[fingerprint]\nsources = ["src/*.py"]\n'
         '[version]\nfiles = ["src/__init__.py", "manifest.json"]\n'
         'content_paths = ["content/"]\ncode_paths = ["src/"]\n'
-        '[merge_train]\nowner = "owner"\ntrusted_authors = ["owner"]\n')
+        '[merge_train]\nowner = "owner"\ntrusted_authors = ["owner"]\n'
+    )
     git("add", "-A")
     git("commit", "-qm", "base")
     monkeypatch.chdir(tmp_path)
@@ -43,7 +45,7 @@ def repo(tmp_path: Path, monkeypatch) -> Path:
 
 
 def test_install_then_check_passes(repo, capsys):
-    assert main(["check", "--ci"]) == 1          # nothing installed, no headers
+    assert main(["check", "--ci"]) == 1  # nothing installed, no headers
     assert main(["install"]) == 0
     assert main(["check", "--ci", "--apply"]) == 0
     assert "ok" in capsys.readouterr().out
@@ -58,8 +60,12 @@ def test_check_reports_a_missing_commit_trailer(repo, capsys):
     main(["check", "--ci", "--apply"])
     # --no-verify, because `install` puts in the commit-msg hook that would add the
     # trailer for us — the point here is a commit that escaped it.
-    subprocess.run(["git", "commit", "-q", "--no-verify", "--allow-empty", "-m", "bare"],
-                   cwd=repo, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "commit", "-q", "--no-verify", "--allow-empty", "-m", "bare"],
+        cwd=repo,
+        check=True,
+        capture_output=True,
+    )
     assert main(["check", "--ci", "--commits", "HEAD~1..HEAD"]) == 1
     assert "trailer" in capsys.readouterr().err
 
@@ -90,7 +96,7 @@ def test_version_dev_builds(repo, capsys):
     assert capsys.readouterr().out.strip() == "1.0.0.dev11"
     assert main(["version", "--dev", "12", "--apply"]) == 0
     capsys.readouterr()
-    assert '1.0.0.dev12' in (repo / "src" / "__init__.py").read_text()
+    assert "1.0.0.dev12" in (repo / "src" / "__init__.py").read_text()
 
 
 def test_merge_train_with_nothing_open(repo, capsys, monkeypatch):
@@ -102,11 +108,13 @@ def test_merge_train_with_nothing_open(repo, capsys, monkeypatch):
 def test_merge_train_merges_ready_and_skips_the_rest(repo, capsys, monkeypatch):
     prs = [{"number": 1}, {"number": 2}]
     monkeypatch.setattr(merge_train, "open_pull_requests", lambda cfg: prs)
-    monkeypatch.setattr(merge_train, "judge", lambda pr, cfg: Verdict(
-        pr["number"], "t", "owner", None if pr["number"] == 1 else "draft"))
+    monkeypatch.setattr(
+        merge_train,
+        "judge",
+        lambda pr, cfg: Verdict(pr["number"], "t", "owner", None if pr["number"] == 1 else "draft"),
+    )
     merged: list[int] = []
-    monkeypatch.setattr(merge_train, "merge",
-                        lambda n, m: (merged.append(n), (True, True))[1])
+    monkeypatch.setattr(merge_train, "merge", lambda n, m: (merged.append(n), (True, True))[1])
 
     assert main(["merge-train"]) == 0
     out = capsys.readouterr().out
@@ -118,10 +126,8 @@ def test_merge_train_merges_ready_and_skips_the_rest(repo, capsys, monkeypatch):
 
 def test_merge_train_dry_run_merges_nothing(repo, capsys, monkeypatch):
     monkeypatch.setattr(merge_train, "open_pull_requests", lambda cfg: [{"number": 3}])
-    monkeypatch.setattr(merge_train, "judge",
-                        lambda pr, cfg: Verdict(3, "t", "owner", None))
-    monkeypatch.setattr(merge_train, "merge",
-                        lambda n, m: pytest.fail("dry run must not merge"))
+    monkeypatch.setattr(merge_train, "judge", lambda pr, cfg: Verdict(3, "t", "owner", None))
+    monkeypatch.setattr(merge_train, "merge", lambda n, m: pytest.fail("dry run must not merge"))
     assert main(["merge-train", "--dry-run"]) == 0
     assert "would merge" in capsys.readouterr().out
 
@@ -141,6 +147,7 @@ def test_realign_success_and_failure(repo, capsys, monkeypatch):
 
     def boom(cfg):
         raise RuntimeError("refused by the ruleset")
+
     monkeypatch.setattr(realign_mod, "realign", boom)
     assert main(["realign"]) == 1
     assert "refused by the ruleset" in capsys.readouterr().err
@@ -157,8 +164,12 @@ def test_check_names_the_commit_range_it_cleared(repo, capsys):
     main(["install"])
     main(["check", "--ci", "--apply"])
     capsys.readouterr()
-    subprocess.run(["git", "commit", "-q", "--allow-empty", "-m", "fingerprinted"],
-                   cwd=repo, check=True, capture_output=True)  # the hook adds the trailer
+    subprocess.run(
+        ["git", "commit", "-q", "--allow-empty", "-m", "fingerprinted"],
+        cwd=repo,
+        check=True,
+        capture_output=True,
+    )  # the hook adds the trailer
 
     assert main(["check", "--ci", "--commits", "HEAD~1..HEAD"]) == 0
     assert "every commit in HEAD~1..HEAD" in capsys.readouterr().out

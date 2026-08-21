@@ -37,16 +37,16 @@ def reset():
 
 @pytest.fixture
 def broken_alerting(monkeypatch):
-    monkeypatch.setattr(alerts, "alert_dev_team",
-                        MagicMock(side_effect=RuntimeError("alerting is down")))
+    monkeypatch.setattr(
+        alerts, "alert_dev_team", MagicMock(side_effect=RuntimeError("alerting is down"))
+    )
 
 
 # ═══════════════════════════════════════════════════════ alert guards
 
 
 def test_a_soft_fail_still_records_when_alerting_is_broken(broken_alerting):
-    with softfail_mod.soft_fail(operation="ai.summary",
-                                counter_name="ai.summary.failed") as ctx:
+    with softfail_mod.soft_fail(operation="ai.summary", counter_name="ai.summary.failed") as ctx:
         raise ValueError("model returned nothing")
     assert ctx["degraded"] is True
     assert ctx["reason"] == "ValueError"
@@ -66,15 +66,13 @@ def test_a_subscription_alert_that_fails_does_not_propagate(broken_alerting):
     subscription_mod._fire_critical_alert("sub.renew", RuntimeError("gone"), "resource gone")
 
 
-def test_a_watchdog_alert_that_fails_still_stamps_the_last_alert_time(monkeypatch,
-                                                                     broken_alerting):
+def test_a_watchdog_alert_that_fails_still_stamps_the_last_alert_time(monkeypatch, broken_alerting):
     import vibey_bootstrap.heartbeat as hb
 
     monkeypatch.setattr(hb, "_last_iteration_age_seconds", lambda: 9999.0)
     hb._last_watchdog_alert_at = 0.0
     stop = threading.Event()
-    thread = hb.start_consumer_watchdog(stop, interval_seconds=0.05,
-                                        silence_threshold_seconds=1.0)
+    thread = hb.start_consumer_watchdog(stop, interval_seconds=0.05, silence_threshold_seconds=1.0)
     deadline = __import__("time").monotonic() + 3.0
     while hb._last_watchdog_alert_at == 0.0 and __import__("time").monotonic() < deadline:
         __import__("time").sleep(0.02)
@@ -100,6 +98,7 @@ def test_an_http_crash_is_re_raised_even_when_alerting_is_broken(broken_alerting
     @app.get("/five-hundred")
     def five_hundred():
         from fastapi.responses import Response
+
         return Response(status_code=503)
 
     client = TestClient(app, raise_server_exceptions=False)
@@ -156,21 +155,28 @@ def test_a_build_without_the_bootstrap_package_logs_and_moves_on(monkeypatch, ca
     assert "no bootstrap importable" in caplog.text
 
 
-def test_a_remote_read_failure_is_counted_even_when_alerting_is_broken(monkeypatch,
-                                                                      broken_alerting):
+def test_a_remote_read_failure_is_counted_even_when_alerting_is_broken(
+    monkeypatch, broken_alerting
+):
     import vibey_bootstrap
 
     monkeypatch.setenv("USE_MOCK_BOOTSTRAP", "0")
-    monkeypatch.setattr(vibey_bootstrap, "refresh_setting",
-                        MagicMock(side_effect=RuntimeError("App Config unreachable")))
+    monkeypatch.setattr(
+        vibey_bootstrap,
+        "refresh_setting",
+        MagicMock(side_effect=RuntimeError("App Config unreachable")),
+    )
     config_refresh_mod.refresh_log_flags()
     assert counter_snapshot()["log_flag_refresh.remote_read_failed"] == 1
 
 
 def test_a_refresh_that_crashes_outright_is_counted_not_raised(monkeypatch, caplog):
     monkeypatch.setenv("USE_MOCK_BOOTSTRAP", "0")
-    monkeypatch.setattr(config_refresh_mod, "effective_log_level",
-                        MagicMock(side_effect=RuntimeError("level resolver is broken")))
+    monkeypatch.setattr(
+        config_refresh_mod,
+        "effective_log_level",
+        MagicMock(side_effect=RuntimeError("level resolver is broken")),
+    )
     with caplog.at_level(logging.ERROR, logger=config_refresh_mod.__name__):
         config_refresh_mod.refresh_log_flags()
     assert counter_snapshot()["log_flag_refresh.crashed"] == 1
@@ -185,12 +191,14 @@ def test_a_gone_resource_with_no_recreate_handler_gives_up_loudly(caplog):
 
     stop = threading.Event()
     with caplog.at_level(logging.ERROR):
-        renewal_loop(RenewableResource(id="s1", handle=object(), expires_at=None),
-                     stop_event=stop,
-                     renew_fn=MagicMock(side_effect=SubscriptionGone("404")),
-                     recreate_fn=None,
-                     interval_seconds=0.01,
-                     operation="graph.subscription")
+        renewal_loop(
+            RenewableResource(id="s1", handle=object(), expires_at=None),
+            stop_event=stop,
+            renew_fn=MagicMock(side_effect=SubscriptionGone("404")),
+            recreate_fn=None,
+            interval_seconds=0.01,
+            operation="graph.subscription",
+        )
     assert "no recreate handler" in caplog.text
 
 
@@ -199,12 +207,14 @@ def test_a_recreate_handler_that_also_fails_ends_the_loop(caplog):
 
     stop = threading.Event()
     with caplog.at_level(logging.ERROR):
-        renewal_loop(RenewableResource(id="s1", handle=object(), expires_at=None),
-                     stop_event=stop,
-                     renew_fn=MagicMock(side_effect=SubscriptionGone("404")),
-                     recreate_fn=MagicMock(side_effect=RuntimeError("create quota exceeded")),
-                     interval_seconds=0.01,
-                     operation="graph.subscription")
+        renewal_loop(
+            RenewableResource(id="s1", handle=object(), expires_at=None),
+            stop_event=stop,
+            renew_fn=MagicMock(side_effect=SubscriptionGone("404")),
+            recreate_fn=MagicMock(side_effect=RuntimeError("create quota exceeded")),
+            interval_seconds=0.01,
+            operation="graph.subscription",
+        )
     assert "recreate failed" in caplog.text
 
 
@@ -221,8 +231,7 @@ def test_a_dlq_peek_that_fails_reports_zeros(caplog):
     repo = MagicMock()
     repo.peek_dead_letter_messages.side_effect = RuntimeError("namespace unreachable")
     with caplog.at_level(logging.ERROR):
-        assert dlq_alarm_mod.check_dlq_growth_rate(repo) == {"current": 0, "delta": 0,
-                                                             "alerted": 0}
+        assert dlq_alarm_mod.check_dlq_growth_rate(repo) == {"current": 0, "delta": 0, "alerted": 0}
     assert "peek failed" in caplog.text
 
 
@@ -233,7 +242,7 @@ def test_dlq_growth_is_reported_even_when_alerting_is_broken(broken_alerting):
     dlq_alarm_mod.check_dlq_growth_rate(repo, alert_threshold=1)
     repo.peek_dead_letter_messages.return_value = [{}] * 20
     result = dlq_alarm_mod.check_dlq_growth_rate(repo, alert_threshold=1)
-    assert result["delta"] == 18 and result["alerted"] == 0    # the alert itself failed
+    assert result["delta"] == 18 and result["alerted"] == 0  # the alert itself failed
 
 
 def test_a_resubmit_token_that_is_not_ours_is_rejected():
@@ -263,12 +272,20 @@ def test_a_digest_peek_that_fails_still_mails_the_pending_alerts(caplog):
 
     with caplog.at_level(logging.ERROR):
         result = dlq_digest_mod.run_dlq_digest(
-            repo, email, dev_recipients=["ops@example.com"],
-            api_key="k", public_base_url="https://ops.example.com")
+            repo,
+            email,
+            dev_recipients=["ops@example.com"],
+            api_key="k",
+            public_base_url="https://ops.example.com",
+        )
 
     assert "peek failed" in caplog.text
-    assert result == {"dlq_count": 0, "email_sent": True, "skipped_reason": None,
-                      "pending_alert_count": 1}
+    assert result == {
+        "dlq_count": 0,
+        "email_sent": True,
+        "skipped_reason": None,
+        "pending_alert_count": 1,
+    }
     email.send_email.assert_called_once()
 
 

@@ -32,7 +32,7 @@ def counters():
 
 def test_extra_fields_that_will_not_serialise_are_still_rendered():
     record = logging.LogRecord("svc", logging.INFO, __file__, 1, "hello", None, None)
-    record.tenant = "acme"                               # type: ignore[attr-defined]
+    record.tenant = "acme"  # type: ignore[attr-defined]
     formatter = ExtraFieldsFormatter("%(message)s")
     with patch.object(bootstrap_logging.json, "dumps", side_effect=TypeError("not encodable")):
         rendered = formatter.format(record)
@@ -87,8 +87,12 @@ def test_a_bootstrap_whose_phases_all_pass_but_leave_no_repository_is_an_error(m
     from vibey_bootstrap.services.application_bootstrap import ApplicationBootstrap
 
     boot = ApplicationBootstrap()
-    for phase in ("_initialize_telemetry_from_environment", "_load_enhanced_configuration",
-                  "_upgrade_telemetry_from_config", "_finalize_configuration_loading"):
+    for phase in (
+        "_initialize_telemetry_from_environment",
+        "_load_enhanced_configuration",
+        "_upgrade_telemetry_from_config",
+        "_finalize_configuration_loading",
+    ):
         monkeypatch.setattr(boot, phase, MagicMock())
     boot.config_repository = None
 
@@ -134,8 +138,9 @@ def test_a_server_dsn_gets_a_bounded_pool(monkeypatch):
 
 
 def test_db_health_reports_a_database_it_cannot_reach(monkeypatch):
-    monkeypatch.setattr(db_mod, "get_engine",
-                        MagicMock(side_effect=RuntimeError("connection refused")))
+    monkeypatch.setattr(
+        db_mod, "get_engine", MagicMock(side_effect=RuntimeError("connection refused"))
+    )
     result = db_mod.db_health()
     assert result["status"] == "error"
     assert result["latency_ms"] is None
@@ -167,7 +172,9 @@ def test_an_outbox_table_name_that_is_not_an_identifier_is_refused():
 def test_a_send_that_fails_marks_the_row_failed_and_drains_on(caplog):
     session = MagicMock()
     session.execute.return_value.fetchall.return_value = [
-        ("id-1", json.dumps({"n": 1})), ("id-2", {"n": 2})]
+        ("id-1", json.dumps({"n": 1})),
+        ("id-2", {"n": 2}),
+    ]
 
     with patch.object(outbox_mod, "Outbox") as outbox_cls:
         outbox = outbox_cls.return_value
@@ -209,7 +216,7 @@ async def test_a_message_received_after_the_stop_signal_is_abandoned_not_process
 
     async def handler(msg):
         handled.append(msg)
-        stop.set()          # shut down while the batch is still being drained
+        stop.set()  # shut down while the batch is still being drained
 
     receiver.receive_messages = receive_messages
     receiver.abandon_message = abandon
@@ -260,6 +267,7 @@ async def test_a_handler_that_raises_abandons_rather_than_completes():
 def _async(value):
     async def _call(*a, **kw):
         return value
+
     return _call
 
 
@@ -281,8 +289,9 @@ def test_the_acs_client_is_built_once_on_first_send(monkeypatch):
 
     client = MagicMock()
     client.begin_send.return_value.result.return_value = MagicMock(id="msg-1")
-    with patch("azure.communication.email.EmailClient.from_connection_string",
-               return_value=client) as factory:
+    with patch(
+        "azure.communication.email.EmailClient.from_connection_string", return_value=client
+    ) as factory:
         assert sender.send(to=["a@example.com"], subject="s", html_body="<p>h</p>") == "msg-1"
         assert sender._get_client() is client
     factory.assert_called_once()
@@ -315,10 +324,13 @@ def test_a_rejected_classification_never_matches_an_extension():
     assert extension_matches_kind("", "pdf") is False
 
 
-@pytest.mark.parametrize("kwargs, counter", [
-    ({"max_entries": 1}, "zip.too_many_entries"),
-    ({"max_uncompressed_bytes": 1}, "zip.too_large"),
-])
+@pytest.mark.parametrize(
+    "kwargs, counter",
+    [
+        ({"max_entries": 1}, "zip.too_many_entries"),
+        ({"max_uncompressed_bytes": 1}, "zip.too_large"),
+    ],
+)
 def test_zip_bomb_limits_bump_the_counter_they_were_given(kwargs, counter):
     from vibey_bootstrap.ingress.zip_safety import ZipBombError, enforce_zip_safety_limits
 
@@ -346,9 +358,15 @@ def test_an_empty_table_renders_as_nothing():
 
 def test_the_dev_validation_notice_carries_the_triage_context():
     body = templates.build_validation_notice_body(
-        attachment_name="scan.pdf", correlation_id="cid-1", sender="a@example.com",
-        issues=[], audience="dev", product_name="report",
-        sender_send_failed=True, queue="ingest")
+        attachment_name="scan.pdf",
+        correlation_id="cid-1",
+        sender="a@example.com",
+        issues=[],
+        audience="dev",
+        product_name="report",
+        sender_send_failed=True,
+        queue="ingest",
+    )
     assert "Sender-facing notice ALSO failed" in body
     assert "queue" in body and "ingest" in body
 
@@ -359,11 +377,19 @@ def test_the_dev_unprocessable_notice_includes_the_email_identifiers():
     _, _, _, dev_body = templates.build_unprocessable_notification(
         failure_reason=list(UnprocessableReason)[0],
         sender="a@example.com",
-        attachment_summary=[{"name": "scan.pdf", "size": 10, "mime": "application/pdf",
-                             "classification": "pdf", "reject_reason": ""}],
+        attachment_summary=[
+            {
+                "name": "scan.pdf",
+                "size": 10,
+                "mime": "application/pdf",
+                "classification": "pdf",
+                "reject_reason": "",
+            }
+        ],
         correlation_id="cid-1",
         email_subject="Monthly report",
-        email_id="msg-42")
+        email_id="msg-42",
+    )
     assert "Monthly report" in dev_body
     assert "msg-42" in dev_body
 
@@ -400,10 +426,15 @@ def test_a_rate_limit_callback_that_raises_does_not_mask_the_original_error():
     from vibey_bootstrap.exceptions import RateLimitError
     from vibey_bootstrap.retry import build_retry
 
-    decorate = build_retry(operation="ai.call", retry_on=RateLimitError, max_attempts=1,
-                           wait_min_seconds=0, wait_max_seconds=0,
-                           counter_namespace="ai",
-                           rate_limit_callback=MagicMock(side_effect=RuntimeError("hook broke")))
+    decorate = build_retry(
+        operation="ai.call",
+        retry_on=RateLimitError,
+        max_attempts=1,
+        wait_min_seconds=0,
+        wait_max_seconds=0,
+        counter_namespace="ai",
+        rate_limit_callback=MagicMock(side_effect=RuntimeError("hook broke")),
+    )
 
     @decorate
     def call():
@@ -418,9 +449,15 @@ def test_an_exhausted_retry_is_labelled_by_what_finally_failed():
     from vibey_bootstrap.exceptions import RateLimitError
     from vibey_bootstrap.retry import build_retry
 
-    decorate = build_retry(operation="ai.call", retry_on=RateLimitError, max_attempts=2,
-                           wait_min_seconds=0, wait_max_seconds=0,
-                           counter_namespace="ai", reraise=False)
+    decorate = build_retry(
+        operation="ai.call",
+        retry_on=RateLimitError,
+        max_attempts=2,
+        wait_min_seconds=0,
+        wait_max_seconds=0,
+        counter_namespace="ai",
+        reraise=False,
+    )
 
     @decorate
     def call():

@@ -89,8 +89,9 @@ def test_a_leader_election_cycle_that_fails_is_only_logged(caplog, monkeypatch):
     from vibey_bootstrap.aks.leader_election import LeaderElection
 
     election = LeaderElection(configmap_name="leases", identity="me", lease_seconds=1)
-    monkeypatch.setattr(election, "_try_acquire",
-                        MagicMock(side_effect=RuntimeError("lease store is down")))
+    monkeypatch.setattr(
+        election, "_try_acquire", MagicMock(side_effect=RuntimeError("lease store is down"))
+    )
     with caplog.at_level(logging.DEBUG):
         election.start()
         time.sleep(0.2)
@@ -146,7 +147,7 @@ def test_a_prefixed_signature_header_is_accepted():
 
 
 def test_a_counter_bump_with_an_unusable_amount_is_swallowed():
-    bump_counter("x", "not a number")           # type: ignore[arg-type]
+    bump_counter("x", "not a number")  # type: ignore[arg-type]
     assert "x" not in counter_snapshot()
 
 
@@ -154,15 +155,17 @@ def test_a_counter_bump_with_an_unusable_amount_is_swallowed():
 
 
 def test_ssrf_screening_rejects_a_private_address(monkeypatch):
-    monkeypatch.setattr(socket, "getaddrinfo",
-                        lambda host, port: [(None, None, None, None, ("10.0.0.5", 0))])
+    monkeypatch.setattr(
+        socket, "getaddrinfo", lambda host, port: [(None, None, None, None, ("10.0.0.5", 0))]
+    )
     with pytest.raises(ValueError, match="SSRF blocked private address"):
         http_common.check_ssrf("https://internal.example.com/x")
 
 
 def test_ssrf_screening_allows_a_public_address(monkeypatch):
-    monkeypatch.setattr(socket, "getaddrinfo",
-                        lambda host, port: [(None, None, None, None, ("93.184.216.34", 0))])
+    monkeypatch.setattr(
+        socket, "getaddrinfo", lambda host, port: [(None, None, None, None, ("93.184.216.34", 0))]
+    )
     http_common.check_ssrf("https://example.com/x")
 
 
@@ -171,8 +174,9 @@ def test_ssrf_screening_can_be_told_to_allow_private_hosts():
 
 
 def test_a_host_that_does_not_resolve_is_left_to_the_request_to_fail(monkeypatch):
-    monkeypatch.setattr(socket, "getaddrinfo",
-                        MagicMock(side_effect=socket.gaierror("no such host")))
+    monkeypatch.setattr(
+        socket, "getaddrinfo", MagicMock(side_effect=socket.gaierror("no such host"))
+    )
     http_common.check_ssrf("https://nonexistent.invalid/x")
 
 
@@ -239,7 +243,7 @@ def test_a_context_var_that_cannot_be_reset_does_not_break_the_scope(monkeypatch
     monkeypatch.setattr(correlation, "_var_for", lambda name: Brittle(real_var_for(name)))
     try:
         with correlation.correlation_scope("cid", tenant="acme"):
-            pass                               # exiting must not raise
+            pass  # exiting must not raise
     finally:
         monkeypatch.undo()
         for name, var in correlation._VARS.items():
@@ -270,8 +274,10 @@ def test_strict_debug_checking_reads_the_usual_truthy_spellings(monkeypatch):
 
 def test_a_payload_json_cannot_encode_falls_back_to_the_safe_dumper(monkeypatch):
     record = logging.LogRecord("svc", logging.INFO, __file__, 1, "m", None, None)
-    with patch("vibey_bootstrap.logging.jsonformatter.json.dumps",
-               side_effect=RuntimeError("encoder exploded")):
+    with patch(
+        "vibey_bootstrap.logging.jsonformatter.json.dumps",
+        side_effect=RuntimeError("encoder exploded"),
+    ):
         rendered = JsonLogFormatter().format(record)
     assert "m" in rendered
 
@@ -279,20 +285,24 @@ def test_a_payload_json_cannot_encode_falls_back_to_the_safe_dumper(monkeypatch)
 def test_noise_suppression_skips_blanks_and_duplicates():
     from vibey_bootstrap.logging.noise import silence_noisy_loggers
 
-    silence_noisy_loggers("vibey.test.noisy", "", "vibey.test.noisy",
-                          include_defaults=False, level=logging.ERROR)
+    silence_noisy_loggers(
+        "vibey.test.noisy", "", "vibey.test.noisy", include_defaults=False, level=logging.ERROR
+    )
     assert logging.getLogger("vibey.test.noisy").level == logging.ERROR
 
 
 # ═══════════════════════════════════════════════════════════ metrics
 
 
-@pytest.mark.parametrize("target", ["usage_snapshot", "bootstrap_initialized",
-                                    "_last_settle_age_seconds"])
+@pytest.mark.parametrize(
+    "target", ["usage_snapshot", "bootstrap_initialized", "_last_settle_age_seconds"]
+)
 def test_one_broken_source_does_not_empty_the_metrics_snapshot(monkeypatch, target):
-    module = {"usage_snapshot": "vibey_bootstrap.openai",
-              "bootstrap_initialized": "vibey_bootstrap.bootstrap",
-              "_last_settle_age_seconds": "vibey_bootstrap.heartbeat"}[target]
+    module = {
+        "usage_snapshot": "vibey_bootstrap.openai",
+        "bootstrap_initialized": "vibey_bootstrap.bootstrap",
+        "_last_settle_age_seconds": "vibey_bootstrap.heartbeat",
+    }[target]
     with patch(f"{module}.{target}", side_effect=RuntimeError("source is down")):
         snapshot = metrics_mod.build_metrics_snapshot()
     assert isinstance(snapshot, dict)
@@ -312,7 +322,7 @@ def test_a_field_that_cannot_be_scrubbed_is_skipped():
     reader = MagicMock()
     reader.trailer = {"/Root": {"/AcroForm": {"/Fields": Hostile()}}}
     reader.pages = []
-    assert pdf_safety.sanitize_pdf_for_passthrough(reader) is reader   # must not raise
+    assert pdf_safety.sanitize_pdf_for_passthrough(reader) is reader  # must not raise
 
 
 def test_an_annotation_list_item_that_cannot_be_scrubbed_is_skipped():
@@ -326,7 +336,7 @@ def test_an_annotation_list_item_that_cannot_be_scrubbed_is_skipped():
     reader = MagicMock()
     reader.trailer = {"/Root": {}}
     reader.pages = [{"/Annots": [HostileAnnot()]}]
-    pdf_safety.sanitize_pdf_for_passthrough(reader)   # must not raise
+    pdf_safety.sanitize_pdf_for_passthrough(reader)  # must not raise
 
 
 # ═══════════════════════════════════════════════════════════ path_safety
@@ -405,7 +415,7 @@ def test_recording_latency_never_raises_even_when_the_store_is_broken(monkeypatc
     broken.__enter__ = MagicMock(side_effect=RuntimeError("lock is wedged"))
     broken.__exit__ = MagicMock(return_value=False)
     monkeypatch.setattr(latency_mod, "_HIST_LOCK", broken)
-    latency_mod._record_latency("op", 1.0, error=False, slow=False)   # must not raise
+    latency_mod._record_latency("op", 1.0, error=False, slow=False)  # must not raise
 
 
 def test_the_percentile_of_nothing_is_zero():
@@ -465,11 +475,14 @@ def test_an_absent_optional_field_passes():
     assert _check_field(FieldRule(name="note", required=False), {}) is None
 
 
-@pytest.mark.parametrize("rule_kwargs, value, expected", [
-    ({"non_empty": True}, "   ", "is empty"),
-    ({"pattern": r"^\d+$"}, "abc", "does not match pattern"),
-    ({"forbidden_prefixes": ("/",)}, "/etc/passwd", "starts with forbidden prefix"),
-])
+@pytest.mark.parametrize(
+    "rule_kwargs, value, expected",
+    [
+        ({"non_empty": True}, "   ", "is empty"),
+        ({"pattern": r"^\d+$"}, "abc", "does not match pattern"),
+        ({"forbidden_prefixes": ("/",)}, "/etc/passwd", "starts with forbidden prefix"),
+    ],
+)
 def test_a_field_that_breaks_its_rule_says_which_rule(rule_kwargs, value, expected):
     from vibey_bootstrap.validation import FieldRule, _check_field
 

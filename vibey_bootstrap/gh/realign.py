@@ -30,8 +30,10 @@ def realign(cfg: GhConfig | None = None) -> tuple[bool, str]:
     _git(cfg, "fetch", "--quiet", "origin", cfg.integration_branch, cfg.release_branch)
 
     if _git(cfg, "diff", "--quiet", rel, dev).returncode != 0:
-        return False, (f"{cfg.integration_branch} has content {cfg.release_branch} does not; "
-                       "left untouched. Promote it with a pull request.")
+        return False, (
+            f"{cfg.integration_branch} has content {cfg.release_branch} does not; "
+            "left untouched. Promote it with a pull request."
+        )
 
     before = _git(cfg, "rev-parse", dev).stdout.strip()
     if before == _git(cfg, "rev-parse", rel).stdout.strip():
@@ -39,13 +41,21 @@ def realign(cfg: GhConfig | None = None) -> tuple[bool, str]:
 
     # --force-with-lease pinned to the SHA just read: anything landing in between refuses
     # the push rather than being silently overwritten.
-    push = _git(cfg, "push", f"--force-with-lease=refs/heads/{cfg.integration_branch}:{before}",
-                "origin", f"{rel}:refs/heads/{cfg.integration_branch}")
+    push = _git(
+        cfg,
+        "push",
+        f"--force-with-lease=refs/heads/{cfg.integration_branch}:{before}",
+        "origin",
+        f"{rel}:refs/heads/{cfg.integration_branch}",
+    )
     if push.returncode == 0:
-        return True, (f"{cfg.integration_branch} realigned to {cfg.release_branch} — "
-                      "identical trees, histories converged")
+        return True, (
+            f"{cfg.integration_branch} realigned to {cfg.release_branch} — "
+            "identical trees, histories converged"
+        )
     raise RuntimeError(
         f"could not realign {cfg.integration_branch}, so it is now divergent and the next "
         f"promotion will be blocked. If the token lacks the admin role the push is refused "
         f"by the ruleset. By hand: git push --force-with-lease origin "
-        f"{cfg.release_branch}:{cfg.integration_branch}\n{push.stderr.strip()}")
+        f"{cfg.release_branch}:{cfg.integration_branch}\n{push.stderr.strip()}"
+    )

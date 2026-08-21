@@ -24,14 +24,16 @@ no file at all. `tomllib` is stdlib from 3.11, which this package already requir
 from __future__ import annotations
 
 import tomllib
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 
 CONFIG_NAME = ".vibey-gh.toml"
 
 DEFAULT_TEXT = "Made with love by Vibey, the auto-vibecoding machine by Adam Matthew Steinberger."
 DEFAULT_TRAILER_KEY = "Made-With"
-DEFAULT_TRAILER = f"{DEFAULT_TRAILER_KEY}: Vibey, the auto-vibecoding machine by Adam Matthew Steinberger"
+DEFAULT_TRAILER = (
+    f"{DEFAULT_TRAILER_KEY}: Vibey, the auto-vibecoding machine by Adam Matthew Steinberger"
+)
 DEFAULT_SOURCES = ("tools/*.py", "src/**/*.py", ".github/workflows/*.yml")
 
 

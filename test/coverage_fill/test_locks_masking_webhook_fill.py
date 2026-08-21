@@ -41,8 +41,9 @@ def test_the_renewer_comes_from_the_service_bus_sdk(monkeypatch):
 
 
 def test_a_managed_lock_that_cannot_start_lets_processing_continue(monkeypatch, caplog):
-    monkeypatch.setattr(sb_lock_mod, "_new_auto_lock_renewer",
-                        MagicMock(side_effect=RuntimeError("no AMQP link")))
+    monkeypatch.setattr(
+        sb_lock_mod, "_new_auto_lock_renewer", MagicMock(side_effect=RuntimeError("no AMQP link"))
+    )
     lock = ManagedLock(MagicMock(), MagicMock())
     with caplog.at_level(logging.WARNING):
         lock.start()
@@ -89,7 +90,7 @@ def test_a_short_local_part_is_masked_entirely():
 
 def test_a_bytes_like_object_that_cannot_be_decoded_is_described_by_length():
     class Weird(bytes):
-        def decode(self, *a, **kw):     # noqa: D401 - deliberately wrong signature
+        def decode(self, *a, **kw):  # noqa: D401 - deliberately wrong signature
             raise TypeError("cannot decode this")
 
     assert masking.content_preview(Weird(b"1234")) == "<bytes len=4>"
@@ -114,7 +115,7 @@ def test_an_object_that_cannot_even_be_repr_d_is_labelled():
 
 
 def test_a_non_string_argument_name_is_never_sensitive():
-    assert masking._looks_sensitive(42) is False       # type: ignore[arg-type]
+    assert masking._looks_sensitive(42) is False  # type: ignore[arg-type]
 
 
 def test_safe_repr_of_a_hostile_value_is_labelled():
@@ -139,7 +140,7 @@ def test_the_dedup_reset_is_test_only(monkeypatch):
 
     monkeypatch.setenv("AZURE_BOOTSTRAP_ALLOW_RESET", "1")
     dedup.reset()
-    assert dedup.already_seen(("s", "m")) is False      # the memory really was cleared
+    assert dedup.already_seen(("s", "m")) is False  # the memory really was cleared
 
 
 @pytest.fixture
@@ -152,32 +153,33 @@ def client(monkeypatch):
     app = FastAPI()
     handled: list[str] = []
     dedup = WebhookDedup()
-    install_graph_webhook_route(app, "/hook",
-                                background_handler=handled.append, dedup=dedup)
+    install_graph_webhook_route(app, "/hook", background_handler=handled.append, dedup=dedup)
     return TestClient(app), handled
 
 
 def test_a_body_that_is_not_json_is_a_bad_request(client):
     api, _ = client
-    response = api.post("/hook", content=b"not json at all",
-                        headers={"Content-Type": "application/json"})
+    response = api.post(
+        "/hook", content=b"not json at all", headers={"Content-Type": "application/json"}
+    )
     assert response.status_code == 400
 
 
 def test_entries_that_are_not_objects_are_skipped(client):
     api, handled = client
-    body = {"value": ["a string, not an entry",
-                      {"clientState": "shared-secret",
-                       "subscriptionId": "s1",
-                       "resourceData": {"id": "m1"}}]}
+    body = {
+        "value": [
+            "a string, not an entry",
+            {"clientState": "shared-secret", "subscriptionId": "s1", "resourceData": {"id": "m1"}},
+        ]
+    }
     assert api.post("/hook", json=body).status_code == 202
     assert handled == ["m1"]
 
 
 def test_an_entry_with_no_message_id_is_skipped(client):
     api, handled = client
-    body = {"value": [{"clientState": "shared-secret", "subscriptionId": "s1",
-                       "resourceData": {}}]}
+    body = {"value": [{"clientState": "shared-secret", "subscriptionId": "s1", "resourceData": {}}]}
     assert api.post("/hook", json=body).status_code == 202
     assert handled == []
 
@@ -188,8 +190,11 @@ def test_an_unconfigured_endpoint_refuses_every_entry(monkeypatch):
 
     app = FastAPI()
     install_graph_webhook_route(app, "/hook", background_handler=lambda mid: None)
-    with patch.object(webhook_mod, "verify_webhook_client_state",
-                      side_effect=ConfigurationError("GRAPH_WEBHOOK_CLIENT_STATE unset")):
+    with patch.object(
+        webhook_mod,
+        "verify_webhook_client_state",
+        side_effect=ConfigurationError("GRAPH_WEBHOOK_CLIENT_STATE unset"),
+    ):
         response = TestClient(app).post("/hook", json={"value": [{"clientState": "x"}]})
     assert response.status_code == 401
     assert counter_snapshot()["webhook.client_state_mismatch"] == 1
@@ -203,8 +208,11 @@ def test_a_failed_bootstrap_is_logged_and_re_raised(monkeypatch, caplog):
 
     monkeypatch.setattr(bootstrap_mod, "_bootstrap_initialized", False)
     monkeypatch.setenv("USE_MOCK_BOOTSTRAP", "0")
-    monkeypatch.setattr(application_bootstrap, "initialize_application",
-                        MagicMock(side_effect=RuntimeError("App Config unreachable")))
+    monkeypatch.setattr(
+        application_bootstrap,
+        "initialize_application",
+        MagicMock(side_effect=RuntimeError("App Config unreachable")),
+    )
     with caplog.at_level(logging.ERROR), pytest.raises(RuntimeError):
         ensure_bootstrap()
     assert "Bootstrap initialization failed" in caplog.text

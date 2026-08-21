@@ -45,8 +45,10 @@ def test_a_record_the_formatter_mangled_still_produces_a_row():
 def test_a_table_that_cannot_be_created_does_not_stop_the_handler(caplog):
     engine, conn = engine_stub()
     conn.execute.side_effect = RuntimeError("no CREATE for you")
-    with patch.object(sql_mod, "_build_engine", return_value=(engine, MagicMock(), "DDL")), \
-            caplog.at_level(logging.DEBUG):
+    with (
+        patch.object(sql_mod, "_build_engine", return_value=(engine, MagicMock(), "DDL")),
+        caplog.at_level(logging.DEBUG),
+    ):
         h = SqlHandler(dsn="sqlite:///:memory:", flush_interval=3600.0, create_table=True)
     h.close()
     assert "ensure_table() failed" in caplog.text
@@ -94,8 +96,16 @@ def test_close_survives_an_engine_that_refuses_to_dispose():
 
 def test_unparsable_buffer_lines_are_skipped(sql_handler):
     h, _, conn = sql_handler
-    good = json.dumps({"ts": "t", "level": "INFO", "logger": "svc",
-                       "message": "m", "correlation_id": None, "extra": "{}"})
+    good = json.dumps(
+        {
+            "ts": "t",
+            "level": "INFO",
+            "logger": "svc",
+            "message": "m",
+            "correlation_id": None,
+            "extra": "{}",
+        }
+    )
     assert h._ship(["{not json", good]).count == 1
     conn.execute.assert_called_once()
 
@@ -124,7 +134,11 @@ class TestEngineConstruction:
         created = self.fake_sqlalchemy(monkeypatch, "postgresql")
         _, _, ddl = sql_mod._build_engine(dsn="postgresql://h/db", table="app_logs", pool_size=4)
         assert created.call_args.kwargs == {
-            "pool_pre_ping": True, "pool_size": 4, "max_overflow": 0, "pool_timeout": 10}
+            "pool_pre_ping": True,
+            "pool_size": 4,
+            "max_overflow": 0,
+            "pool_timeout": 10,
+        }
         assert "extra JSONB" in ddl
 
     def test_sqlite_is_left_with_its_default_pool(self, monkeypatch):
@@ -137,7 +151,7 @@ class TestEngineConstruction:
         self.fake_sqlalchemy(monkeypatch, "postgresql")
         monkeypatch.setitem(sys.modules, "sqlalchemy.dialects.postgresql", None)
         _, _, ddl = sql_mod._build_engine(dsn="postgresql://h/db", table="app_logs", pool_size=4)
-        assert "extra JSONB" in ddl        # the DDL still says JSONB; only the model type fell back
+        assert "extra JSONB" in ddl  # the DDL still says JSONB; only the model type fell back
 
 
 class TestSqlFactory:
@@ -150,16 +164,23 @@ class TestSqlFactory:
 
     def test_an_engine_that_will_not_build_disables_the_transport(self, monkeypatch, caplog):
         monkeypatch.setenv("SQL_LOG_DSN", "sqlite:///:memory:")
-        with patch.object(sql_mod, "_build_engine", side_effect=RuntimeError("driver exploded")), \
-                caplog.at_level(logging.DEBUG):
+        with (
+            patch.object(sql_mod, "_build_engine", side_effect=RuntimeError("driver exploded")),
+            caplog.at_level(logging.DEBUG),
+        ):
             assert make_sql_handler() is None
         assert "failed to initialise engine" in caplog.text
 
 
-@pytest.mark.parametrize("resolver, raw, expected", [
-    (sql_mod._int_env, "nope", 200), (sql_mod._int_env, "3", 3),
-    (sql_mod._float_env, "nope", 5.0), (sql_mod._float_env, "2.5", 2.5),
-])
+@pytest.mark.parametrize(
+    "resolver, raw, expected",
+    [
+        (sql_mod._int_env, "nope", 200),
+        (sql_mod._int_env, "3", 3),
+        (sql_mod._float_env, "nope", 5.0),
+        (sql_mod._float_env, "2.5", 2.5),
+    ],
+)
 def test_sql_env_helpers_fall_back_on_junk(monkeypatch, resolver, raw, expected):
     monkeypatch.setenv("SQL_X", raw)
     assert resolver("SQL_X", 200 if resolver is sql_mod._int_env else 5.0) == expected
@@ -215,22 +236,24 @@ class TestContainerClientConstruction:
     def test_an_account_url_uses_the_managed_identity_credential(self, monkeypatch):
         import vibey_bootstrap.identity as identity
 
-        class Credential:            # the shape azure-storage-blob requires
-            def get_token(self, *scopes, **kw):        # pragma: no cover - never called
+        class Credential:  # the shape azure-storage-blob requires
+            def get_token(self, *scopes, **kw):  # pragma: no cover - never called
                 raise AssertionError("no request is made in this test")
 
         credential = Credential()
         monkeypatch.setattr(identity, "build_credential", lambda: credential)
         client = blob_mod._build_container_client(
-            container="logs", account_url="https://acct.blob.core.windows.net", conn_str=None)
+            container="logs", account_url="https://acct.blob.core.windows.net", conn_str=None
+        )
         assert client.container_name == "logs"
         assert client.credential is credential
 
     def test_a_connection_string_is_used_when_there_is_no_account_url(self):
-        conn = ("DefaultEndpointsProtocol=https;AccountName=acct;"
-                "AccountKey=aGVsbG8=;EndpointSuffix=core.windows.net")
-        client = blob_mod._build_container_client(
-            container="logs", account_url=None, conn_str=conn)
+        conn = (
+            "DefaultEndpointsProtocol=https;AccountName=acct;"
+            "AccountKey=aGVsbG8=;EndpointSuffix=core.windows.net"
+        )
+        client = blob_mod._build_container_client(container="logs", account_url=None, conn_str=conn)
         assert client.container_name == "logs"
 
     def test_neither_is_a_configuration_error(self):
@@ -246,9 +269,14 @@ class TestBlobFactory:
     def test_a_client_that_will_not_build_disables_the_transport(self, monkeypatch, caplog):
         monkeypatch.setenv("BLOB_LOG_CONTAINER", "logs")
         monkeypatch.setenv("BLOB_LOG_ACCOUNT_URL", "https://acct.blob.core.windows.net")
-        with patch.object(blob_mod, "_build_container_client",
-                          side_effect=RuntimeError("credential chain exhausted")), \
-                caplog.at_level(logging.DEBUG):
+        with (
+            patch.object(
+                blob_mod,
+                "_build_container_client",
+                side_effect=RuntimeError("credential chain exhausted"),
+            ),
+            caplog.at_level(logging.DEBUG),
+        ):
             assert make_blob_handler() is None
         assert "failed to build container client" in caplog.text
 
@@ -271,10 +299,15 @@ class TestBlobFactory:
             h.close()
 
 
-@pytest.mark.parametrize("resolver, raw, expected", [
-    (blob_mod._int_env, "nope", 200), (blob_mod._int_env, "3", 3),
-    (blob_mod._float_env, "nope", 5.0), (blob_mod._float_env, "2.5", 2.5),
-])
+@pytest.mark.parametrize(
+    "resolver, raw, expected",
+    [
+        (blob_mod._int_env, "nope", 200),
+        (blob_mod._int_env, "3", 3),
+        (blob_mod._float_env, "nope", 5.0),
+        (blob_mod._float_env, "2.5", 2.5),
+    ],
+)
 def test_blob_env_helpers_fall_back_on_junk(monkeypatch, resolver, raw, expected):
     monkeypatch.setenv("BLOB_X", raw)
     assert resolver("BLOB_X", 200 if resolver is blob_mod._int_env else 5.0) == expected
@@ -287,8 +320,8 @@ def test_a_full_sql_batch_wakes_the_shipper_immediately():
     try:
         h._flush_now.clear()
         h.emit(record("one"))
-        assert not h._flush_now.is_set()      # below the batch size: wait for the interval
+        assert not h._flush_now.is_set()  # below the batch size: wait for the interval
         h.emit(record("two"))
-        assert h._flush_now.is_set()          # at it: ship now rather than in an hour
+        assert h._flush_now.is_set()  # at it: ship now rather than in an hour
     finally:
         h.close()

@@ -84,8 +84,13 @@ def install(cfg: GhConfig | None = None, hooks_path: bool = True) -> list[Action
 
     if hooks_path:
         import subprocess
-        subprocess.run(["git", "config", "core.hooksPath", HOOKS_DIR],
-                       cwd=cfg.root, check=False, capture_output=True)
+
+        subprocess.run(
+            ["git", "config", "core.hooksPath", HOOKS_DIR],
+            cwd=cfg.root,
+            check=False,
+            capture_output=True,
+        )
     return actions
 
 
@@ -117,8 +122,13 @@ def installed(cfg: GhConfig | None = None, local: bool = True) -> tuple[bool, li
 
     if local:
         import subprocess
-        result = subprocess.run(["git", "config", "--get", "core.hooksPath"],
-                                cwd=cfg.root, capture_output=True, text=True)
+
+        result = subprocess.run(
+            ["git", "config", "--get", "core.hooksPath"],
+            cwd=cfg.root,
+            capture_output=True,
+            text=True,
+        )
         if result.stdout.strip() != HOOKS_DIR:
             problems.append(f"core.hooksPath is not {HOOKS_DIR} — run `vibey-gh install`")
 

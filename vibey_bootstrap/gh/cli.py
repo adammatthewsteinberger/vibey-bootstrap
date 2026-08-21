@@ -6,14 +6,13 @@ from __future__ import annotations
 import argparse
 import sys
 
-from vibey_bootstrap.gh import (fingerprints, install as installer, merge_train,
-                                realign as realign_mod, versioning)
+from vibey_bootstrap.gh import fingerprints, install, merge_train, realign, versioning
 from vibey_bootstrap.gh.config import load_config
 
 
 def _check(args) -> int:
     cfg = load_config()
-    ok, problems = installer.installed(cfg, local=not args.ci)
+    ok, problems = install.installed(cfg, local=not args.ci)
     report = fingerprints.check(cfg, rev_range=args.commits, apply=args.apply)
 
     if args.quiet:
@@ -36,14 +35,17 @@ def _check(args) -> int:
     print("\nvibey-gh: FAILED", file=sys.stderr)
     print(f"\n  header:  {cfg.header}", file=sys.stderr)
     print(f"  trailer: {cfg.trailer}", file=sys.stderr)
-    print("\n  `vibey-gh check --apply` adds missing headers; "
-          "`vibey-gh install` installs the hooks.", file=sys.stderr)
+    print(
+        "\n  `vibey-gh check --apply` adds missing headers; "
+        "`vibey-gh install` installs the hooks.",
+        file=sys.stderr,
+    )
     return 1
 
 
 def _install(args) -> int:
     cfg = load_config()
-    for action in installer.install(cfg):
+    for action in install.install(cfg):
         print(f"  {action.hook}: {action.outcome}")
     print(f"vibey-gh: installed into {cfg.root}")
     return 0
@@ -52,10 +54,10 @@ def _install(args) -> int:
 def _version(args) -> int:
     cfg = load_config()
     if args.dev is not None:
-        new = versioning.dev_version(cfg, args.dev)
+        dev = versioning.dev_version(cfg, args.dev)
         if args.apply:
-            versioning.apply_version(cfg, new)
-        print(new)
+            versioning.apply_version(cfg, dev)
+        print(dev)
         return 0
     new, why = versioning.decide(cfg, args.since)
     if args.explain or not new:
@@ -99,7 +101,7 @@ def _merge_train(args) -> int:
 
 def _realign(args) -> int:
     try:
-        changed, message = realign_mod.realign(load_config())
+        changed, message = realign.realign(load_config())
     except RuntimeError as exc:
         print(f"vibey-gh: {exc}", file=sys.stderr)
         return 1
@@ -115,8 +117,11 @@ def main(argv: list[str] | None = None) -> int:
     c.add_argument("--apply", action="store_true", help="add missing file headers")
     c.add_argument("--commits", metavar="RANGE", help="also check commit trailers, e.g. main..HEAD")
     c.add_argument("--quiet", action="store_true", help="exit status only, for hooks")
-    c.add_argument("--ci", action="store_true",
-                   help="skip the local core.hooksPath check, which no runner can satisfy")
+    c.add_argument(
+        "--ci",
+        action="store_true",
+        help="skip the local core.hooksPath check, which no runner can satisfy",
+    )
     c.set_defaults(func=_check)
 
     i = sub.add_parser("install", help="install the git hooks")
@@ -142,7 +147,7 @@ def main(argv: list[str] | None = None) -> int:
     r.set_defaults(func=_realign)
 
     args = parser.parse_args(argv)
-    return args.func(args)
+    return int(args.func(args))
 
 
 if __name__ == "__main__":

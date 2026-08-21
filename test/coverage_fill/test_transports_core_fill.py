@@ -69,7 +69,7 @@ def test_an_explicit_flush_swallows_a_shipping_failure():
     try:
         h.emit(record())
         h.ship_error = RuntimeError("endpoint down")
-        h.flush()          # must not raise
+        h.flush()  # must not raise
     finally:
         h.ship_error = None
         h.close()
@@ -79,26 +79,26 @@ def test_close_survives_a_final_drain_that_fails_and_still_runs_on_close():
     h = Shipper()
     h.emit(record())
     h.ship_error = RuntimeError("endpoint down")
-    h.close()              # must not raise
+    h.close()  # must not raise
     assert h._closed
 
 
 def test_close_survives_its_own_on_close_hook_failing():
     h = Shipper()
     h.close_error = RuntimeError("resource already released")
-    h.close()              # must not raise
+    h.close()  # must not raise
 
 
 def test_close_survives_an_atexit_hook_that_was_already_unregistered(monkeypatch):
     h = Shipper()
     monkeypatch.setattr(atexit, "unregister", MagicMock(side_effect=RuntimeError("gone")))
-    h.close()              # must not raise
+    h.close()  # must not raise
 
 
 def test_close_is_idempotent():
     h = Shipper()
     h.close()
-    h.close()              # the second call returns immediately
+    h.close()  # the second call returns immediately
 
 
 def test_the_background_loop_survives_a_shipping_failure():
@@ -206,17 +206,23 @@ def test_the_file_wrapper_survives_an_inner_handler_that_fails_on_every_call():
     inner.flush.side_effect = RuntimeError("disk full")
     inner.close.side_effect = RuntimeError("already closed")
 
-    handler.handleError(record())   # must not raise
-    handler.flush()                 # must not raise
-    handler.close()                 # must not raise
+    handler.handleError(record())  # must not raise
+    handler.flush()  # must not raise
+    handler.close()  # must not raise
 
 
-def test_a_log_path_that_cannot_be_opened_disables_the_file_transport(monkeypatch, caplog,
-                                                                      tmp_path):
+def test_a_log_path_that_cannot_be_opened_disables_the_file_transport(
+    monkeypatch, caplog, tmp_path
+):
     monkeypatch.setenv("FILE_LOG_PATH", str(tmp_path / "app.log"))
-    with patch.object(file_mod.logging.handlers, "RotatingFileHandler",
-                      side_effect=OSError("read-only filesystem")), \
-            caplog.at_level(logging.WARNING):
+    with (
+        patch.object(
+            file_mod.logging.handlers,
+            "RotatingFileHandler",
+            side_effect=OSError("read-only filesystem"),
+        ),
+        caplog.at_level(logging.WARNING),
+    ):
         assert file_mod.make_file_handler() is None
     assert "could not open log file" in caplog.text
 
@@ -248,16 +254,18 @@ def test_closing_sumologic_survives_a_session_that_will_not_close():
     session = MagicMock()
     session.close.side_effect = RuntimeError("socket already gone")
     with patch.object(sumo_mod, "_build_session", return_value=session):
-        h = sumo_mod.SumoLogicHandler(endpoint_url="https://collect.example.com",
-                                      flush_interval=3600.0)
-    h.close()   # must not raise
+        h = sumo_mod.SumoLogicHandler(
+            endpoint_url="https://collect.example.com", flush_interval=3600.0
+        )
+    h.close()  # must not raise
     session.close.assert_called_once()
 
 
 def test_sumologic_ships_nothing_for_an_empty_batch():
     with patch.object(sumo_mod, "_build_session", return_value=MagicMock()) as session:
-        h = sumo_mod.SumoLogicHandler(endpoint_url="https://collect.example.com",
-                                      flush_interval=3600.0)
+        h = sumo_mod.SumoLogicHandler(
+            endpoint_url="https://collect.example.com", flush_interval=3600.0
+        )
     try:
         assert h._ship([]).count == 0
         session.return_value.post.assert_not_called()
@@ -265,9 +273,13 @@ def test_sumologic_ships_nothing_for_an_empty_batch():
         h.close()
 
 
-@pytest.mark.parametrize("resolver, default, expected", [
-    (sumo_mod._int_env, 200, 200), (sumo_mod._float_env, 5.0, 5.0),
-])
+@pytest.mark.parametrize(
+    "resolver, default, expected",
+    [
+        (sumo_mod._int_env, 200, 200),
+        (sumo_mod._float_env, 5.0, 5.0),
+    ],
+)
 def test_sumologic_env_helpers_fall_back_on_junk(monkeypatch, resolver, default, expected):
     monkeypatch.setenv("SUMO_X", "junk")
     assert resolver("SUMO_X", default) == expected
@@ -289,9 +301,9 @@ class BrittleShipper(Shipper):
 def test_flush_survives_a_drain_that_cannot_even_read_the_buffer():
     h = BrittleShipper()
     try:
-        h.flush()          # must not raise
+        h.flush()  # must not raise
     finally:
-        h.close()          # nor must this
+        h.close()  # nor must this
 
 
 def test_the_background_loop_survives_a_drain_that_cannot_read_the_buffer():
@@ -299,6 +311,6 @@ def test_the_background_loop_survives_a_drain_that_cannot_read_the_buffer():
     try:
         h._flush_now.set()
         h._flush_thread.join(timeout=1.0)
-        assert h._flush_thread.is_alive()      # it looped, swallowed, and kept going
+        assert h._flush_thread.is_alive()  # it looped, swallowed, and kept going
     finally:
         h.close()
