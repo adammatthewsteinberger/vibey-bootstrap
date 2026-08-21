@@ -17,7 +17,28 @@ set -e
 
 red() { printf '\033[0;31m%s\033[0m\n' "$1"; }
 
-if ! command -v vibey-gh >/dev/null 2>&1; then
+
+# Resolve the CLI. `vibey-gh` on PATH is the normal case, but a project virtualenv that
+# has not been activated is just as normal — and a gate that reports "not installed"
+# when the tool IS installed is a gate people learn to bypass. Look where it actually
+# lives before giving up. Hooks run from the top of the working tree.
+vibey_gh() {
+  if command -v vibey-gh >/dev/null 2>&1; then
+    vibey-gh "$@"
+  elif [ -n "${VIRTUAL_ENV:-}" ] && [ -x "${VIRTUAL_ENV}/bin/vibey-gh" ]; then
+    "${VIRTUAL_ENV}/bin/vibey-gh" "$@"
+  elif [ -x ".venv/bin/vibey-gh" ]; then
+    ./.venv/bin/vibey-gh "$@"
+  elif [ -x "venv/bin/vibey-gh" ]; then
+    ./venv/bin/vibey-gh "$@"
+  elif python3 -c "import vibey_bootstrap.gh.cli" >/dev/null 2>&1; then
+    python3 -m vibey_bootstrap.gh.cli "$@"
+  else
+    return 127
+  fi
+}
+
+if ! vibey_gh trailer-key >/dev/null 2>&1; then
   red "✖ push refused: the vibey GitHub automation is not installed."
   echo
   echo "  This repository requires it for provenance and release automation."
@@ -29,7 +50,7 @@ if ! command -v vibey-gh >/dev/null 2>&1; then
   exit 1
 fi
 
-if ! vibey-gh check --quiet; then
+if ! vibey_gh check --quiet; then
   red "✖ push refused: the provenance fingerprints are not intact."
   echo
   echo "      vibey-gh check          # see what is missing"
