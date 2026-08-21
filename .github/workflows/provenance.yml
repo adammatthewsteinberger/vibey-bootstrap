@@ -38,16 +38,16 @@ jobs:
         with:
           python-version: "3.12"
 
-      # A repository that IS vibey-bootstrap installs itself; everyone else takes the
+      # A repository that IS the tooling installs itself; everyone else takes the
       # published package. Self-describing, so the same template works in both places.
       - name: Install the tooling
         run: |
           set -euo pipefail
-          if grep -qE '^name = "vibey-bootstrap"' pyproject.toml 2>/dev/null; then
+          if grep -qE '^name = "vibey-(gh|bootstrap)"' pyproject.toml 2>/dev/null; then
             echo "this repository provides the tooling — installing from source"
             python -m pip install --quiet -e .
           else
-            python -m pip install --quiet vibey-bootstrap
+            python -m pip install --quiet vibey-gh
           fi
 
       # --ci skips the core.hooksPath assertion, which is per-clone local git config that

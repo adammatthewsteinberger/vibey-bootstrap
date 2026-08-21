@@ -1,21 +1,49 @@
 # Made with love by Vibey, the auto-vibecoding machine by Adam Matthew Steinberger.
-"""GitHub automation and provenance fingerprints, installable into any repository.
+"""Compatibility alias for the standalone `vibey-gh` package.
 
-This subpackage carries the release automation that vibey projects share — the merge
-train, the promotion train, branch-driven publishing, derived version bumps — and the
-fingerprint rule that says every code change is attributable.
+This subpackage shipped the GitHub automation in 4.1.0. In 4.2.0 the code moved to
+[vibey-gh](https://pypi.org/project/vibey-gh/), which has no dependencies, because
+release tooling runs in every CI job of every repository that adopts it — and reaching it
+through this package meant installing the Azure SDK and OpenTelemetry to run a stdlib CLI.
 
-It is deliberately CONFIG-DRIVEN rather than hard-coded. What counts as packaged content,
-which files hold the version, which branches are integration and release, and the
-fingerprint text itself all come from a `.vibey-gh.toml` in the consuming repository, so
-the same code serves a plugin marketplace, a Python library, or anything else.
+`vibey-gh` is a hard dependency here, so every import that worked before still works:
 
-Consuming repositories do not vendor copies. They depend on this package as DEV tooling
-and call it, so there is one implementation to fix rather than one per repo. That also
-keeps a consumer's runtime dependency list empty, which matters when its release pipeline
-verifies an artifact against a single index.
+    from vibey_bootstrap.gh import merge_train          # the module
+    from vibey_bootstrap.gh.config import GhConfig      # and its submodules
+
+Both now resolve to the same objects `vibey_gh` exposes — not copies of them, so patching
+one is patching the other. New code should import `vibey_gh` directly.
 """
 
-from vibey_bootstrap.gh.config import GhConfig, load_config
+from __future__ import annotations
 
-__all__ = ["GhConfig", "load_config"]
+import sys
+
+import vibey_gh
+from vibey_gh import cli, config, fingerprints, install, merge_train, realign, versioning
+
+# Register the submodules under this package's name too. Without this,
+# `from vibey_bootstrap.gh.config import GhConfig` raises ModuleNotFoundError: the names
+# above are bound as attributes, but Python's import machinery looks in sys.modules.
+for _name, _module in (
+    ("cli", cli),
+    ("config", config),
+    ("fingerprints", fingerprints),
+    ("install", install),
+    ("merge_train", merge_train),
+    ("realign", realign),
+    ("versioning", versioning),
+):
+    sys.modules[f"{__name__}.{_name}"] = _module
+
+__version__ = getattr(vibey_gh, "__version__", "")
+
+__all__ = [
+    "cli",
+    "config",
+    "fingerprints",
+    "install",
+    "merge_train",
+    "realign",
+    "versioning",
+]

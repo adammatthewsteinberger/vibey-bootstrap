@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "vibey-bootstrap"
-version = "4.1.0"
+version = "4.2.0"
 description = "Production-ready Azure bootstrap library for App Configuration, Key Vault, and App Insights integration"
 readme = "README.md"
 license = {text = "MIT"}
@@ -38,6 +38,10 @@ classifiers = [
 requires-python = ">=3.11"
 
 dependencies = [
+    # The GitHub automation that used to live in vibey_bootstrap.gh. Split out because
+    # it has no dependencies of its own and release tooling should not drag the Azure
+    # SDK into every repository that adopts it.
+    "vibey-gh>=1.0.0",
     "azure-appconfiguration-provider>=1.0.0",
     # Imported directly by vibey_bootstrap.health for a cheap readiness probe.
     # It also arrives transitively via the provider, but we import it, so we
@@ -175,8 +179,8 @@ all = [
 
 [project.scripts]
 vibey-bootstrap = "vibey_bootstrap.contrib.scaffold:main"
-# GitHub automation and provenance fingerprints, installable into any repository.
-vibey-gh = "vibey_bootstrap.gh.cli:main"
+# `vibey-gh` is no longer declared here: it is provided by the vibey-gh package, and two
+# distributions declaring the same console script is a coin flip on install order.
 # Deprecated alias (pre-4.0 name). Prints a one-line warning, then delegates.
 azbootstrap = "vibey_bootstrap.contrib.scaffold:main_azbootstrap"
 
