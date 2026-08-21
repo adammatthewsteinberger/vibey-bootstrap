@@ -38,9 +38,11 @@ from vibey_bootstrap.heartbeat import (
     metrics_snapshot,
     record_consumer_iteration,
     record_message_settled,
-    start_background_monitors,
 )
 from vibey_bootstrap.heartbeat import reset_state as reset_heartbeat
+from vibey_bootstrap.heartbeat import (
+    start_background_monitors,
+)
 from vibey_bootstrap.logging import configure_logging
 
 

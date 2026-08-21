@@ -51,7 +51,7 @@ dependencies = [
     "azure-core>=1.38.0",  # CVE-2026-21226: code execution via deserialization
     "filelock>=3.20.3",  # CVE-2025-68146, CVE-2026-22701: symlink TOCTOU attacks
     "urllib3>=2.7.0",  # CVE-2026-21441 + CVE-2026-44431/44432
-    "cryptography>=48.0.1,<49",  # GHSA-537c-gmf6-5ccf (via azure-identity/msal); msal caps <49
+    "cryptography>=50.0.0,<51",  # PYSEC-2026-3552/3553/3554 (via azure-identity/msal); msal caps <51
     "pyjwt>=2.13.0",  # PYSEC-2026-175..179 (via msal); msal caps <3
 ]
 
@@ -317,6 +317,8 @@ ignore = [
     "B007",   # loop control vars (`_` rename), readability fine in demos
     "F841",   # unused local (`credential = build_credential()` etc — illustrative)
     "F401",   # unused import (importorskip pattern probe)
+    "I001",   # ruff and isort disagree on aliased imports here and each undoes the
+              # other; isort owns import order, as for test_transport_contracts.py
 ]
 # Tests use the pytest.importorskip pattern + setenv before importing
 # the module under test. Same kind of ordering constraint as examples.
