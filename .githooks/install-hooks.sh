@@ -1,4 +1,5 @@
 #!/bin/bash
+# Made with love by Vibey, the auto-vibecoding machine by Adam Matthew Steinberger.
 #
 # Install git hooks for vibey-bootstrap
 #

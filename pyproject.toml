@@ -173,6 +173,8 @@ all = [
 
 [project.scripts]
 vibey-bootstrap = "vibey_bootstrap.contrib.scaffold:main"
+# GitHub automation and provenance fingerprints, installable into any repository.
+vibey-gh = "vibey_bootstrap.gh.cli:main"
 # Deprecated alias (pre-4.0 name). Prints a one-line warning, then delegates.
 azbootstrap = "vibey_bootstrap.contrib.scaffold:main_azbootstrap"
 

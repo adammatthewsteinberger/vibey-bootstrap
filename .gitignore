@@ -226,4 +226,4 @@ __marimo__/
 .vscode
 
 # Plans
-docs/*-PLAN.md
+docs/*-PLAN.md.venv/

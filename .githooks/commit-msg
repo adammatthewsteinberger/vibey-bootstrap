@@ -1,0 +1,25 @@
+#!/bin/sh
+# Installed by `vibey-gh install` — do not edit; edit the template in vibey-bootstrap.
+#
+# Appends the provenance trailer to any commit message that lacks it, so the rule holds
+# locally without anyone having to remember it. CI enforces the same trailer, so a commit
+# made without this hook fails the pull request rather than slipping through.
+
+msg_file="$1"
+key=$(vibey-gh trailer-key 2>/dev/null || echo "Made-With")
+trailer=$(vibey-gh trailer 2>/dev/null || echo "Made-With: Vibey, the auto-vibecoding machine by Adam Matthew Steinberger")
+
+# A pre-existing project hook runs first and may do its own thing.
+[ -x "$(dirname "$0")/commit-msg.local" ] && "$(dirname "$0")/commit-msg.local" "$@"
+
+# Already present in any case — nothing to do.
+if grep -qiE "^${key}:[[:space:]]*[^[:space:]]" "$msg_file"; then
+  exit 0
+fi
+
+# A comment-only or empty message means an aborted commit; leave it alone.
+if ! grep -qvE '^\s*(#.*)?$' "$msg_file"; then
+  exit 0
+fi
+
+printf '\n%s\n' "$trailer" >> "$msg_file"
