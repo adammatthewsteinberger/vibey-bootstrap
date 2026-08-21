@@ -49,7 +49,7 @@ class AdxHandler(_BufferedShipper):
     def _get_client(self) -> Any:
         if self._client is None:
             from azure.kusto.data import KustoConnectionStringBuilder
-            from azure.kusto.ingest import StreamingIngestClient  # type: ignore[attr-defined]
+            from azure.kusto.ingest import KustoStreamingIngestClient
 
             if self._credential is not None:
                 kcsb = KustoConnectionStringBuilder.with_azure_token_credential(
@@ -61,7 +61,7 @@ class AdxHandler(_BufferedShipper):
                 kcsb = KustoConnectionStringBuilder.with_azure_token_credential(
                     self._cluster_uri, build_credential()
                 )
-            self._client = StreamingIngestClient(kcsb)
+            self._client = KustoStreamingIngestClient(kcsb)
         return self._client
 
     def _ship(self, batch: list[str]) -> ShipResult:

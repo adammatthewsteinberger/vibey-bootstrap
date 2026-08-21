@@ -45,6 +45,7 @@ htmlcov/
 .cache
 nosetests.xml
 coverage.xml
+coverage.json
 *.cover
 *.py.cover
 .hypothesis/
@@ -226,4 +227,4 @@ __marimo__/
 .vscode
 
 # Plans
-docs/*-PLAN.md
+docs/*-PLAN.md.venv/

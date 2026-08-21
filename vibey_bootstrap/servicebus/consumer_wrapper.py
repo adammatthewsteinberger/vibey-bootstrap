@@ -107,8 +107,6 @@ def handle_message(
 
     Returns ``(processed: bool, failed: bool)``.
     """
-    processed = False
-    failed = False
     try:
         if lock_renewer is not None:
             try:
@@ -216,7 +214,6 @@ def handle_message(
             # 4. Success
             bump_counter(f"{counter_namespace}.completed")
             _settle(receiver, msg, action="complete")
-            processed = True
             return True, False
     finally:
         if lock_renewer is not None:
@@ -225,7 +222,6 @@ def handle_message(
             except Exception:
                 pass
         record_message_settled()
-    return processed, failed
 
 
 __all__ = [

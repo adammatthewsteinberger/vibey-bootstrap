@@ -33,9 +33,11 @@ from vibey_bootstrap.openai import (
     check_thresholds_and_alert,
     record_usage,
     register_pricing,
-    usage_snapshot,
 )
 from vibey_bootstrap.openai import reset_state as reset_tracker
+from vibey_bootstrap.openai import (
+    usage_snapshot,
+)
 
 
 def main() -> None:

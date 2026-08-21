@@ -28,4 +28,6 @@ if __name__ == "__main__":
     #   vibey-bootstrap list
     #   vibey-bootstrap scaffold helm/worker/Chart.yaml.template ./out --var app_name=my-worker
     if len(sys.argv) > 1 and sys.argv[1] == "--subprocess":
-        subprocess.run([sys.executable, "-m", "vibey_bootstrap.contrib.scaffold", "list"], check=False)
+        subprocess.run(
+            [sys.executable, "-m", "vibey_bootstrap.contrib.scaffold", "list"], check=False
+        )
