@@ -25,7 +25,7 @@ Quick Start:
 For detailed usage, see: https://github.com/adammatthewsteinberger/vibey-bootstrap
 """
 
-__version__ = "4.2.0"
+__version__ = "4.2.1"
 __author__ = "Adam Matthew Steinberger"
 __license__ = "MIT"
 
