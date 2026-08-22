@@ -14,7 +14,11 @@ sources = [
 # carries and vibey_bootstrap.__version__ is what an installed app reports.
 files         = ["pyproject.toml", "vibey_bootstrap/__init__.py"]
 content_paths = ["vibey_bootstrap/"]
-code_paths    = ["vibey_bootstrap/"]
+# pyproject.toml counts too. It declares the DEPENDENCIES, and changing them changes what
+# an installed user gets — bumping the vibey-gh floor from >=1.0.0 to >=1.2.0 reached
+# every consumer, and the derivation called it "docs, workflows, tooling" and proposed
+# releasing nothing. A dependency change is a patch.
+code_paths    = ["vibey_bootstrap/", "pyproject.toml"]
 
 [branches]
 integration = "develop"
