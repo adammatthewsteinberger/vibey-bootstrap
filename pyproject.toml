@@ -41,7 +41,7 @@ dependencies = [
     # The GitHub automation that used to live in vibey_bootstrap.gh. Split out because
     # it has no dependencies of its own and release tooling should not drag the Azure
     # SDK into every repository that adopts it.
-    "vibey-gh>=1.0.0",
+    "vibey-gh>=1.2.0",
     "azure-appconfiguration-provider>=1.0.0",
     # Imported directly by vibey_bootstrap.health for a cheap readiness probe.
     # It also arrives transitively via the provider, but we import it, so we
