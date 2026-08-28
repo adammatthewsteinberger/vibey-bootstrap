@@ -27,3 +27,28 @@ release     = "main"
 [merge_train]
 owner           = "adammatthewsteinberger"
 trusted_authors = ["adammatthewsteinberger", "claude[bot]", "github-actions[bot]", "vibey[bot]"]
+
+[install]
+# Pin every rendered template to the version that rendered it -- unpinned, a runner adopts
+# whatever is newest, the failure mode that took vibey-skills' CI red for two days.
+pin_version = true
+workflows = ["merge-train.yml", "promote-to-main.yml", "provenance.yml", "pr-automation.yml", "automation-bootstrap.yml"]
+
+[pr_automation]
+# This repository's real PR-triggered workflows. The default set names "Docs" -- and this
+# repo HAS a docs.yml that never triggers on pull requests, which is the exact trap that
+# silently blocked every PR on vibey-skills. Named explicitly so the gate can always post.
+scan_workflows = ["CI/CD Pipeline", "Provenance"]
+
+[pr_automation.fallback]
+# Reviews with a local model when the paid path returns no verdict at all. Same shape as
+# the rest of the family; shares the household Ollama.
+enabled = true
+runner_label = "vibey-local-bootstrap"
+trusted_only = true
+
+[issue_automation]
+fallback_enabled = true
+
+[documentation]
+enabled = false
