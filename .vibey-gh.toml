@@ -52,3 +52,7 @@ fallback_enabled = true
 
 [documentation]
 enabled = false
+# GA4 measurement id. This repository publishes docs via its own mkdocs docs.yml today,
+# so the id is ALSO wired there; recorded here so an eventual release-surfaces adoption
+# picks it up with no further change.
+google_analytics_id = "G-R2BE84LHZS"

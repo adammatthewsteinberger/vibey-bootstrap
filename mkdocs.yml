@@ -169,3 +169,11 @@ nav:
       - Contributing: CONTRIBUTING.md
       - Developer Context: CLAUDE.md
       - Notice: NOTICE.md
+
+# Material's first-class GA4 integration -- renders the canonical gtag snippet on every
+# page. The id also lives in .vibey-gh.toml [documentation] for a future release-surfaces
+# adoption; the two must stay the same value.
+extra:
+  analytics:
+    provider: google
+    property: G-R2BE84LHZS
