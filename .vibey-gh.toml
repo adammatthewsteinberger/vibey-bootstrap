@@ -51,10 +51,9 @@ trusted_only = true
 fallback_enabled = true
 
 [documentation]
-# The living-roadmap doctrine (vibey-gh#211) defaults require_roadmap to true.
-# The roadmap for this repository rides the parked research-paper pull request; flip this to true when it merges.
-# The exact-head review still judges roadmap liveness on every head.
-require_roadmap = false
+generate_book = true
+generate_paper = true
+
 enabled = false
 # GA4 measurement id. This repository publishes docs via its own mkdocs docs.yml today,
 # so the id is ALSO wired there; recorded here so an eventual release-surfaces adoption
