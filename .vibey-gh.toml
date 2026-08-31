@@ -34,6 +34,16 @@ trusted_authors = ["adammatthewsteinberger", "claude[bot]", "github-actions[bot]
 pin_version = true
 workflows = ["merge-train.yml", "promote-to-main.yml", "provenance.yml", "pr-automation.yml", "automation-bootstrap.yml", "release-surfaces.yml"]
 
+[workflow_names]
+# `release-surfaces.yml` chains off the publishing workflow by `workflow_run`, which
+# matches a workflow's DISPLAY NAME. vibey-gh's default is "Release"; this repository's
+# publishing workflow is `ci-cd.yml`, named "CI/CD Pipeline". Nothing here is named
+# "Release", so the trigger matched nothing and the channel site never deployed — with
+# no failed run to notice, because a trigger that never fires reports nothing at all.
+# The Pages root has been serving a fossil while /develop/ and /main/ both 404.
+release = "CI/CD Pipeline"
+ci = "CI/CD Pipeline"
+
 [pr_automation]
 # This repository's real PR-triggered workflows. The default set names "Docs" -- and this
 # repo HAS a docs.yml that never triggers on pull requests, which is the exact trap that
